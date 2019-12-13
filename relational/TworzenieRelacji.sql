@@ -1,6 +1,6 @@
 CREATE TABLE Oddzial (
-    adres   VARCHAR(20) NOT NULL,
-    nazwa   VARCHAR(20) NOT NULL,
+    adres   VARCHAR(30) NOT NULL,
+    nazwa   VARCHAR(30) NOT NULL,
     CONSTRAINT oddzial_pk PRIMARY KEY ( adres )
 );
 
@@ -9,6 +9,7 @@ CREATE TABLE Budynek (
     nazwa           VARCHAR(30) NOT NULL,
     ilosc_pieter    INTEGER NOT NULL,
     oddzial_adres   VARCHAR(30) NOT NULL,
+    CONSTRAINT CHK_ilosc_pieter CHECK ( ilosc_pieter > 0 ),
     CONSTRAINT budynek_pk PRIMARY KEY ( adres )
 );
 
@@ -17,6 +18,7 @@ CREATE TABLE Biuro (
     liczba_stanowisk   INTEGER NOT NULL,
     pietro             INTEGER NOT NULL,
     budynek_adres      VARCHAR(30) NOT NULL,
+    CONSTRAINT CHK_liczba_stanowisk CHECK ( liczba_stanowisk > 0 ),
     CONSTRAINT biuro_pk PRIMARY KEY ( numer )
 );
 
@@ -65,7 +67,8 @@ CREATE TABLE Magazyn (
     numer           INTEGER NOT NULL AUTO_INCREMENT,
     pojemnosc       INTEGER NOT NULL,
     oddzial_adres   VARCHAR(30) NOT NULL,
-    CONSTRAINT magazyn_pk PRIMARY KEY ( numer )
+    CONSTRAINT magazyn_pk PRIMARY KEY ( numer ),
+    CONSTRAINT CHK_pojemnosc CHECK ( pojemnosc > 0 )
 );
 
 CREATE TABLE Przypisanie (
@@ -115,7 +118,8 @@ CREATE TABLE Oprogramowanie (
     ilosc_licencji      INTEGER NULL,
     uwagi               VARCHAR(150) NULL,
     CONSTRAINT oprogramowanie_pk PRIMARY KEY ( numer_ewidencyjny ),
-    CONSTRAINT CHK_data CHECK ( data_wygasniecia IS NULL OR data_wygasniecia > data_zakupu )
+    CONSTRAINT CHK_data CHECK ( data_wygasniecia IS NULL OR data_wygasniecia > data_zakupu ),
+    CONSTRAINT CHK_ilosc_licencji CHECK ( ilosc_licencji IS NULL OR ilosc_licencji > 0 )
 );
 
 CREATE INDEX oprogramowanie__idx ON
@@ -169,6 +173,10 @@ ALTER TABLE Pracownik
 ALTER TABLE PrawoDostepu
     ADD CONSTRAINT prawodostepu_kartadostepu_fk FOREIGN KEY ( kartadostepu_id_karty )
         REFERENCES KartaDostepu ( id_karty );
+
+ALTER TABLE PrawoDostepu
+    ADD CONSTRAINT prawodostepu_biuro_fk FOREIGN KEY ( biuro_numer )
+        REFERENCES Biuro ( numer );
 
 ALTER TABLE Przypisanie
     ADD CONSTRAINT przypisanie_biuro_fk FOREIGN KEY ( biuro_numer )

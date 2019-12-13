@@ -11,7 +11,7 @@ CREATE FUNCTION PrzypiszSprzet(pNumerEwidencyjny INTEGER, pPrzypisanieId INTEGER
   BEGIN
     DECLARE vKodBledu INTEGER;
     DECLARE vIdObecnegoMagazynu INTEGER; -- Id magazynu, na którym sprzęt się obecnie znajduje
-    DECLARE EXIT HANDLER FOR SQLEXCEPTION
+    DECLARE CONTINUE HANDLER FOR SQLEXCEPTION
       SET vKodBledu = 2; -- Wyjątek podczas wstawiania rekordu
     SET vKodBledu = 0;
     SELECT magazyn_numer INTO vIdObecnegoMagazynu FROM Sprzet WHERE numer_ewidencyjny = pNumerEwidencyjny;
@@ -26,11 +26,11 @@ CREATE FUNCTION PrzypiszSprzet(pNumerEwidencyjny INTEGER, pPrzypisanieId INTEGER
   END $$
 DELIMITER ;
 
--- Zwraca sprzęt na magazyn
+-- Wstawia do bazy danych fakt zwrotu sprzętu na magazyn
 DELIMITER $$
 CREATE PROCEDURE ZwrocSprzet(pNumerEwidencyjny INTEGER, pPrzypisanieId INTEGER, pMagazynId INTEGER, pDataZwrotu DATE)
   BEGIN
-    UPDATE Przypisanie SET termin_zwrotu = pDataZwrotu WHERE id_przydzialu = pPrzypisanieId;
+    UPDATE Przypisanie SET data_zwrotu = pDataZwrotu WHERE id_przydzialu = pPrzypisanieId;
     UPDATE Sprzet SET magazyn_numer = pMagazynId WHERE numer_ewidencyjny = pNumerEwidencyjny;
   END $$
 DELIMITER ;
@@ -56,7 +56,7 @@ CREATE FUNCTION IleWolnychLicencji(pIdOprogramowania INTEGER)
   END $$
 DELIMITER ;
 
--- Oznacza w bazie danych fakt instalacji wskazanego oprogramowania na wskazanym sprzęcie.
+-- Wstawia do bazy danych fakt instalacji wskazanego oprogramowania na wskazanym sprzęcie.
 -- Zwraca kod błędu.
 -- 0 - Brak błędu.
 -- 1 - Brak wystarczającej liczby kopii oprogramowania.
@@ -68,7 +68,7 @@ CREATE FUNCTION ZainstalujOprogramowanie(pIdSprzetu INTEGER, pIdOprogramowania I
   BEGIN
     DECLARE vIleWolnychLicencji INTEGER;
     DECLARE vKodBledu INTEGER;
-    DECLARE EXIT HANDLER FOR SQLEXCEPTION
+    DECLARE CONTINUE HANDLER FOR SQLEXCEPTION
       SET vKodBledu = 2; -- Prawdopodobnie oprogramowanie jest już zainstalowane
     SET vKodBledu = 0;
     SELECT IleWolnychLicencji(pIdOprogramowania) INTO vIleWolnychLicencji FROM DUAL;
@@ -79,6 +79,63 @@ CREATE FUNCTION ZainstalujOprogramowanie(pIdSprzetu INTEGER, pIdOprogramowania I
       SET vKodBledu = 1; -- Brak wystarczającej liczby kopii
     END IF;
     RETURN vKodBledu;
-  end $$
+  END $$
 DELIMITER ;
 
+
+-- Zwraca ilość wolnych miejsc w biurze
+DELIMITER $$
+CREATE FUNCTION IleWolnychMiejsc(pNumerBiura INTEGER)
+  RETURNS INTEGER
+  DETERMINISTIC
+  BEGIN
+    DECLARE vIleLacznieMiejsc INTEGER;
+    DECLARE vIleZajetychMiejsc INTEGER;
+    DECLARE vIleWolnychMiejsc INTEGER;
+    SELECT liczba_stanowisk INTO vIleLacznieMiejsc FROM Biuro WHERE numer = pNumerBiura;
+    SELECT COUNT(*) INTO vIleZajetychMiejsc FROM Pracownik WHERE biuro_numer = pNumerBiura;
+    SET vIleWolnychMiejsc = vIleLacznieMiejsc - vIleZajetychMiejsc;
+    RETURN vIleWolnychMiejsc;
+  END $$
+DELIMITER ;
+
+-- Wstawia nowy rekord do tablicy Biuro sprawdzając czy wkazane w parametrze piętro istnieje w budynku.
+-- Zwraca kod błędu.
+-- 0 - Brak błędu.
+-- 1 - Nieprawidłowe piętro.
+-- 2 - Wyjątek przy wstawianiu rekordu.
+DELIMITER $$
+CREATE OR REPLACE FUNCTION DodajBiuro(pNumer INTEGER, pLiczbaStanowisk INTEGER, pPietro INTEGER, pBudynekAdres VARCHAR(30))
+  RETURNS INTEGER
+  DETERMINISTIC
+  BEGIN
+    DECLARE vKodBledu INTEGER;
+    DECLARE vLiczbaPieterWBudynku INTEGER;
+    DECLARE CONTINUE HANDLER FOR SQLEXCEPTION
+      SET vKodBledu = 2; -- Wyjątek przy wstawianiu rekordu
+    SET vKodBledu = 0;
+    SELECT ilosc_pieter INTO vLiczbaPieterWBudynku FROM Budynek WHERE adres = pBudynekAdres;
+    IF pPietro >= 0 AND pPietro < vLiczbaPieterWBudynku THEN
+      INSERT INTO Biuro (numer, liczba_stanowisk, pietro, budynek_adres)
+      VALUES (pNumer, pLiczbaStanowisk, pPietro, pBudynekAdres);
+    ELSE
+      SET vKodBledu = 1; -- Nieprawidłowe piętro
+    END IF;
+    RETURN vKodBledu;
+  END $$
+DELIMITER ;
+
+-- Zwraca wolną pojemność danego magazynu.
+DELIMITER $$
+CREATE FUNCTION WolnaPojemnoscMagazynu(pNumerMagazynu INTEGER)
+  RETURNS INTEGER
+  DETERMINISTIC
+  BEGIN
+    DECLARE vLacznaPojemnosc INTEGER;
+    DECLARE vZajetaPojemnosc INTEGER;
+    DECLARE vWolnaPojemnosc INTEGER;
+    SELECT pojemnosc INTO vLacznaPojemnosc FROM Magazyn WHERE numer = pNumerMagazynu;
+    SELECT COUNT(*) INTO vZajetaPojemnosc FROM Sprzet WHERE magazyn_numer = pNumerMagazynu;
+    SET vWolnaPojemnosc = vLacznaPojemnosc - vZajetaPojemnosc;
+    RETURN vWolnaPojemnosc;
+  END $$
