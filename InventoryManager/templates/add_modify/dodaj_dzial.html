@@ -1,15 +1,15 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Dodaj magazyn</title>
+    <title>Dodaj dział</title>
 </head>
 <body>
-<h1>Dodaj magazyn</h1>
+<h1>Dodaj dział</h1>
 <div>
     <form action="/">
-        <label>Numer magazynu</label><input type="number"/><br/>
-        <label>Pojemność magazynu</label><input type="number"/><br/>
-        <label>Oddział, w którym znajduje się magazyn</label>
+        <label>Nazwa</label><input type="text"/><br/>
+        <label>Skrót nazwy</label><input type="text"/><br/>
+        <label>Oddział, do którego należy dział</label>
         <select>
             {% for adres in oddzialy %}
                 <option value="{{ adres }}">{{ adres }}</option>
