@@ -8,6 +8,19 @@
 {% for link in strony %}
     <a href="{{ link }}">{{ link }}</a><br/>
 {% endfor %}
-
+<div class="navigation-container">
+    <a href="{{ url_for('pracownicy') }}">
+        <button>Pracownicy</button>
+    </a>
+    <a href="{{ url_for('oddzialy') }}">
+    <button>Oddziały</button>
+    </a>
+    <a href="{{ url_for('budynki') }}">
+    <button>Budynki</button>
+    </a>
+    <a href="{{ url_for('biura') }}">
+    <button>Biura</button>
+    </a>
+</div>
 </body>
 </html>
