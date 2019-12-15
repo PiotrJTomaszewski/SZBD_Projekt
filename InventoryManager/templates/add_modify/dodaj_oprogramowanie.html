@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html xmlns:display="http://www.w3.org/1999/xhtml">
+<head>
+    <title>Dodaj oprogramowanie</title>
+</head>
+<body>
+<h1>Dodaj oprogramowanie</h1>
+<div>
+    <form action="/">
+        <label>Numer ewidencyjny</label><input type="number" value="{{ domyslne['numer_ewidencyjny'] }}"/><br/>
+        <label>Nazwa</label><input type="text"/><br/>
+        <label>Producent</label><input type="text"/><br/>
+        <label>Data zakupu</label><input type="date" value="{{ domyslne['data_zakupu'] }}"/><br/>
+        <label>Licencja wygasa?</label><input type="checkbox" value="false" id="wygasa"><br/>
+        <label for="data_wygasniecia" id="data_wygasniecia_label" style="display:none">Data wygaśnięcia</label><input
+            type="date" id="data_wygasniecia" style="display:none"><br/>
+        <label>Liczba licencji ograniczona?</label><input type="checkbox" value="false" id="licencje_ogr"><br/>
+        <label for="liczba_licencji" id="liczba_licencji_label" style="display:none">Liczba licencji</label><input
+            type="number" id="liczba_licencji" style="display:none"><br/>
+
+        <label>Dodaj uwagi do oprogramowania</label><input type="checkbox" id="mam_uwagi"
+                                                           name="Dodaj uwagi do oprogramowania" value="false"/>
+        <label id="uwagi_label" style="display:none">Uwagi do oprogramowania</label><input type="text" id="uwagi" style="display:none"/><br/>
+        <input type="submit" value="Potwierdź"/>
+        <input type="submit" value="Anuluj"/>
+    </form>
+    <script>
+        function hideShowField(checkbox_id, element_id) {
+            if (document.getElementById(checkbox_id).checked === true)
+                document.getElementById(element_id).style.display = 'block';
+            else
+                document.getElementById(element_id).style.display = 'none';
+        }
+
+        document.getElementById("wygasa").onclick = function () {
+            hideShowField("wygasa", "data_wygasniecia");
+            hideShowField("wygasa", "data_wygasniecia_label");
+        };
+        document.getElementById("licencje_ogr").onclick = function () {
+            hideShowField("licencje_ogr", "liczba_licencji");
+            hideShowField("licencje_ogr", "liczba_licencji_label");
+        };
+        document.getElementById("mam_uwagi").onclick = function () {
+            hideShowField("mam_uwagi", "uwagi");
+            hideShowField("mam_uwagi", "uwagi_label");
+        };
+    </script>
+
+</div>
+</body>
+</html>

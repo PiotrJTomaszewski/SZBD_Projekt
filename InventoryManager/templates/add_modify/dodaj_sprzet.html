@@ -19,21 +19,28 @@
                     oddziale {{ magazyn['oddzial'] }}</option>
             {% endfor %}
         </select><br/>
-        <label>Dodaj uwagi do sprzętu</label><input type="checkbox" id="mam_uwagi" name="Dodaj uwagi do sprzętu" value="false"/>
-        <input type="text" id="uwagi" style="display:none"/><br/>
+        <label>Dodaj uwagi do sprzętu</label><input type="checkbox" id="mam_uwagi" name="Dodaj uwagi do sprzętu"
+                                                    value="false"/>
+        <label id="uwagi_label" style="display:none">Uwagi do oprogramowania</label><input type="text" id="uwagi"
+                                                                                           style="display:none"/><br/>
         <input type="submit" value="Potwierdź"/>
         <input type="submit" value="Anuluj"/>
     </form>
     <script>
-        function activateField() {
-            if (document.getElementById("mam_uwagi").checked === true)
+        function hideShowField() {
+            if (document.getElementById("mam_uwagi").checked === true) {
                 document.getElementById("uwagi").style.display = 'block';
-            else
+                document.getElementById("uwagi_label").style.display = 'none';
+            }
+
+            else {
                 document.getElementById("uwagi").style.display = 'none';
+                document.getElementById("uwagi_label").style.display = 'none';
+            }
         }
 
         document.getElementById("mam_uwagi").onclick = function () {
-            activateField();
+            hideShowField();
         }
     </script>
 
