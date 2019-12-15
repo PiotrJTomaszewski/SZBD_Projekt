@@ -21,8 +21,10 @@ def read_from_database(what):
 
 @app.route('/pracownicy')
 def pracownicy():
-    col_names, rows = read_from_database('pracownik')
-    return render_template('show/show.html', col_names=col_names, rows=workers)
+    # col_names, rows = read_from_database('pracownik')
+    site_data = {'title': 'Pracownicy', 'goto_site': '/'}
+    col_names = ['Pesel', 'Imię', 'Nazwisko', 'Numer telefonu', 'Czy nadal pracuje', 'Adres email', 'Dział', 'Biuro']
+    return render_template('show/show.html', col_names=col_names, rows=workers, site_data=site_data)
 
 
 @app.route('/biura')
@@ -33,19 +35,26 @@ def biura():
 
 @app.route('/oddzialy')
 def oddzialy():
-    col_names, rows = read_from_database('oddzial')
-    return render_template('show/show.html', col_names=col_names, rows=rows)
+    site_data = {'title': 'Oddziały', 'goto_site': '/budynki'}
+    col_names = ['Adres', 'Nazwa']
+    rows = [['test', 'test'], ['test2', 'test2']]
+    # col_names, rows = read_from_database('oddzial')
+    return render_template('show/show.html', col_names=col_names, rows=rows, site_data=site_data)
 
 
 @app.route('/budynki')
 def budynki():
-    col_names, rows = read_from_database('budynek')
-    return render_template('show/show.html', col_names=col_names, rows=rows)
+    # col_names, rows = read_from_database('budynek')
+    site_data = {'title': 'Budynki', 'goto_site': '/'}
+    col_names = ["Adres", "Nazwa", "Ilość pięter"]
+    rows = [['budynekTest', 'test', 1], ['budynekTest2', 'test2', 3]]
+    return render_template('show/show.html', col_names=col_names, rows=rows, site_data=site_data)
 
 
 @app.route('/')
 def hello_world():
-    strony = ['dodaj_oddzial', 'dodaj_magazyn', 'dodaj_sprzet', 'dodaj_oprogramowanie', 'dodaj_pracownika', 'dodaj_budynek', 'dodaj_dzial']
+    strony = ['dodaj_oddzial', 'dodaj_magazyn', 'dodaj_sprzet', 'dodaj_oprogramowanie', 'dodaj_pracownika',
+              'dodaj_budynek', 'dodaj_dzial']
     return render_template('tmp/tymczasowy_index.html', strony=strony)
 
 
@@ -65,7 +74,8 @@ def dodaj_sprzet():
     domyslne = {'numer_ewidencyjny': 15, 'data_zakupu': '2019-12-16'}
     magazyny = [{'numer': 1, 'oddzial': 'Testowa 1'}, {'numer': 2, 'oddzial': 'Testowa 1'},
                 {'numer': 3, 'oddzial': 'Kwiatowa 33'}, {'numer': 4, 'oddzial': 'Krótka 5'}]
-    return render_template('add_modify/dodaj_sprzet.html', magazyny=magazyny, domyslne=domyslne)
+    typy = {'laptop', 'telefon'}
+    return render_template('add_modify/dodaj_sprzet.html', magazyny=magazyny, domyslne=domyslne, typy=typy)
 
 
 @app.route('/dodaj_oprogramowanie')

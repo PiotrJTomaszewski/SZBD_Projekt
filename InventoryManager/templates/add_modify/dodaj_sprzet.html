@@ -10,7 +10,17 @@
         <label>Numer ewidencyjny</label><input type="number" value="{{ domyslne['numer_ewidencyjny'] }}"/><br/>
         <label>Nazwa</label><input type="text"/><br/>
         <label>Producent</label><input type="text"/><br/>
-        <label>Typ</label><input type="text"/><br/>
+        <label>Dodaj nowy typ?</label><input type="checkbox" id="nowy_typ_box" value="false"/><br/>
+
+        <label>Typ</label>
+        <select id="istniejacy_typ">
+            {% for typ in typy %}
+                <option value="{{ typ }}">{{ typ }}</option>
+            {% endfor %}
+        </select><br/>
+
+        <input type="text" id="nowy_typ" style="display: none;/"><br/>
+
         <label>Data zakupu</label><input type="date" value="{{ domyslne['data_zakupu'] }}"/><br/>
         <label>Magazyn, w którym znajduje się sprzęt</label>
         <select>
@@ -30,7 +40,7 @@
         function hideShowField() {
             if (document.getElementById("mam_uwagi").checked === true) {
                 document.getElementById("uwagi").style.display = 'block';
-                document.getElementById("uwagi_label").style.display = 'none';
+                document.getElementById("uwagi_label").style.display = 'block';
             }
 
             else {
@@ -39,8 +49,24 @@
             }
         }
 
+        function hideShowFieldTyp() {
+            if (document.getElementById("nowy_typ_box").checked === true) {
+                document.getElementById("nowy_typ").style.display = 'block';
+                document.getElementById("istniejacy_typ").style.display = 'none';
+
+            }
+
+            else {
+                document.getElementById("nowy_typ").style.display = 'none';
+                document.getElementById("istniejacy_typ").style.display = 'block';
+            }
+        }
+
         document.getElementById("mam_uwagi").onclick = function () {
             hideShowField();
+        };
+        document.getElementById("nowy_typ_box").onclick = function () {
+            hideShowFieldTyp();
         }
     </script>
 

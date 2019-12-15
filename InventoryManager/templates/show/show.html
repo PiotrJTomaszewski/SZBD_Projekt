@@ -1,30 +1,75 @@
 <!DOCTYPE html>
 <html lang="pl-PL">
 <head>
-    <title>Pracownicy</title>
+    <title>{{ site_data['title'] }}</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
     <meta CHARSET="UTF-8">
 </head>
 <body>
+<h1>{{ site_data['title'] }}</h1>
+
 <div class="table-container">
+    <label for="edit_mode_box">Włącz tryb edycji</label><input type="checkbox" id="edit_mode_box" value="false"/>
     {% if col_names != null %}
-    <table>
-        <thead>
-        <tr>
-            {% for col_name in col_names %}
-            <td>{{ col_name }}</td>
+        <table>
+            <thead>
+            <tr>
+                {% for col_name in col_names %}
+                    <td>{{ col_name }}</td>
+                {% endfor %}
+            </tr>
+            </thead>
+            {% for row in rows %}
+                <tr>
+                    {% for element in row %}
+                        <td>{{ element }}</td>
+                    {% endfor %}
+                    <td>
+                        <form action="{{ site_data['goto_site'] }}"><input type="submit" value="Przejdź"></form>
+                    </td>
+                    <td class="modify_td" style="display: none;">
+                        <form>
+                            <input type="submit" value="Edytuj">
+                        </form>
+                    </td>
+                    <td class="delete_td" style="display: none;">
+                        <form>
+                            <input type="submit" value="Usuń">
+                        </form>
+                    </td>
+                </tr>
             {% endfor %}
-        </tr>
-        </thead>
-        {% for row in rows %}
-        <tr>
-            {% for element in row %}
-            <td>{{ element }}</td>
-            {% endfor %}
-        </tr>
-        {% endfor %}
-    </table>
+        </table>
     {% endif %}
 </div>
+<script>
+    function hideShowEditMode() {
+        if (document.getElementById("edit_mode_box").checked === true) {
+            let cusid_ele = document.getElementsByClassName('modify_td');
+            for (let i = 0; i < cusid_ele.length; ++i) {
+                cusid_ele[i].style.display = 'block'
+            }
+            let cusid_ele2 = document.getElementsByClassName('delete_td');
+            for (let i = 0; i < cusid_ele2.length; ++i) {
+                cusid_ele2[i].style.display = 'block'
+            }
+        }
+
+        else {
+            let cusid_ele = document.getElementsByClassName('modify_td');
+            for (let i = 0; i < cusid_ele.length; ++i) {
+                cusid_ele[i].style.display = 'none'
+            }
+            let cusid_ele2 = document.getElementsByClassName('delete_td');
+            for (let i = 0; i < cusid_ele2.length; ++i) {
+                cusid_ele2[i].style.display = 'none'
+            }
+        }
+    }
+
+    document.getElementById("edit_mode_box").onclick = function () {
+        hideShowEditMode();
+    }
+</script>
 </body>
 </html>
