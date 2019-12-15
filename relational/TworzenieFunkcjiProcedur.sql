@@ -9,11 +9,10 @@ DELIMITER $$
 CREATE FUNCTION PrzypiszSprzet(pNumerEwidencyjny INTEGER, pPrzypisanieId INTEGER)
   RETURNS INTEGER
   BEGIN
-    DECLARE vKodBledu INTEGER;
+    DECLARE vKodBledu INTEGER DEFAULT 0;
     DECLARE vIdObecnegoMagazynu INTEGER; -- Id magazynu, na którym sprzęt się obecnie znajduje
     DECLARE CONTINUE HANDLER FOR SQLEXCEPTION
       SET vKodBledu = 2; -- Wyjątek podczas wstawiania rekordu
-    SET vKodBledu = 0;
     SELECT magazyn_numer INTO vIdObecnegoMagazynu FROM Sprzet WHERE numer_ewidencyjny = pNumerEwidencyjny;
     IF vIdObecnegoMagazynu IS NULL THEN
       INSERT INTO SprzetWPrzypisaniu (sprzet_numer_ewidencyjny, przypisanie_id_przydzialu)
@@ -27,11 +26,24 @@ CREATE FUNCTION PrzypiszSprzet(pNumerEwidencyjny INTEGER, pPrzypisanieId INTEGER
 DELIMITER ;
 
 -- Wstawia do bazy danych fakt zwrotu sprzętu na magazyn
+-- Zwraca kod błędu.
+-- 0 - brak błędu.
+-- 1 - Brak miejsca na magazynie.
 DELIMITER $$
-CREATE PROCEDURE ZwrocSprzet(pNumerEwidencyjny INTEGER, pPrzypisanieId INTEGER, pMagazynId INTEGER, pDataZwrotu DATE)
+CREATE FUNCTION ZwrocSprzet(pNumerEwidencyjny INTEGER, pPrzypisanieId INTEGER, pMagazynId INTEGER, pDataZwrotu DATE)
+  RETURNS INTEGER
+  DETERMINISTIC
   BEGIN
-    UPDATE Przypisanie SET data_zwrotu = pDataZwrotu WHERE id_przydzialu = pPrzypisanieId;
-    UPDATE Sprzet SET magazyn_numer = pMagazynId WHERE numer_ewidencyjny = pNumerEwidencyjny;
+    DECLARE vIloscMiejscaMagazyn INTEGER;
+    DECLARE vKodBledu INTEGER DEFAULT 0;
+    SELECT WolnaPojemnoscMagazynu(pMagazynId) INTO vIloscMiejscaMagazyn FROM DUAL;
+    IF vIloscMiejscaMagazyn > 0 THEN
+      UPDATE Przypisanie SET data_zwrotu = pDataZwrotu WHERE id_przydzialu = pPrzypisanieId;
+      UPDATE Sprzet SET magazyn_numer = pMagazynId WHERE numer_ewidencyjny = pNumerEwidencyjny;
+    ELSE
+      SET vKodBledu = 1;
+    END IF;
+    RETURN vKodBledu;
   END $$
 DELIMITER ;
 
@@ -67,10 +79,9 @@ CREATE FUNCTION ZainstalujOprogramowanie(pIdSprzetu INTEGER, pIdOprogramowania I
   DETERMINISTIC
   BEGIN
     DECLARE vIleWolnychLicencji INTEGER;
-    DECLARE vKodBledu INTEGER;
+    DECLARE vKodBledu INTEGER DEFAULT 0;
     DECLARE CONTINUE HANDLER FOR SQLEXCEPTION
       SET vKodBledu = 2; -- Prawdopodobnie oprogramowanie jest już zainstalowane
-    SET vKodBledu = 0;
     SELECT IleWolnychLicencji(pIdOprogramowania) INTO vIleWolnychLicencji FROM DUAL;
     IF vIleWolnychLicencji >= 1 OR vIleWolnychLicencji IS NULL THEN
       INSERT INTO OprogramowanieNaSprzecie (sprzet_numer, oprogramowanie_numer)
@@ -82,10 +93,28 @@ CREATE FUNCTION ZainstalujOprogramowanie(pIdSprzetu INTEGER, pIdOprogramowania I
   END $$
 DELIMITER ;
 
+-- Dla każdego oprogramowania z wygasłą licencją oznacza wszystkie jego kopie jako usunięte ze sprzętu.
+DELIMITER $$
+CREATE OR REPLACE PROCEDURE OdinstalujWygasleOprogramowanie()
+  BEGIN
+    DECLARE vNumerOprogramowania INTEGER;
+    DECLARE vPrzeszukano INTEGER DEFAULT 0;
+    DECLARE cWygasleOpr CURSOR FOR SELECT numer_ewidencyjny FROM Oprogramowanie WHERE data_wygasniecia < CURRENT_DATE;
+    DECLARE CONTINUE HANDLER FOR NOT FOUND SET vPrzeszukano = 1;
+    OPEN cWygasleOpr;
+    wygasle: LOOP
+      FETCH cWygasleOpr INTO vNumerOprogramowania;
+      IF vPrzeszukano = 1 THEN
+        LEAVE wygasle;
+      END IF;
+      DELETE FROM OprogramowanieNaSprzecie WHERE oprogramowanie_numer = vNumerOprogramowania;
+    END LOOP;
+  END $$
+DELIMITER ;
 
 -- Zwraca ilość wolnych miejsc w biurze
 DELIMITER $$
-CREATE FUNCTION IleWolnychMiejsc(pNumerBiura INTEGER)
+CREATE FUNCTION IleWolnychMiejscBiuro(pNumerBiura INTEGER)
   RETURNS INTEGER
   DETERMINISTIC
   BEGIN
@@ -109,11 +138,10 @@ CREATE OR REPLACE FUNCTION DodajBiuro(pNumer INTEGER, pLiczbaStanowisk INTEGER, 
   RETURNS INTEGER
   DETERMINISTIC
   BEGIN
-    DECLARE vKodBledu INTEGER;
+    DECLARE vKodBledu INTEGER DEFAULT 0;
     DECLARE vLiczbaPieterWBudynku INTEGER;
     DECLARE CONTINUE HANDLER FOR SQLEXCEPTION
       SET vKodBledu = 2; -- Wyjątek przy wstawianiu rekordu
-    SET vKodBledu = 0;
     SELECT ilosc_pieter INTO vLiczbaPieterWBudynku FROM Budynek WHERE adres = pBudynekAdres;
     IF pPietro >= 0 AND pPietro < vLiczbaPieterWBudynku THEN
       INSERT INTO Biuro (numer, liczba_stanowisk, pietro, budynek_adres)
