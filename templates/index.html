@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="pl-PL">
+<head>
+    <title>Pracownicy</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
+    <meta CHARSET="UTF-8">
+</head>
+<body>
+<div class="navigation-container">
+    <a href="{{ url_for('pracownicy') }}">
+        <button>Pracownicy</button>
+    </a>
+    <a href="{{ url_for('oddzialy') }}">
+    <button>Oddziały</button>
+    </a>
+    <a href="{{ url_for('budynki') }}">
+    <button>Budynki</button>
+    </a>
+    <a href="{{ url_for('biura') }}">
+    <button>Biura</button>
+    </a>
+</div>
+<div class="table-container">
+    {% if col_names != null %}
+    <table>
+        <thead>
+        <tr>
+            {% for col_name in col_names %}
+            <td>{{ col_name }}</td>
+            {% endfor %}
+        </tr>
+        </thead>
+        {% for row in rows %}
+        <tr>
+            {% for element in row %}
+            <td>{{ element }}</td>
+            {% endfor %}
+        </tr>
+        {% endfor %}
+    </table>
+    {% endif %}
+</div>
+</body>
+</html>
