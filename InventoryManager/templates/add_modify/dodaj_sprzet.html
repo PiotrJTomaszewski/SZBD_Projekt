@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html xmlns:display="http://www.w3.org/1999/xhtml">
+<head>
+    <title>Dodaj nowy sprzęt</title>
+</head>
+<body>
+<h1>Dodaj nowy sprzęt</h1>
+<div>
+    <form action="/">
+        <label>Numer ewidencyjny</label><input type="number" value="{{ domyslne['numer_ewidencyjny'] }}"/><br/>
+        <label>Nazwa</label><input type="text"/><br/>
+        <label>Producent</label><input type="text"/><br/>
+        <label>Typ</label><input type="text"/><br/>
+        <label>Data zakupu</label><input type="date" value="{{ domyslne['data_zakupu'] }}"/><br/>
+        <label>Magazyn, w którym znajduje się sprzęt</label>
+        <select>
+            {% for magazyn in magazyny %}
+                <option value="{{ magazyn['numer'] }}">Magazyn nr.{{ magazyn['numer'] }} w
+                    oddziale {{ magazyn['oddzial'] }}</option>
+            {% endfor %}
+        </select><br/>
+        <label>Dodaj uwagi do sprzętu</label><input type="checkbox" id="mam_uwagi" name="Dodaj uwagi do sprzętu" value="false"/>
+        <input type="text" id="uwagi" style="display:none"/><br/>
+        <input type="submit" value="Potwierdź"/>
+        <input type="submit" value="Anuluj"/>
+    </form>
+    <script>
+        function activateField() {
+            if (document.getElementById("mam_uwagi").checked === true)
+                document.getElementById("uwagi").style.display = 'block';
+            else
+                document.getElementById("uwagi").style.display = 'none';
+        }
+
+        document.getElementById("mam_uwagi").onclick = function () {
+            activateField();
+        }
+    </script>
+
+</div>
+</body>
+</html>
