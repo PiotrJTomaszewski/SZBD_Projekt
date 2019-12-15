@@ -22,7 +22,7 @@ def read_from_database(what):
 @app.route('/pracownicy')
 def pracownicy():
     # col_names, rows = read_from_database('pracownik')
-    site_data = {'title': 'Pracownicy', 'goto_site': '/'}
+    site_data = {'title': 'Pracownicy', 'goto_site': '/pokaz_pracownik_info'}
     col_names = ['Pesel', 'Imię', 'Nazwisko', 'Numer telefonu', 'Czy nadal pracuje', 'Adres email', 'Dział', 'Biuro']
     return render_template('show/show.html', col_names=col_names, rows=workers, site_data=site_data)
 
@@ -101,6 +101,23 @@ def dodaj_budynek():
 def dodaj_dzial():
     oddzialy = ['Testowa 1', 'Kwiatowa 33', 'Krótka 5']
     return render_template('add_modify/dodaj_dzial.html', oddzialy=oddzialy)
+
+
+@app.route('/pokaz_pracownik_info')
+def pokaz_pracownik_info():
+    dane_osobowe = {'imie': 'Karol', 'nazwisko': 'Testowy', 'pesel': '91042301234', 'numer_telefonu': '991234123',
+                    'czy_nadal_pracuje': 'Tak', 'adres_email': 'asd@test.com', 'dzial': 'IT', 'biuro': '123'}
+    sprzety = [
+        {'numer': 1, 'nazwa': 'Testowa nazwa', 'producent': 'Testowy producent', 'data_przyznania': '01/12/2019'},
+        {'numer': 4, 'nazwa': 'Lorem Impsum', 'producent': 'Lorem Impsum', 'data_przyznania': '03/12/2019'}]
+    karty_dostepu = [
+        [123, '12/11/2019', [{'data_przyznania': '04/12/2019', 'data_wygasniecia': '04/12/2020', 'numer_biura': 23,
+                              'budynek': 'Kosowa 2/1'},
+                             {'data_przyznania': '04/12/2019', 'data_wygasniecia': '04/12/2020', 'numer_biura': 33,
+                              'budynek': 'Testowa 1/1'}]]
+    ]
+    return render_template('show/pokaz_pracownik_info.html', sprzety=sprzety, dane_osobowe=dane_osobowe,
+                           karty_dostepu=karty_dostepu)
 
 
 if __name__ == '__main__':

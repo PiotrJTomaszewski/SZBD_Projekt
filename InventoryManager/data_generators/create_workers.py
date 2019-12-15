@@ -69,6 +69,10 @@ def gen_workers_list(how_many, path):
             # Fix phone number
             tel = "".join(line_splitted[-1][:-1].split(" "))[1:-1]  # Remove spaces and quotation marks
             is_still_working = str(int(rng.randint(0, 100) < 90))
+            if is_still_working == '1':
+                is_still_working = 'Tak'
+            else:
+                is_still_working = 'Nie'
             dzial = ''
             if rng.randint(0, 100) > 50:
                 dzial = 'A'
