@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Dodaj nowy oddział</title>
+</head>
+<body>
+<h1>Dodaj nowy oddział</h1>
+<div>
+    <form action="/">
+        Podaj numer magazynu: <input type="number"/><br/>
+        Podaj pojemność magazynu: <input type="number"/><br/>
+        Wybierz oddział, w którym znajduje się magazyn:
+        <select>
+            {% for adres in oddzialy %}
+                <option value="{{ adres }}">{{ adres }}</option>
+            {% endfor %}
+        </select><br/>
+        <input type="submit" value="Potwierdź"/>
+        <input type="submit" value="Anuluj"/>
+    </form>
+</div>
+</body>
+</html>
