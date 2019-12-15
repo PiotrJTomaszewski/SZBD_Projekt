@@ -1,6 +1,8 @@
 <!DOCTYPE html>
 <html xmlns:display="http://www.w3.org/1999/xhtml">
 <head>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
+    <meta CHARSET="UTF-8">
     <title>Dodaj oprogramowanie</title>
 </head>
 <body>
@@ -20,7 +22,8 @@
 
         <label>Dodaj uwagi do oprogramowania</label><input type="checkbox" id="mam_uwagi"
                                                            name="Dodaj uwagi do oprogramowania" value="false"/>
-        <label id="uwagi_label" style="display:none">Uwagi do oprogramowania</label><input type="text" id="uwagi" style="display:none"/><br/>
+        <label id="uwagi_label" style="display:none">Uwagi do oprogramowania</label><input type="text" id="uwagi"
+                                                                                           style="display:none"/><br/>
         <input type="submit" value="Potwierdź"/>
         <input type="submit" value="Anuluj"/>
     </form>

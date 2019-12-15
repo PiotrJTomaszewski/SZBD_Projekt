@@ -22,7 +22,9 @@ def read_from_database(what):
 @app.route('/pracownicy')
 def pracownicy():
     # col_names, rows = read_from_database('pracownik')
-    site_data = {'title': 'Pracownicy', 'goto_site': '/pokaz_pracownik_info'}
+    site_data = {'title': 'Pracownicy', 'goto_site': '/pokaz_pracownik_info',
+                 'add_new_button_text': 'Dodaj nowego pracownika',
+                 'add_new_button_link': 'dodaj_pracownika'}
     col_names = ['Pesel', 'Imię', 'Nazwisko', 'Numer telefonu', 'Czy nadal pracuje', 'Adres email', 'Dział', 'Biuro']
     return render_template('show/show.html', col_names=col_names, rows=workers, site_data=site_data)
 
@@ -35,7 +37,10 @@ def biura():
 
 @app.route('/oddzialy')
 def oddzialy():
-    site_data = {'title': 'Oddziały', 'goto_site': '/budynki'}
+    site_data = {'title': 'Oddziały', 'goto_site': '/budynki',
+                 'add_new_button_text': 'Dodaj nowy oddział',
+                 'add_new_button_link': 'dodaj_oddzial'
+                 }
     col_names = ['Adres', 'Nazwa']
     rows = [['test', 'test'], ['test2', 'test2']]
     # col_names, rows = read_from_database('oddzial')
@@ -45,7 +50,10 @@ def oddzialy():
 @app.route('/budynki')
 def budynki():
     # col_names, rows = read_from_database('budynek')
-    site_data = {'title': 'Budynki', 'goto_site': '/'}
+    site_data = {'title': 'Budynki', 'goto_site': '/',
+                 'add_new_button_text': 'Dodaj nowy budynek',
+                 'add_new_button_link': 'dodaj_budynek'
+                 }
     col_names = ["Adres", "Nazwa", "Ilość pięter"]
     rows = [['budynekTest', 'test', 1], ['budynekTest2', 'test2', 3]]
     return render_template('show/show.html', col_names=col_names, rows=rows, site_data=site_data)
@@ -108,8 +116,10 @@ def pokaz_pracownik_info():
     dane_osobowe = {'imie': 'Karol', 'nazwisko': 'Testowy', 'pesel': '91042301234', 'numer_telefonu': '991234123',
                     'czy_nadal_pracuje': 'Tak', 'adres_email': 'asd@test.com', 'dzial': 'IT', 'biuro': '123'}
     sprzety = [
-        {'numer': 1, 'nazwa': 'Testowa nazwa', 'producent': 'Testowy producent', 'data_przyznania': '01/12/2019'},
-        {'numer': 4, 'nazwa': 'Lorem Impsum', 'producent': 'Lorem Impsum', 'data_przyznania': '03/12/2019'}]
+        {'numer': 1, 'nazwa': 'Testowa nazwa', 'producent': 'Testowy producent', 'data_przyznania': '01/12/2019',
+         'typ': 'laptop'},
+        {'numer': 4, 'nazwa': 'Lorem Impsum', 'producent': 'Lorem Impsum', 'data_przyznania': '03/12/2019',
+         'typ': 'telefonid'}]
     karty_dostepu = [
         [123, '12/11/2019', [{'data_przyznania': '04/12/2019', 'data_wygasniecia': '04/12/2020', 'numer_biura': 23,
                               'budynek': 'Kosowa 2/1'},
@@ -118,6 +128,19 @@ def pokaz_pracownik_info():
     ]
     return render_template('show/pokaz_pracownik_info.html', sprzety=sprzety, dane_osobowe=dane_osobowe,
                            karty_dostepu=karty_dostepu)
+
+
+@app.route('/przypisz_sprzet')
+def przypisz_sprzet():
+    przypisania = [{'id': 1, 'data_przydzialu': '11/12/2019'}, {'id': 4, 'data_przydzialu': '01/01/2019'}]
+    sprzety = [
+        {'numer': 1, 'typ': 'laptop', 'nazwa': 'Testowa nazwa', 'producent': 'Testowy producent',
+         'data_zakupu': '01/12/2019',
+         'numer_magazynu': 2},
+        {'numer': 4, 'typ': 'telefon', 'nazwa': 'Lorem Impsum', 'producent': 'Lorem Impsum',
+         'data_zakupu': '03/12/2019',
+         'numer_magazynu': 3}]
+    return render_template('add_modify/przypisz_sprzet.html', przypisania=przypisania, sprzety=sprzety)
 
 
 if __name__ == '__main__':

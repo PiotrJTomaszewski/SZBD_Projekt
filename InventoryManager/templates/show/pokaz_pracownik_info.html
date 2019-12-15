@@ -8,11 +8,9 @@
 <body>
 <h1>Informacje na temat pracownika</h1>
 <label for="edit_mode_box">Włącz tryb edycji</label><input type="checkbox" id="edit_mode_box" value="false"/>
-<input type="submit" value="Usuń pracownika" class="edit_mode" style="display: none">
 <div class="table-container">
     <h1>{{ dane_osobowe['imie'] }} {{ dane_osobowe['nazwisko'] }}</h1>
     <h3>Dane osobowe</h3>
-    <input type="submit" value="Edytuj dane osobowe" class="edit_mode" style="display: none">
     <table>
         <thead>
         <tr>
@@ -51,14 +49,20 @@
             <td>
                 <a href="/">{{ dane_osobowe['biuro'] }}</a>
             </td>
+            <td class="edit_mode" style="display: none">
+                <input type="submit" value="Edytuj">
+            </td>
         </tr>
     </table>
 
     <h3>Przyznany sprzęt</h3>
+    <form class="edit_mode" style="display: none;" action="/przypisz_sprzet"><input type="submit"
+                                                                                   value="Przypisz nowy sprzęt"></form>
     <table>
         <thead>
         <tr>
             <td>Numer ewidencyjny</td>
+            <td>Typ</td>
             <td>Nazwa</td>
             <td>Producent</td>
             <td>Data przyznania</td>
@@ -68,6 +72,9 @@
             <tr>
                 <td>
                     {{ sprzet['numer'] }}
+                </td>
+                <td>
+                    {{ sprzet['typ'] }}
                 </td>
                 <td>
                     {{ sprzet['nazwa'] }}
@@ -80,6 +87,9 @@
                 </td>
                 <td>
                     <form action="/"><input type="submit" value="Przejdź"></form>
+                </td>
+                <td class="edit_mode" style="display: none">
+                    <input type="submit" value="Edytuj">
                 </td>
             </tr>
         {% endfor %}
@@ -110,6 +120,9 @@
                     </td>
                     <td>
                         <a href="/">{{ prawo['budynek'] }}</a>
+                    </td>
+                    <td class="edit_mode" style="display: none">
+                        <input type="submit" value="Edytuj">
                     </td>
                 </tr>
             {% endfor %}

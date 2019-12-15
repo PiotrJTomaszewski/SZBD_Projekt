@@ -1,7 +1,8 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
+    <meta CHARSET="UTF-8">
     <title>TMP</title>
 </head>
 <body>
@@ -13,13 +14,13 @@
         <button>Pracownicy</button>
     </a>
     <a href="{{ url_for('oddzialy') }}">
-    <button>Oddziały</button>
+        <button>Oddziały</button>
     </a>
     <a href="{{ url_for('budynki') }}">
-    <button>Budynki</button>
+        <button>Budynki</button>
     </a>
     <a href="{{ url_for('biura') }}">
-    <button>Biura</button>
+        <button>Biura</button>
     </a>
 </div>
 </body>
