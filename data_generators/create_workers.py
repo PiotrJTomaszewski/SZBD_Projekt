@@ -42,11 +42,11 @@ def gen_workers_dict(how_many):
 
 # Generuje listę pracowników
 # Każdy pracownik reprezentowany jest przez listę pól
-def gen_workers_list(how_many):
+def gen_workers_list(how_many, path):
     if how_many > 10000:
         how_many = 10000
     values = []
-    with open('FakeNameGenerator.com_43849084.csv', 'r') as data:
+    with open(path, 'r') as data:
         data.readline()
         for i, line in enumerate(data):
             if i >= how_many:
@@ -69,7 +69,13 @@ def gen_workers_list(how_many):
             # Fix phone number
             tel = "".join(line_splitted[-1][:-1].split(" "))[1:-1]  # Remove spaces and quotation marks
             is_still_working = str(int(rng.randint(0, 100) < 90))
-            values.append([pesel, name, surname, tel, is_still_working, email])
+            dzial = ''
+            if rng.randint(0, 100) > 50:
+                dzial = 'A'
+            else:
+                dzial = 'B'
+            nr_biura = rng.randint(1, 5)
+            values.append([pesel, name, surname, tel, is_still_working, email, dzial, nr_biura])
 
     return values
 
