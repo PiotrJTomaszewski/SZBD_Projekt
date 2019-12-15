@@ -45,7 +45,7 @@ def budynki():
 
 @app.route('/')
 def hello_world():
-    strony = ['dodaj_oddzial', 'dodaj_magazyn', 'dodaj_sprzet', 'dodaj_oprogramowanie']
+    strony = ['dodaj_oddzial', 'dodaj_magazyn', 'dodaj_sprzet', 'dodaj_oprogramowanie', 'dodaj_pracownika']
     return render_template('tmp/tymczasowy_index.html', strony=strony)
 
 
@@ -72,6 +72,14 @@ def dodaj_sprzet():
 def dodaj_oprogramowanie():
     domyslne = {'numer_ewidencyjny': 15, 'data_zakupu': '2019-12-16'}
     return render_template('add_modify/dodaj_oprogramowanie.html', domyslne=domyslne)
+
+
+@app.route('/dodaj_pracownika')
+def dodaj_pracownika():
+    dzialy = ['HR', 'IT', 'PR']
+    biura = [{'numer': 1, 'budynek': 'Kwiatowa 1/9'}, {'numer': 12, 'budynek': 'Testowa 6/2'}]
+    return render_template('add_modify/dodaj_pracownika.html', biura=biura, dzialy=dzialy)
+
 
 if __name__ == '__main__':
     app.run()
