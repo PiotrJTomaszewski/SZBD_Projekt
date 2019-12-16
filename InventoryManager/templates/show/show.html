@@ -25,7 +25,11 @@
                         <td>{{ element }}</td>
                     {% endfor %}
                     <td>
+                        {% if site_data['title'] == 'Pracownicy' %}
+                        <form action="{{ site_data['goto_site'] + '/' + rows.index(row).__str__() }}"><input type="submit" value="Przejdź"></form>
+                        {% else %}
                         <form action="{{ site_data['goto_site'] }}"><input type="submit" value="Przejdź"></form>
+                        {% endif %}
                     </td>
                     <td class="edit_mode" style="display: none;">
                         <form>

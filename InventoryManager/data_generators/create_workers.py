@@ -75,9 +75,9 @@ def gen_workers_list(how_many, path):
                 is_still_working = 'Nie'
             dzial = ''
             if rng.randint(0, 100) > 50:
-                dzial = 'A'
+                dzial = 'IT'
             else:
-                dzial = 'B'
+                dzial = 'HR'
             nr_biura = rng.randint(1, 5)
             values.append([pesel, name, surname, tel, is_still_working, email, dzial, nr_biura])
 

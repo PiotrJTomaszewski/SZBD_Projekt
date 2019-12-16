@@ -8,6 +8,22 @@ conn_args = {'host': 'localhost', 'database': 'sbdbazadanych', 'user': 'db_proje
 
 workers = creator.gen_workers_list(10, 'data_generators/FakeNameGenerator.com_43849084.csv')
 
+dane = {
+    'oddzialy': [['Marcelińska', 'Oddział Główny'], ['Rybaki', 'Oddział Komunikacyjny']],
+    'budynki': [['Marcelińska 5', 'Budynek A', 1], ['Marcelińska 6', 'Budynek B', 2], ['Rybaki 14', 'Call-center', 4]],
+    'magazyny': [{'numer': 1, 'oddzial': 'Marcelińska'}, {'numer': 2, 'oddzial': 'Marcelińska'},
+                {'numer': 3, 'oddzial': 'Rybaki'}, {'numer': 4, 'oddzial': 'Rybaki'}],
+    'dzialy': ['HR', 'IT', 'PR'],
+    'biura': [{'numer': 1, 'budynek': 'Marcelińska 5'}, {'numer': 12, 'budynek': 'Rybaki 14'}],
+    'sprzety': [
+        {'numer': 1, 'typ': 'laptop', 'nazwa': 'Testowa nazwa', 'producent': 'Testowy producent',
+         'data_zakupu': '01/12/2019',
+         'numer_magazynu': 1},
+        {'numer': 4, 'typ': 'telefon', 'nazwa': 'Lorem Impsum', 'producent': 'Lorem Impsum',
+         'data_zakupu': '03/12/2019',
+         'numer_magazynu': 2}]
+}
+
 
 def read_from_database(what):
     conn = db.connect(**conn_args)
@@ -31,8 +47,13 @@ def pracownicy():
 
 @app.route('/biura')
 def biura():
-    col_names, rows = read_from_database('biuro')
-    return render_template('show/show.html', col_names=col_names, rows=rows)
+    # col_names, rows = read_from_database('biuro')
+    site_data = {'title': 'Biura', 'goto_site': '/',
+                 'add_new_button_text': 'Dodaj nowe biuro',
+                 'add_new_button_link': '/'}
+    col_names = ['Numer', 'Budynek']
+    rows = [[i['numer'], i['budynek']] for i in dane['biura']]
+    return render_template('show/show.html', col_names=col_names, rows=rows, site_data=site_data)
 
 
 @app.route('/oddzialy')
@@ -42,7 +63,7 @@ def oddzialy():
                  'add_new_button_link': 'dodaj_oddzial'
                  }
     col_names = ['Adres', 'Nazwa']
-    rows = [['test', 'test'], ['test2', 'test2']]
+    rows = dane['oddzialy']
     # col_names, rows = read_from_database('oddzial')
     return render_template('show/show.html', col_names=col_names, rows=rows, site_data=site_data)
 
@@ -55,7 +76,7 @@ def budynki():
                  'add_new_button_link': 'dodaj_budynek'
                  }
     col_names = ["Adres", "Nazwa", "Ilość pięter"]
-    rows = [['budynekTest', 'test', 1], ['budynekTest2', 'test2', 3]]
+    rows = dane['budynki']
     return render_template('show/show.html', col_names=col_names, rows=rows, site_data=site_data)
 
 
@@ -80,8 +101,7 @@ def dodaj_magazyn():
 @app.route('/dodaj_sprzet')
 def dodaj_sprzet():
     domyslne = {'numer_ewidencyjny': 15, 'data_zakupu': '2019-12-16'}
-    magazyny = [{'numer': 1, 'oddzial': 'Testowa 1'}, {'numer': 2, 'oddzial': 'Testowa 1'},
-                {'numer': 3, 'oddzial': 'Kwiatowa 33'}, {'numer': 4, 'oddzial': 'Krótka 5'}]
+    magazyny = dane['magazyny']
     typy = {'laptop', 'telefon'}
     return render_template('add_modify/dodaj_sprzet.html', magazyny=magazyny, domyslne=domyslne, typy=typy)
 
@@ -94,37 +114,34 @@ def dodaj_oprogramowanie():
 
 @app.route('/dodaj_pracownika')
 def dodaj_pracownika():
-    dzialy = ['HR', 'IT', 'PR']
-    biura = [{'numer': 1, 'budynek': 'Kwiatowa 1/9'}, {'numer': 12, 'budynek': 'Testowa 6/2'}]
+    dzialy = dane['dzialy']
+    biura = dane['biura']
     return render_template('add_modify/dodaj_pracownika.html', biura=biura, dzialy=dzialy)
 
 
 @app.route('/dodaj_budynek')
 def dodaj_budynek():
-    oddzialy = ['Testowa 1', 'Kwiatowa 33', 'Krótka 5']
+    oddzialy = [i[0] for i in dane['oddzialy']]
     return render_template('add_modify/dodaj_budynek.html', oddzialy=oddzialy)
 
 
 @app.route('/dodaj_dzial')
 def dodaj_dzial():
-    oddzialy = ['Testowa 1', 'Kwiatowa 33', 'Krótka 5']
+    oddzialy = [i[0] for i in dane['oddzialy']]
     return render_template('add_modify/dodaj_dzial.html', oddzialy=oddzialy)
 
 
-@app.route('/pokaz_pracownik_info')
-def pokaz_pracownik_info():
-    dane_osobowe = {'imie': 'Karol', 'nazwisko': 'Testowy', 'pesel': '91042301234', 'numer_telefonu': '991234123',
-                    'czy_nadal_pracuje': 'Tak', 'adres_email': 'asd@test.com', 'dzial': 'IT', 'biuro': '123'}
-    sprzety = [
-        {'numer': 1, 'nazwa': 'Testowa nazwa', 'producent': 'Testowy producent', 'data_przyznania': '01/12/2019',
-         'typ': 'laptop'},
-        {'numer': 4, 'nazwa': 'Lorem Impsum', 'producent': 'Lorem Impsum', 'data_przyznania': '03/12/2019',
-         'typ': 'telefonid'}]
+@app.route('/pokaz_pracownik_info/<nr>')
+def pokaz_pracownik_info(nr):
+    nr = int(nr)
+    dane_osobowe = {'imie': workers[nr][1], 'nazwisko': workers[nr][2], 'pesel': workers[nr][0], 'numer_telefonu': workers[nr][3],
+                    'czy_nadal_pracuje': workers[nr][4], 'adres_email': workers[nr][5], 'dzial': workers[nr][6], 'biuro': workers[nr][7]}
+    sprzety = dane['sprzety']
     karty_dostepu = [
         [123, '12/11/2019', [{'data_przyznania': '04/12/2019', 'data_wygasniecia': '04/12/2020', 'numer_biura': 23,
-                              'budynek': 'Kosowa 2/1'},
+                              'budynek': dane['budynki'][0][0]},
                              {'data_przyznania': '04/12/2019', 'data_wygasniecia': '04/12/2020', 'numer_biura': 33,
-                              'budynek': 'Testowa 1/1'}]]
+                              'budynek': dane['budynki'][1][0]}]]
     ]
     return render_template('show/pokaz_pracownik_info.html', sprzety=sprzety, dane_osobowe=dane_osobowe,
                            karty_dostepu=karty_dostepu)
@@ -133,13 +150,7 @@ def pokaz_pracownik_info():
 @app.route('/przypisz_sprzet')
 def przypisz_sprzet():
     przypisania = [{'id': 1, 'data_przydzialu': '11/12/2019'}, {'id': 4, 'data_przydzialu': '01/01/2019'}]
-    sprzety = [
-        {'numer': 1, 'typ': 'laptop', 'nazwa': 'Testowa nazwa', 'producent': 'Testowy producent',
-         'data_zakupu': '01/12/2019',
-         'numer_magazynu': 2},
-        {'numer': 4, 'typ': 'telefon', 'nazwa': 'Lorem Impsum', 'producent': 'Lorem Impsum',
-         'data_zakupu': '03/12/2019',
-         'numer_magazynu': 3}]
+    sprzety = dane['sprzety']
     return render_template('add_modify/przypisz_sprzet.html', przypisania=przypisania, sprzety=sprzety)
 
 
