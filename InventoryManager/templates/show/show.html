@@ -25,7 +25,7 @@
                         <td>{{ element }}</td>
                     {% endfor %}
                     <td>
-                        {% if site_data['title'] == 'Pracownicy' %}
+                        {% if site_data['title'].split(' ')[0] == 'Pracownicy' %}
                         <form action="{{ site_data['goto_site'] + '/' + rows.index(row).__str__() }}"><input type="submit" value="Przejdź"></form>
                         {% else %}
                         <form action="{{ site_data['goto_site'] }}"><input type="submit" value="Przejdź"></form>
