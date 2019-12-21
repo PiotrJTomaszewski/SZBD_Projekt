@@ -224,11 +224,12 @@ def pokaz_sprzet_info(nr):
     return render_template('show/pokaz_sprzet_info.html', dane=dane, softwares=softwares)
 
 
-@app.route('/przypisz_sprzet')
-def przypisz_sprzet():
+@app.route('/przypisz_sprzet/<pesel>')
+def przypisz_sprzet(pesel):
+    pracownik = {"pesel": pesel, 'imie': 'Karol', 'nazwisko': 'Testowy'}
     przypisania = [{'id': 1, 'data_przydzialu': '11/12/2019'}, {'id': 4, 'data_przydzialu': '01/01/2019'}]
     sprzety = dane['sprzety']
-    return render_template('add_modify/przypisz_sprzet.html', przypisania=przypisania, sprzety=sprzety)
+    return render_template('add_modify/przypisz_sprzet.html', pracownik=pracownik, przypisania=przypisania, sprzety=sprzety)
 
 
 if __name__ == '__main__':

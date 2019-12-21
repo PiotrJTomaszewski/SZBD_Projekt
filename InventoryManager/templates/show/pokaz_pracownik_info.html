@@ -51,8 +51,8 @@
         </table>
 
         <h3>Przyznany sprzęt</h3>
-        <form class="edit_mode_element" action="/przypisz_sprzet"><input type="submit"
-                                                                                        value="Przypisz nowy sprzęt">
+        <form class="edit_mode_element" action="{{ url_for("przypisz_sprzet", pesel=dane_osobowe['pesel']) }}">
+            <input type="submit" value="Przypisz nowy sprzęt">
         </form>
         <table>
             <thead>
@@ -112,21 +112,11 @@
                 </thead>
                 {% for prawo in karta[2] %}
                     <tr>
-                        <td>
-                            {{ prawo['data_przyznania'] }}
-                        </td>
-                        <td>
-                            {{ prawo['data_wygasniecia'] }}
-                        </td>
-                        <td>
-                            <a href="/pracownicy/{{ prawo['numer_biura'] }}">{{ prawo['numer_biura'] }}</a>
-                        </td>
-                        <td>
-                            <a href="/biura/{{ prawo['budynek'] }}">{{ prawo['budynek'] }}</a>
-                        </td>
-                        <td class="edit_mode_element">
-                            <input type="submit" value="Edytuj">
-                        </td>
+                        <td>{{ prawo['data_przyznania'] }}</td>
+                        <td>{{ prawo['data_wygasniecia'] }}</td>
+                        <td><a href="/pracownicy/{{ prawo['numer_biura'] }}">{{ prawo['numer_biura'] }}</a></td>
+                        <td><a href="/biura/{{ prawo['budynek'] }}">{{ prawo['budynek'] }}</a></td>
+                        <td class="edit_mode_element"><input type="submit" value="Edytuj"></td>
                     </tr>
                 {% endfor %}
             </table>

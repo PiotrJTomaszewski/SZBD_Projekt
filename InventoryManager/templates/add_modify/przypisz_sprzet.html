@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 {% block title %}Przypisz sprzęt{% endblock %}
 {% block content %}
-    <h1>Przypisz sprzęt do pracownika Karol Testowy (991234123)</h1>
+    <h1>Przypisz sprzęt do pracownika {{ pracownik['imie'] }} {{ pracownik['nazwisko'] }} ({{ pracownik['pesel'] }})</h1>
     <div>
         <form action="/">
             <label>Nowe przypisanie?</label><input type="checkbox" id="new_assignment_box"/><br/>
@@ -16,27 +16,13 @@
             <table>
                 <thead>
                 <tr>
-                    <td>
-                        Numer ewidencyjny
-                    </td>
-                    <td>
-                        Typ
-                    </td>
-                    <td>
-                        Nazwa
-                    </td>
-                    <td>
-                        Producent
-                    </td>
-                    <td>
-                        Data zakupu
-                    </td>
-                    <td>
-                        Numer magazynu
-                    </td>
-                    <td>
-                        Zatwierdź
-                    </td>
+                    <td>Numer ewidencyjny</td>
+                    <td>Typ</td>
+                    <td>Nazwa</td>
+                    <td>Producent</td>
+                    <td>Data zakupu</td>
+                    <td>Numer magazynu</td>
+                    <td>Wybierz</td>
                 </tr>
                 </thead>
                 {% for sprzet in sprzety %}
@@ -47,7 +33,7 @@
                         <td>{{ sprzet['producent'] }}</td>
                         <td>{{ sprzet['data_zakupu'] }}</td>
                         <td>{{ sprzet['numer_magazynu'] }}</td>
-                        <td><input type="radio" title="Wybierz"/></td>
+                        <td><input type="checkbox" title="Wybierz"/></td>
                     </tr>
                 {% endfor %}
             </table>
