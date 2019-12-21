@@ -1,11 +1,6 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
-    <meta CHARSET="UTF-8">
-    <title>Dodaj dział</title>
-</head>
-<body>
+{% extends "base.html" %}
+{% block title %}Dodaj dział{% endblock %}
+{% block content %}
 <h1>Dodaj dział</h1>
 <div>
     <form action="/">
@@ -21,5 +16,4 @@
         <input type="submit" value="Anuluj"/>
     </form>
 </div>
-</body>
-</html>
+{% endblock %}

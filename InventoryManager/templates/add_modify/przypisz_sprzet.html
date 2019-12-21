@@ -1,80 +1,74 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
-    <meta CHARSET="UTF-8">
-    <title>Przypisz sprzęt</title>
-</head>
-<body>
-<h1>Przypisz sprzęt do pracownika Karol Testowy (991234123)</h1>
-<div>
-    <form action="/">
-        <label>Nowe przypisanie?</label><input type="checkbox" id="new_assignment_box"/><br/>
-        <div id="new_assignment" style="display: none">
-            <label>Data przypisania</label><input type="date"/><br/>
-        </div>
-        <select id="old_assignment">
-            {% for przypisanie in przypisania %}
-                <option>Numer {{ przypisanie['id'] }} przyznane {{ przypisanie['data_przydzialu'] }}</option>
-            {% endfor %}
-        </select>
-        <table>
-            <thead>
-            <tr>
-                <td>
-                    Numer ewidencyjny
-                </td>
-                <td>
-                    Typ
-                </td>
-                <td>
-                    Nazwa
-                </td>
-                <td>
-                    Producent
-                </td>
-                <td>
-                    Data zakupu
-                </td>
-                <td>
-                    Numer magazynu
-                </td>
-                <td>
-                    Zatwierdź
-                </td>
-            </tr>
-            </thead>
-            {% for sprzet in sprzety %}
+{% extends "base.html" %}
+{% block title %}Przypisz sprzęt{% endblock %}
+{% block content %}
+    <h1>Przypisz sprzęt do pracownika Karol Testowy (991234123)</h1>
+    <div>
+        <form action="/">
+            <label>Nowe przypisanie?</label><input type="checkbox" id="new_assignment_box"/><br/>
+            <div id="new_assignment" style="display: none">
+                <label>Data przypisania</label><input type="date"/><br/>
+            </div>
+            <select id="old_assignment">
+                {% for przypisanie in przypisania %}
+                    <option>Numer {{ przypisanie['id'] }} przyznane {{ przypisanie['data_przydzialu'] }}</option>
+                {% endfor %}
+            </select>
+            <table>
+                <thead>
                 <tr>
-                    <td>{{ sprzet['numer'] }}</td>
-                    <td>{{ sprzet['typ'] }}</td>
-                    <td>{{ sprzet['nazwa'] }}</td>
-                    <td>{{ sprzet['producent'] }}</td>
-                    <td>{{ sprzet['data_zakupu'] }}</td>
-                    <td>{{ sprzet['numer_magazynu'] }}</td>
-                    <td><input type="radio" title="Wybierz"/></td>
+                    <td>
+                        Numer ewidencyjny
+                    </td>
+                    <td>
+                        Typ
+                    </td>
+                    <td>
+                        Nazwa
+                    </td>
+                    <td>
+                        Producent
+                    </td>
+                    <td>
+                        Data zakupu
+                    </td>
+                    <td>
+                        Numer magazynu
+                    </td>
+                    <td>
+                        Zatwierdź
+                    </td>
                 </tr>
-            {% endfor %}
-        </table>
-        <input type="submit" value="Potwierdź"/>
-        <input type="submit" value="Anuluj"/>
-    </form>
-</div>
-<script>
-    function hideShowField() {
-        if (document.getElementById("new_assignment_box").checked === true) {
-            document.getElementById('new_assignment').style.display = 'block';
-            document.getElementById("old_assignment").style.display = 'none';
+                </thead>
+                {% for sprzet in sprzety %}
+                    <tr>
+                        <td>{{ sprzet['numer'] }}</td>
+                        <td>{{ sprzet['typ'] }}</td>
+                        <td>{{ sprzet['nazwa'] }}</td>
+                        <td>{{ sprzet['producent'] }}</td>
+                        <td>{{ sprzet['data_zakupu'] }}</td>
+                        <td>{{ sprzet['numer_magazynu'] }}</td>
+                        <td><input type="radio" title="Wybierz"/></td>
+                    </tr>
+                {% endfor %}
+            </table>
+            <input type="submit" value="Potwierdź"/>
+            <input type="submit" value="Anuluj"/>
+        </form>
+    </div>
+    <script>
+        function hideShowField() {
+            if (document.getElementById("new_assignment_box").checked === true) {
+                document.getElementById('new_assignment').style.display = 'block';
+                document.getElementById("old_assignment").style.display = 'none';
+            }
+            else {
+                document.getElementById("new_assignment").style.display = 'none';
+                document.getElementById("old_assignment").style.display = 'block';
+            }
         }
-        else {
-            document.getElementById("new_assignment").style.display = 'none';
-            document.getElementById("old_assignment").style.display = 'block';
-        }
-    }
 
-    document.getElementById("new_assignment_box").onclick = function () {
-        hideShowField();
-    };
-</script>
-</body>
-</html>
+        document.getElementById("new_assignment_box").onclick = function () {
+            hideShowField();
+        };
+    </script>
+{% endblock %}

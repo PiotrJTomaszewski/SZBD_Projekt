@@ -1,71 +1,43 @@
-<!DOCTYPE html>
-<html lang="pl-PL">
-<head>
-    <title>{{ site_data['title'] }}</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
-    <meta CHARSET="UTF-8">
-</head>
-<body>
-<h1>{{ site_data['title'] }}</h1>
-<label for="edit_mode_box">Włącz tryb edycji</label><input type="checkbox" id="edit_mode_box" value="false"/>
-<form class="edit_mode" style="display: none" action="{{ site_data['add_new_button_link'] }}"><input type="submit" value="{{ site_data['add_new_button_text'] }}"/></form>
-<div class="table-container">
-    {% if col_names != null %}
-        <table>
-            <thead>
-            <tr>
-                {% for col_name in col_names %}
-                    <td>{{ col_name }}</td>
-                {% endfor %}
-            </tr>
-            </thead>
-            {% for row in rows %}
+{% extends "base.html" %}
+{% block title %}{{ site_data['title'] }}{% endblock %}
+{% block content %}
+    <h1>{{ site_data['title'] }}</h1>
+    <label for="edit_mode_box">Włącz tryb edycji</label><input type="checkbox" id="edit_mode_box" value="false"/>
+    <form class="edit_mode_element" action="{{ site_data['add_new_button_link'] }}"><input type="submit"
+                                                                                                         value="{{ site_data['add_new_button_text'] }}"/>
+    </form>
+    <div class="table-container">
+        {% if col_names != null %}
+            <table>
+                <thead>
                 <tr>
-                    {% for element in row %}
-                        <td>{{ element }}</td>
+                    {% for col_name in col_names %}
+                        <td>{{ col_name }}</td>
                     {% endfor %}
-                    <td>
-                        {% if site_data['title'].split(' ')[0] == 'Pracownicy' %}
-                        <form action="{{ site_data['goto_site'] + '/' + rows.index(row).__str__() }}"><input type="submit" value="Przejdź"></form>
-                        {% else %}
-                        <form action="{{ site_data['goto_site'] }}"><input type="submit" value="Przejdź"></form>
-                        {% endif %}
-                    </td>
-                    <td class="edit_mode" style="display: none;">
-                        <form>
-                            <input type="submit" value="Edytuj">
-                        </form>
-                    </td>
-                    {#                    <td class="delete_td" style="display: none;">#}
-                    {#                        <form>#}
-                    {#                            <input type="submit" value="Usuń">#}
-                    {#                        </form>#}
-                    {#                    </td>#}
                 </tr>
-            {% endfor %}
-        </table>
-    {% endif %}
-</div>
-<script>
-    function hideShowEditMode() {
-        if (document.getElementById("edit_mode_box").checked === true) {
-            let cusid_ele = document.getElementsByClassName('edit_mode');
-            for (let i = 0; i < cusid_ele.length; ++i) {
-                cusid_ele[i].style.display = 'block'
-            }
-        }
-
-        else {
-            let cusid_ele = document.getElementsByClassName('edit_mode');
-            for (let i = 0; i < cusid_ele.length; ++i) {
-                cusid_ele[i].style.display = 'none'
-            }
-        }
-    }
-
-    document.getElementById("edit_mode_box").onclick = function () {
-        hideShowEditMode();
-    }
-</script>
-</body>
-</html>
+                </thead>
+                {% for row in rows %}
+                    <tr>
+                        {% for element in row %}
+                            <td>{{ element }}</td>
+                        {% endfor %}
+                        <td>
+                            {% if site_data['title'].split(' ')[0] == 'Pracownicy' %}
+                                <form action="{{ site_data['goto_site'] + '/' + rows.index(row).__str__() }}"><input
+                                        type="submit" value="Przejdź"></form>
+                            {% else %}
+                                <form action="{{ site_data['goto_site'] }}"><input type="submit" value="Przejdź"></form>
+                            {% endif %}
+                        </td>
+                        <td class="edit_mode_element">
+                            <form>
+                                <input type="submit" value="Edytuj">
+                            </form>
+                        </td>
+                    </tr>
+                {% endfor %}
+            </table>
+        {% endif %}
+    </div>
+    <script src="{{ url_for('static', filename='javascript/enter_edit_mode.js') }}"></script>
+{% endblock %}

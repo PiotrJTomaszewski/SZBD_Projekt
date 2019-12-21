@@ -1,120 +1,93 @@
-<!DOCTYPE html>
-<html lang="pl-PL">
-<head>
-    <title>Informacje na temat sprzętu</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
-    <meta CHARSET="UTF-8">
-</head>
-<body>
-<h1>Informacje na temat sprzętu</h1>
-<label for="edit_mode_box">Włącz tryb edycji</label><input type="checkbox" id="edit_mode_box" value="false"/>
-<div class="table-container">
-    <h1>{{ dane['typ'] }} o numerze {{ dane['numer_ewidencyjny'] }}</h1>
-    <h3>Dane</h3>
-    <table>
-        <thead>
-        <tr>
-            <td>Numer ewidencyjny</td>
-            <td>Typ</td>
-            <td>Nazwa</td>
-            <td>Producent</td>
-            <td>Data zakupu</td>
-            <td>Stan/Położenie</td>
-            <td>Uwagi</td>
-        </tr>
-        </thead>
-        <tr>
-            <td>
-                {{ dane['numer_ewidencyjny'] }}
-            </td>
-            <td>
-                {{ dane['typ'] }}
-            </td>
-            <td>
-                {{ dane['nazwa'] }}
-            </td>
-            <td>
-                {{ dane['producent'] }}
-            </td>
-
-            <td>
-                {{ dane['data_zakupu'] }}
-            </td>
-            <td>
-                Przpisany do pracownika <a href="/pokaz_pracownik_info/0">{{ dane['stan'] }}</a> <!--TODO: Inaczej to przekazywać, oczywiście -->
-            </td>
-            <td>
-                {{ dane['uwagi'] }}
-            </td>
-            <td class="edit_mode" style="display: none">
-                <input type="submit" value="Edytuj">
-            </td>
-        </tr>
-    </table>
-
-    <h3>Zainstalowane oprogramowanie</h3>
-    <form class="edit_mode" style="display: none;" action="/"><input type="submit" value="Przypisz nowe oprogramowanie"></form>
-    <table>
-        <thead>
-        <tr>
-            <td>Numer ewidencyjny</td>
-            <td>Nazwa</td>
-            <td>Produdent</td>
-            <td>Data zakupu</td>
-            <td>Data wygaśnięcia licencji</td>
-        </tr>
-        </thead>
-        {% for software in softwares %}
+{% extends "base.html" %}
+{% block title %}Informacje na temat sprzętu{% endblock %}
+{% block content %}
+    <h1>Informacje na temat sprzętu</h1>
+    <label for="edit_mode_box">Włącz tryb edycji</label><input type="checkbox" id="edit_mode_box" value="false"/>
+    <div class="table-container">
+        <h1>{{ dane['typ'] }} o numerze {{ dane['numer_ewidencyjny'] }}</h1>
+        <h3>Dane</h3>
+        <table>
+            <thead>
+            <tr>
+                <td>Numer ewidencyjny</td>
+                <td>Typ</td>
+                <td>Nazwa</td>
+                <td>Producent</td>
+                <td>Data zakupu</td>
+                <td>Stan/Położenie</td>
+                <td>Uwagi</td>
+            </tr>
+            </thead>
             <tr>
                 <td>
-                    {{ software['numer'] }}
+                    {{ dane['numer_ewidencyjny'] }}
                 </td>
                 <td>
-                    {{ software['nazwa'] }}
+                    {{ dane['typ'] }}
                 </td>
                 <td>
-                    {{ software['producent'] }}
+                    {{ dane['nazwa'] }}
                 </td>
                 <td>
-                    {{ software['data_zakupu'] }}
+                    {{ dane['producent'] }}
+                </td>
+
+                <td>
+                    {{ dane['data_zakupu'] }}
                 </td>
                 <td>
-                    {{ software['data_wygasniecia'] }}
+                    Przpisany do pracownika <a href="/pokaz_pracownik_info/0">{{ dane['stan'] }}</a>
+                    <!--TODO: Inaczej to przekazywać, oczywiście -->
                 </td>
                 <td>
-                    <form action="/"><input type="submit" value="Przejdź"></form>
+                    {{ dane['uwagi'] }}
                 </td>
-                <td class="edit_mode" style="display: none">
+                <td class="edit_mode_element">
                     <input type="submit" value="Edytuj">
-                    <input type="submit" value="Oznacz jako odinstalowany">
                 </td>
             </tr>
-        {% endfor %}
-    </table>
+        </table>
 
-
-<script>
-    function hideShowEditMode() {
-        if (document.getElementById("edit_mode_box").checked === true) {
-            let cusid_ele = document.getElementsByClassName('edit_mode');
-            for (let i = 0; i < cusid_ele.length; ++i) {
-                cusid_ele[i].style.display = 'block'
-            }
-
-        }
-
-        else {
-            let cusid_ele = document.getElementsByClassName('edit_mode');
-            for (let i = 0; i < cusid_ele.length; ++i) {
-                cusid_ele[i].style.display = 'none'
-            }
-
-        }
-    }
-
-    document.getElementById("edit_mode_box").onclick = function () {
-        hideShowEditMode();
-    }
-</script>
-</body>
-</html>
+        <h3>Zainstalowane oprogramowanie</h3>
+        <form class="edit_mode_element" action="/"><input type="submit"
+                                                                         value="Przypisz nowe oprogramowanie"></form>
+        <table>
+            <thead>
+            <tr>
+                <td>Numer ewidencyjny</td>
+                <td>Nazwa</td>
+                <td>Produdent</td>
+                <td>Data zakupu</td>
+                <td>Data wygaśnięcia licencji</td>
+            </tr>
+            </thead>
+            {% for software in softwares %}
+                <tr>
+                    <td>
+                        {{ software['numer'] }}
+                    </td>
+                    <td>
+                        {{ software['nazwa'] }}
+                    </td>
+                    <td>
+                        {{ software['producent'] }}
+                    </td>
+                    <td>
+                        {{ software['data_zakupu'] }}
+                    </td>
+                    <td>
+                        {{ software['data_wygasniecia'] }}
+                    </td>
+                    <td>
+                        <form action="/"><input type="submit" value="Przejdź"></form>
+                    </td>
+                    <td class="edit_mode_element">
+                        <input type="submit" value="Edytuj">
+                        <input type="submit" value="Oznacz jako odinstalowany">
+                    </td>
+                </tr>
+            {% endfor %}
+        </table>
+    </div>
+    <script src="{{ url_for('static', filename='javascript/enter_edit_mode.js') }}"></script>
+{% endblock %}

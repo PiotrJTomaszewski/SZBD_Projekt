@@ -13,7 +13,7 @@ dane = {
     'budynki': [['Marcelińska 5', 'Budynek A', 1], ['Marcelińska 6', 'Budynek B', 2], ['Rybaki 14', 'Call-center', 4]],
     'magazyny': [{'numer': 1, 'oddzial': 'Marcelińska'}, {'numer': 2, 'oddzial': 'Marcelińska'},
                  {'numer': 3, 'oddzial': 'Rybaki'}, {'numer': 4, 'oddzial': 'Rybaki'}],
-    'dzialy': ['HR', 'IT', 'PR'],
+    'dzialy': ['Human Relations', 'Information Technology', 'Public Relations'],
     'biura': [{'numer': 1, 'budynek': 'Marcelińska 5'}, {'numer': 12, 'budynek': 'Rybaki 14'}],
     'sprzety': [
         {'numer': 1, 'typ': 'laptop', 'nazwa': 'Testowa nazwa', 'producent': 'Testowy producent',
@@ -137,6 +137,11 @@ def budynki_w_oddziale(adres_oddzialu):
     return render_template('show/show.html', col_names=col_names, rows=rows, site_data=site_data)
 
 
+@app.route('/magazyny')
+def magazyny():
+    pass
+
+
 @app.route('/')
 def hello_world():
     strony = ['dodaj_oddzial', 'dodaj_magazyn', 'dodaj_sprzet', 'dodaj_oprogramowanie', 'dodaj_pracownika',
@@ -210,9 +215,9 @@ def pokaz_pracownik_info(nr):
 def pokaz_sprzet_info(nr):
     nr = int(nr)
     softwares = [{'numer': 51, 'nazwa': 'Office 2012', 'producent': 'Microsoft', 'data_zakupu': '01/02/2013',
-                 'data_wygasniecia': '05/06/2020'},
-                {'numer': 64, 'nazwa': 'Windows 10', 'producent': 'Microsoft', 'data_zakupu': '04/02/2019',
-                 'data_wygasniecia': '01/06/2025'}]
+                  'data_wygasniecia': '05/06/2020'},
+                 {'numer': 64, 'nazwa': 'Windows 10', 'producent': 'Microsoft', 'data_zakupu': '04/02/2019',
+                  'data_wygasniecia': '01/06/2025'}]
     dane = {'numer_ewidencyjny': 23, 'typ': 'laptop', 'nazwa': 'Latitude 6231', 'producent': 'DELL',
             'data_zakupu': '03/02/2012', 'stan': 'Paweł Testowy (91234123)', 'uwagi': 'Uszkodzony'}
 

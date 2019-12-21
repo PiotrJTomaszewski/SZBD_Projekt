@@ -1,3 +1,5 @@
+/*TODO: Trzeba wybrać sobie jakąś fajną paletę kolorystyczną.*/
+
 body {
     margin: 0;
     padding: 0;
@@ -5,6 +7,7 @@ body {
     background-color: gainsboro;
     font-size: 13px;
 }
+
 table {
     border: 5px solid black;
 }
@@ -31,4 +34,30 @@ thead {
 button {
     margin: 20px;
     width: 120px;
+}
+
+.edit_mode_element {
+    display: none;
+}
+
+#navigation_panel {
+    background-color: #ffffff;
+    list-style-type: none;
+}
+
+.navigation_panel_element {
+    float: left;
+}
+
+.navigation_panel_element .navigation_panel_link {
+    display: block;
+    color: #111143;
+    text-align: center;
+    padding: 14px 16px;
+    text-decoration: none;
+    background-color: #f6f6f6f6;
+}
+
+.navigation_panel_element .navigation_panel_link:hover {
+    background-color: #ffffff;
 }
