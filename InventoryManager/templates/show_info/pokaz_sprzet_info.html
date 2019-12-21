@@ -63,7 +63,9 @@
                     <td>{{ oprogramowanie['data_zakupu'] }}</td>
                     <td>{{ oprogramowanie['data_wygasniecia'] }}</td>
                     <td>
-                        <form action="/"><input type="submit" value="Przejdź"></form>
+                        <form action="{{ url_for('pokaz_oprogramowanie_info', numer_ewidencyjny=oprogramowanie['numer'])}}">
+                            <input type="submit" value="Przejdź">
+                        </form>
                     </td>
                     <td class="edit_mode_element">
                         <input type="submit" value="Edytuj">
