@@ -1,10 +1,10 @@
 {% extends "base.html" %}
-{% block title %}Lista oddziałów{% endblock %}
+{% block title %}Lista budynków{% endblock %}
 {% block content %}
-    <h1>Lista oddziałów</h1>
+    <h1>Lista budynków</h1>
     <label for="edit_mode_box">Włącz tryb edycji</label><input type="checkbox" id="edit_mode_box" value="false"/>
-    <form class="edit_mode_element" action="{{ url_for('dodaj_oddzial') }}">
-        <input type="submit" value="Dodaj oddział"/>
+    <form class="edit_mode_element" action="{{ url_for('dodaj_dzial') }}">
+        <input type="submit" value="Dodaj budynek"/>
     </form>
     <div class="table-container">
         <table>
@@ -12,14 +12,20 @@
             <tr>
                 <td>Adres</td>
                 <td>Nazwa</td>
+                <td>Liczba pięter</td>
+                <td>Oddział</td>
             </tr>
             </thead>
-            {% for oddzial in oddzialy %}
+            {% for budynek in budynki %}
                 <tr>
-                    <td>{{ oddzial['adres'] }}</td>
-                    <td>{{ oddzial['nazwa'] }}</td>
+                    <td>{{ budynek['adres'] }}</td>
+                    <td>{{ budynek['nazwa']}}</td>
+                    <td>{{ budynek['liczba_pieter']}}</td>
                     <td>
-                        <form action="{{ url_for('pokaz_oddzial_info', adres=oddzial['adres']) }}">
+                        <a href="{{ url_for('pokaz_oddzial_info', adres=budynek['oddzial']['adres']) }}">{{ budynek['oddzial']['adres'] }}</a>
+                    </td>
+                    <td>
+                        <form action="{{ url_for('pokaz_budynek_info', adres=budynek['adres']) }}">
                             <input type="submit" value="Przejdź">
                         </form>
                     </td>

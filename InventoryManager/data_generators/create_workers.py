@@ -11,7 +11,7 @@ def gen_workers_dict(how_many):
     if how_many > 10000:
         how_many = 10000
     values = []
-    with open('FakeNameGenerator.com_43849084.csv', 'r') as data:
+    with open('data_generators/FakeNameGenerator.com_43849084.csv', 'r') as data:
         data.readline()
         for i, line in enumerate(data):
             if i >= how_many:
@@ -35,7 +35,8 @@ def gen_workers_dict(how_many):
             tel = "".join(line_splitted[-1][:-1].split(" "))[1:-1]  # Remove spaces and quotation marks
             is_still_working = str(int(rng.randint(0, 100) < 90))
             values.append({"pesel": pesel, "imie": name, "nazwisko": surname, "numer_telefonu": tel,
-                           "czy_nadal_pracuje": is_still_working, "adres_email": email})
+                           "czy_nadal_pracuje": is_still_working, "adres_email": email,
+                           'dzial': {'nazwa': 'Human Relations', 'skrot': 'HR'}, 'biuro': {'numer': '1'}})
 
     return values
 

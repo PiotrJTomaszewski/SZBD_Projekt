@@ -6,15 +6,23 @@ app = Flask(__name__)
 
 conn_args = {'host': 'localhost', 'database': 'sbdbazadanych', 'user': 'db_projekt', 'password': 'db_projekt'}
 
-workers = creator.gen_workers_list(10, 'data_generators/FakeNameGenerator.com_43849084.csv')
+workers = creator.gen_workers_dict(10)
 
 dane = {
-    'oddzialy': [['Marcelińska', 'Oddział Główny'], ['Rybaki', 'Oddział Komunikacyjny']],
-    'budynki': [['Marcelińska 5', 'Budynek A', 1], ['Marcelińska 6', 'Budynek B', 2], ['Rybaki 14', 'Call-center', 4]],
-    'magazyny': [{'numer': 1, 'oddzial': 'Marcelińska'}, {'numer': 2, 'oddzial': 'Marcelińska'},
-                 {'numer': 3, 'oddzial': 'Rybaki'}, {'numer': 4, 'oddzial': 'Rybaki'}],
-    'dzialy': ['Human Relations', 'Information Technology', 'Public Relations'],
-    'biura': [{'numer': 1, 'budynek': 'Marcelińska 5'}, {'numer': 12, 'budynek': 'Rybaki 14'}],
+    'oddzialy': [{'adres': 'Marcelińska', 'nazwa': 'Oddział Główny'},
+                 {'adres': 'Rybaki', 'nazwa': 'Oddział Komunikacyjny'}],
+    'budynki': [
+        {'adres': 'Marcelińska 5', 'nazwa': 'Budynek A', 'liczba_pieter': 1, 'oddzial': {'adres': 'Konopnickiej'}},
+        {'adres': 'Marcelińska 6', 'nazwa': 'Budynek B', 'liczba_pieter': 2, 'oddzial': {'adres': 'JeszczeJedna'}},
+        {'adres': 'Rybaki 14', 'nazwa': 'Call-center', 'liczba_pieter': 4, 'oddzial': {'adres': 'Testowa'}}],
+    'magazyny': [{'numer': 1, 'oddzial': {'adres': 'Marcelińska'}, 'pojemnosc': 3},
+                 {'numer': 2, 'oddzial': {'adres': 'Marcelińska'}, 'pojemnosc': 20},
+                 {'numer': 3, 'oddzial': {'adres': 'Rybaki'}, 'pojemnosc': 12},
+                 {'numer': 4, 'oddzial': {'adres': 'Rybaki'}, 'pojemnosc': 30}],
+    'dzialy': [{'nazwa': 'Human Relations', 'skrot': 'HR', 'oddzial': {'adres': 'Testowa'}},
+               {'nazwa': 'Information Technology', 'skrot': 'IT', 'oddzial': {'adres': 'NieTestowa'}}],
+    'biura': [{'numer': 1, 'budynek': {'adres': 'Marcelińska 5'}, 'liczba_stanowisk': 23, 'pietro': 31},
+              {'numer': 12, 'budynek': {'adres': 'Rybaki 14'}, 'liczba_stanowisk': 512, 'pietro': 777}],
     'sprzety': [
         {'numer': 1, 'typ': 'laptop', 'nazwa': 'Testowa nazwa', 'producent': 'Testowy producent',
          'data_zakupu': '01/12/2019',
@@ -24,6 +32,8 @@ dane = {
          'numer_magazynu': 2, 'data_przyznania': '01/11/2016'}]
 }
 
+
+# TODO: Dodać wyświetlanie listy sprzętu i oprogramowania
 
 def read_from_database(what):
     conn = db.connect(**conn_args)
@@ -38,108 +48,45 @@ def read_from_database(what):
 @app.route('/pracownicy')
 def pracownicy():
     # col_names, rows = read_from_database('pracownik')
-    site_data = {'title': 'Pracownicy', 'goto_site': '/pokaz_pracownik_info',
-                 'add_new_button_text': 'Dodaj nowego pracownika',
-                 'add_new_button_link': '/dodaj_pracownika'}
-    col_names = ['Pesel', 'Imię', 'Nazwisko', 'Numer telefonu', 'Czy nadal pracuje', 'Adres email', 'Dział', 'Biuro']
-    return render_template('show/show.html', col_names=col_names, rows=workers, site_data=site_data)
-
-
-@app.route('/pracownicy/biuro/<nr_biura>')
-def pracownicy_w_biurze(nr_biura):
-    # col_names, rows = read_from_database('pracownik')
-    site_data = {'title': 'Pracownicy w biurze {}'.format(nr_biura), 'goto_site': '/pokaz_pracownik_info',
-                 'add_new_button_text': 'Dodaj nowego pracownika',
-                 'add_new_button_link': '/dodaj_pracownika'}
-    col_names = ['Pesel', 'Imię', 'Nazwisko', 'Numer telefonu', 'Czy nadal pracuje', 'Adres email', 'Dział', 'Biuro']
-    return render_template('show/show.html', col_names=col_names, rows=workers, site_data=site_data)
-
-
-@app.route('/pracownicy/dzial/<nazwa_dzialu>')
-def pracownicy_w_dziale(nazwa_dzialu):
-    # col_names, rows = read_from_database('pracownik')
-    site_data = {'title': 'Pracownicy w dziale {}'.format(nazwa_dzialu), 'goto_site': '/pokaz_pracownik_info',
-                 'add_new_button_text': 'Dodaj nowego pracownika',
-                 'add_new_button_link': '/dodaj_pracownika'}
-    col_names = ['Pesel', 'Imię', 'Nazwisko', 'Numer telefonu', 'Czy nadal pracuje', 'Adres email', 'Dział', 'Biuro']
-    return render_template('show/show.html', col_names=col_names, rows=workers, site_data=site_data)
+    pracownicy = workers
+    for i in range(len(pracownicy)):
+        if pracownicy[i]['czy_nadal_pracuje'] == '1':
+            pracownicy[i]['czy_nadal_pracuje'] = 'Tak'
+        else:
+            pracownicy[i]['czy_nadal_pracuje'] = 'Nie'
+    return render_template('show/pokaz_pracownicy.html', pracownicy=pracownicy)
 
 
 @app.route('/biura')
 def biura():
-    # col_names, rows = read_from_database('biuro')
-    site_data = {'title': 'Biura', 'goto_site': '/pracownicy/biuro/23',
-                 'add_new_button_text': 'Dodaj nowe biuro',
-                 'add_new_button_link': '/dodaj_biuro'}
-    col_names = ['Numer', 'Budynek', 'Piętro', 'Liczba stanowisk']
-    rows = [[i['numer'], i['budynek'], 3, 12] for i in dane['biura']]
-    return render_template('show/show.html', col_names=col_names, rows=rows, site_data=site_data)
-
-
-@app.route('/biura/<adres_budynku>')
-def biura_w_budynku(adres_budynku):
-    # col_names, rows = read_from_database('biuro')
-    site_data = {'title': 'Biura w budynku {}'.format(adres_budynku), 'goto_site': '/pracownicy/biuro/23',
-                 'add_new_button_text': 'Dodaj nowe biuro',
-                 'add_new_button_link': '/dodaj_biuro'}
-    col_names = ['Numer', 'Piętro', 'Liczba stanowisk']
-    rows = [[i['numer'], 3, 5] for i in dane['biura']]
-    return render_template('show/show.html', col_names=col_names, rows=rows, site_data=site_data)
+    biura = [{'numer': i['numer'], 'budynek': i['budynek'],
+              'pietro': 3, 'liczba_stanowisk': 12} for i in dane['biura']]
+    return render_template('show/pokaz_biura.html', biura=biura)
 
 
 @app.route('/oddzialy')
 def oddzialy():
-    site_data = {'title': 'Oddziały', 'goto_site': '/budynki/Kwiecinska',
-                 'add_new_button_text': 'Dodaj nowy oddział',
-                 'add_new_button_link': '/dodaj_oddzial'
-                 }
-    col_names = ['Adres', 'Nazwa']
-    rows = dane['oddzialy']
+    oddzialy = dane['oddzialy']
     # col_names, rows = read_from_database('oddzial')
-    return render_template('show/show.html', col_names=col_names, rows=rows, site_data=site_data)
+    return render_template('show/pokaz_oddzialy.html', oddzialy=oddzialy)
 
 
 @app.route('/dzialy')
 def dzialy():
-    site_data = {'title': 'Działy', 'goto_site': '/pracownicy/dzial/IT',
-                 'add_new_button_text': 'Dodaj nowy dział',
-                 'add_new_button_link': '/dodaj_dzial'
-                 }
-    col_names = ['Nazwa', 'Skrócona nazwa', 'Oddział']
-    rows = [['Human Relations', 'HR', 'Kwiecinska 1'],
-            ['Public Relations', 'PR', 'Kwiecinska 1'],
-            ['Information Technology', 'IT', 'Kwiecinska 1']]
-    # col_names, rows = read_from_database('oddzial')
-    return render_template('show/show.html', col_names=col_names, rows=rows, site_data=site_data)
+    dzialy = dane['dzialy']
+    return render_template('show/pokaz_dzialy.html', dzialy=dzialy)
 
 
 @app.route('/budynki')
 def budynki():
-    # col_names, rows = read_from_database('budynek')
-    site_data = {'title': 'Budynki', 'goto_site': '/biura/Testowa%203',
-                 'add_new_button_text': 'Dodaj nowy budynek',
-                 'add_new_button_link': '/dodaj_budynek'
-                 }
-    col_names = ["Adres", "Nazwa", "Ilość pięter"]
-    rows = dane['budynki']
-    return render_template('show/show.html', col_names=col_names, rows=rows, site_data=site_data)
-
-
-@app.route('/budynki/<adres_oddzialu>')
-def budynki_w_oddziale(adres_oddzialu):
-    # col_names, rows = read_from_database('budynek')
-    site_data = {'title': 'Budynki w oddziale {}'.format(adres_oddzialu), 'goto_site': '/biura/Testowa%203',
-                 'add_new_button_text': 'Dodaj nowy budynek',
-                 'add_new_button_link': '/dodaj_budynek'
-                 }
-    col_names = ["Adres", "Nazwa", "Ilość pięter"]
-    rows = dane['budynki']
-    return render_template('show/show.html', col_names=col_names, rows=rows, site_data=site_data)
+    budynki = dane['budynki']
+    return render_template('show/pokaz_budynki.html', budynki=budynki)
 
 
 @app.route('/magazyny')
 def magazyny():
-    pass
+    magazyny = dane['magazyny']
+    return render_template('show/pokaz_magazyny.html', magazyny=magazyny)
 
 
 @app.route('/')
@@ -193,35 +140,111 @@ def dodaj_dzial():
     return render_template('add_modify/dodaj_dzial.html', oddzialy=oddzialy)
 
 
-@app.route('/pokaz_pracownik_info/<nr>')
-def pokaz_pracownik_info(nr):
-    nr = int(nr)
-    dane_osobowe = {'imie': workers[nr][1], 'nazwisko': workers[nr][2], 'pesel': workers[nr][0],
-                    'numer_telefonu': workers[nr][3],
-                    'czy_nadal_pracuje': workers[nr][4], 'adres_email': workers[nr][5], 'dzial': workers[nr][6],
-                    'biuro': workers[nr][7]}
+@app.route('/dodaj_biuro')
+def dodaj_biuro():
+    pass
+
+
+@app.route('/pokaz_pracownik_info/<pesel>')
+def pokaz_pracownik_info(pesel):
+    pracownik = workers[0]
+    pracownik['czy_nadal_pracuje'] = 'Tak'
     sprzety = dane['sprzety']
     karty_dostepu = [
-        [123, '12/11/2019', [{'data_przyznania': '04/12/2019', 'data_wygasniecia': '04/12/2020', 'numer_biura': 23,
-                              'budynek': dane['budynki'][0][0]},
-                             {'data_przyznania': '04/12/2019', 'data_wygasniecia': '04/12/2020', 'numer_biura': 33,
-                              'budynek': dane['budynki'][1][0]}]]
+        {'id': 123, 'data_przyznania': '12/11/2019', 'prawa_dostepu': [
+            {'data_przyznania': '04/12/2019', 'data_wygasniecia': '04/12/2020', 'biuro': {'numer': 23},
+             'budynek': {'adres': dane['budynki'][0]['adres']}},
+            {'data_przyznania': '04/12/2019', 'data_wygasniecia': '04/12/2020', 'biuro': {'numer': 33},
+             'budynek': {'adres': dane['budynki'][1]['adres']}}]}
     ]
-    return render_template('show/pokaz_pracownik_info.html', sprzety=sprzety, dane_osobowe=dane_osobowe,
+    return render_template('show_info/pokaz_pracownik_info.html', sprzety=sprzety, pracownik=pracownik,
                            karty_dostepu=karty_dostepu)
 
 
-@app.route('/pokaz_sprzet_info/<nr>')
-def pokaz_sprzet_info(nr):
-    nr = int(nr)
-    softwares = [{'numer': 51, 'nazwa': 'Office 2012', 'producent': 'Microsoft', 'data_zakupu': '01/02/2013',
-                  'data_wygasniecia': '05/06/2020'},
-                 {'numer': 64, 'nazwa': 'Windows 10', 'producent': 'Microsoft', 'data_zakupu': '04/02/2019',
-                  'data_wygasniecia': '01/06/2025'}]
-    dane = {'numer_ewidencyjny': 23, 'typ': 'laptop', 'nazwa': 'Latitude 6231', 'producent': 'DELL',
-            'data_zakupu': '03/02/2012', 'stan': 'Paweł Testowy (91234123)', 'uwagi': 'Uszkodzony'}
+@app.route('/pokaz_sprzet_info/<numer_ewidencyjny>')
+def pokaz_sprzet_info(numer_ewidencyjny):
+    oprogramowania = [{'numer': 51, 'nazwa': 'Office 2012', 'producent': 'Microsoft', 'data_zakupu': '01/02/2013',
+                       'data_wygasniecia': '05/06/2020'},
+                      {'numer': 64, 'nazwa': 'Windows 10', 'producent': 'Microsoft', 'data_zakupu': '04/02/2019',
+                       'data_wygasniecia': '01/06/2025'}]
+    sprzet = {'numer': numer_ewidencyjny, 'typ': 'laptop', 'nazwa': 'Latitude 6231', 'producent': 'DELL',
+              'data_zakupu': '03/02/2012',
+              'stan': {'gdzie': 'pracownik', 'id': '4312351234', 'text': 'Paweł Testowy (4312351234)'},
+              'uwagi': 'Uszkodzony'}
 
-    return render_template('show/pokaz_sprzet_info.html', dane=dane, softwares=softwares)
+    return render_template('show_info/pokaz_sprzet_info.html', sprzet=sprzet, oprogramowania=oprogramowania)
+
+
+@app.route('/pokaz_oprogramowanie_info/<numer_ewidencyjny>')
+def pokaz_oprogramowanie_info(numer_ewidencyjny):
+    oprogramowanie = {'numer': 51, 'nazwa': 'Office 2012', 'producent': 'Microsoft', 'data_zakupu': '01/02/2013',
+                      'data_wygasniecia': '05/06/2020', 'liczba_licencji': 'Nieograniczona', 'uwagi': 'Brak'}
+    sprzety = dane['sprzety']
+    return render_template('/show_info/pokaz_oprogramowanie_info.html', oprogramowanie=oprogramowanie, sprzety=sprzety)
+
+
+@app.route('/pokaz_biuro_info/<numer_biura>')
+def pokaz_biuro_info(numer_biura):
+    biuro = {'numer': numer_biura, 'budynek': {'nazwa': 'ASD', 'adres': 'Testowa 8'}, 'pietro': 4,
+             'liczba_stanowisk': 3,
+             'oddzial': {'nazwa': 'asd', 'adres': 'Testowa'}}
+    pracownicy = [{'pesel': '328648918623', 'imie': 'Pawel', 'nazwisko': 'Pawlowski', 'dzial': {'nazwa': 'IT'},
+                   'numer_telefonu': '4123124124', 'adres_email': 'asdasf@awe.com'},
+                  {'pesel': '328648918623', 'imie': 'Pawel', 'nazwisko': 'Pawlowski', 'dzial': {'nazwa': 'IT'},
+                   'numer_telefonu': '4123124124', 'adres_email': 'asdasf@awe.com'}]
+    dostepy = [{'karta': {'numer': 13, 'data_przyznania': '02/02/2013'}, 'data_przyznania': '01/12/2019',
+                'data_wygasniecia': '12/12/2019',
+                'pracownik': {'pesel': 21352134, 'imie': 'Łukasz', 'nazwisko': 'Cezary'}}]
+    sprzety = dane['sprzety']
+    return render_template('show_info/pokaz_biuro_info.html', biuro=biuro, pracownicy=pracownicy, dostepy=dostepy,
+                           sprzety=sprzety)
+
+
+@app.route('/pokaz_oddzial_info/<adres>')
+def pokaz_oddzial_info(adres):
+    oddzial = dane['oddzialy'][0]
+    return render_template('show_info/pokaz_oddzial_info.html', oddzial=oddzial, dzialy=dane['dzialy'],
+                           magazyny=dane['magazyny'], budynki=dane['budynki'])
+
+
+@app.route('/pokaz_dzial_info/<nazwa>')
+def pokaz_dzial_info(nazwa):
+    dzial = {'nazwa': 'Information Technology', 'skrot': 'IT',
+             'oddzial': {'nazwa': 'Testowa', 'adres': 'Lokacja też testowa'}}
+    pracownicy = [{'pesel': '328648918623', 'imie': 'Pawel', 'nazwisko': 'Pawlowski', 'dzial': {'nazwa': 'IT'},
+                   'numer_telefonu': '4123124124', 'adres_email': 'asdasf@awe.com'},
+                  {'pesel': '328648918623', 'imie': 'Pawel', 'nazwisko': 'Pawlowski', 'dzial': {'nazwa': 'IT'},
+                   'numer_telefonu': '4123124124', 'adres_email': 'asdasf@awe.com'}]
+    return render_template('show_info/pokaz_dzial_info.html', dzial=dzial, pracownicy=pracownicy)
+
+
+@app.route('/pokaz_magazyn_info/<numer>')
+def pokaz_magazyn_info(numer):
+    magazyn = dane['magazyny'][0]
+    magazyn['zajete_miejsce'] = 12
+    magazyn['wolne_miejsce'] = 3
+    sprzety = dane['sprzety']
+    magazyn['oddzial'] = {}
+    magazyn['oddzial']['nazwa'] = 'Testowy'
+    magazyn['oddzial']['adres'] = 'Kwiatowa'
+    return render_template('show_info/pokaz_magazyn_info.html', magazyn=magazyn, sprzety=sprzety)
+
+
+@app.route('/pokaz_budynek_info/<adres>')
+def pokaz_budynek_info(adres):
+    budynek = dane['budynki'][0]
+    budynek['oddzial'] = {'adres': 'Testowa'}
+    dostepy = [{'karta': {'numer': 13, 'data_przyznania': '02/02/2013'}, 'data_przyznania': '01/12/2019',
+                'data_wygasniecia': '12/12/2019',
+                'pracownik': {'pesel': 21352134, 'imie': 'Łukasz', 'nazwisko': 'Cezary'},
+                'biuro': {'numer': 20}}]
+    biura = dane['biura']
+    return render_template('show_info/pokaz_budynek_info.html', budynek=budynek, dostepy=dostepy, biura=biura)
+
+
+@app.route('/pokaz_karta_dostepu_info/<id_karty>')
+def pokaz_karta_dostepu_info(id_karty):
+    return id_karty
 
 
 @app.route('/przypisz_sprzet/<pesel>')
@@ -229,7 +252,8 @@ def przypisz_sprzet(pesel):
     pracownik = {"pesel": pesel, 'imie': 'Karol', 'nazwisko': 'Testowy'}
     przypisania = [{'id': 1, 'data_przydzialu': '11/12/2019'}, {'id': 4, 'data_przydzialu': '01/01/2019'}]
     sprzety = dane['sprzety']
-    return render_template('add_modify/przypisz_sprzet.html', pracownik=pracownik, przypisania=przypisania, sprzety=sprzety)
+    return render_template('add_modify/przypisz_sprzet.html', pracownik=pracownik, przypisania=przypisania,
+                           sprzety=sprzety)
 
 
 if __name__ == '__main__':

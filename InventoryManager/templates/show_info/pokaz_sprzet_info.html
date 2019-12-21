@@ -3,8 +3,8 @@
 {% block content %}
     <h1>Informacje na temat sprzętu</h1>
     <label for="edit_mode_box">Włącz tryb edycji</label><input type="checkbox" id="edit_mode_box" value="false"/>
-    <div class="table-container">
-        <h1>{{ dane['typ'] }} o numerze {{ dane['numer_ewidencyjny'] }}</h1>
+    <h1>Sprzęt typu {{ sprzet['typ'] }} o numerze {{ sprzet['numer'] }}</h1>
+    <div>
         <h3>Dane</h3>
         <table>
             <thead>
@@ -19,38 +19,32 @@
             </tr>
             </thead>
             <tr>
+                <td>{{ sprzet['numer'] }}</td>
+                <td>{{ sprzet['typ'] }}</td>
+                <td>{{ sprzet['nazwa'] }}</td>
+                <td>{{ sprzet['producent'] }}</td>
+                <td>{{ sprzet['data_zakupu'] }}</td>
                 <td>
-                    {{ dane['numer_ewidencyjny'] }}
+                    {% if sprzet['stan']['gdzie'] == 'pracownik' %}
+                        Przpisany do pracownika
+                        <a href="{{ url_for('pokaz_pracownik_info', pesel=sprzet['stan']['id']) }}">{{ sprzet['stan']['text'] }}</a>
+                    {% elif sprzet['stan']['gdzie'] == 'biuro' %}
+                        {#                        TODO: biuro#}
+                    {% else %}
+                        {#                    TODO: magazyn#}
+                    {% endif %}
                 </td>
-                <td>
-                    {{ dane['typ'] }}
-                </td>
-                <td>
-                    {{ dane['nazwa'] }}
-                </td>
-                <td>
-                    {{ dane['producent'] }}
-                </td>
-
-                <td>
-                    {{ dane['data_zakupu'] }}
-                </td>
-                <td>
-                    Przpisany do pracownika <a href="/pokaz_pracownik_info/0">{{ dane['stan'] }}</a>
-                    <!--TODO: Inaczej to przekazywać, oczywiście -->
-                </td>
-                <td>
-                    {{ dane['uwagi'] }}
-                </td>
+                <td>{{ sprzet['uwagi'] }}</td>
                 <td class="edit_mode_element">
                     <input type="submit" value="Edytuj">
                 </td>
             </tr>
         </table>
-
+    </div>
+    <div>
         <h3>Zainstalowane oprogramowanie</h3>
-        <form class="edit_mode_element" action="/"><input type="submit"
-                                                                         value="Przypisz nowe oprogramowanie"></form>
+        <form class="edit_mode_element" action="/">
+            <input type="submit" value="Przypisz nowe oprogramowanie"></form>
         <table>
             <thead>
             <tr>
@@ -61,23 +55,13 @@
                 <td>Data wygaśnięcia licencji</td>
             </tr>
             </thead>
-            {% for software in softwares %}
+            {% for oprogramowanie in oprogramowania %}
                 <tr>
-                    <td>
-                        {{ software['numer'] }}
-                    </td>
-                    <td>
-                        {{ software['nazwa'] }}
-                    </td>
-                    <td>
-                        {{ software['producent'] }}
-                    </td>
-                    <td>
-                        {{ software['data_zakupu'] }}
-                    </td>
-                    <td>
-                        {{ software['data_wygasniecia'] }}
-                    </td>
+                    <td>{{ oprogramowanie['numer'] }}</td>
+                    <td>{{ oprogramowanie['nazwa'] }}</td>
+                    <td>{{ oprogramowanie['producent'] }}</td>
+                    <td>{{ oprogramowanie['data_zakupu'] }}</td>
+                    <td>{{ oprogramowanie['data_wygasniecia'] }}</td>
                     <td>
                         <form action="/"><input type="submit" value="Przejdź"></form>
                     </td>
@@ -88,6 +72,9 @@
                 </tr>
             {% endfor %}
         </table>
+    </div>
+    <div>
+{#    TODO: Historia przypisań#}
     </div>
     <script src="{{ url_for('static', filename='javascript/enter_edit_mode.js') }}"></script>
 {% endblock %}

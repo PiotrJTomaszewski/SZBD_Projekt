@@ -3,8 +3,8 @@
 {% block content %}
     <h1>{{ site_data['title'] }}</h1>
     <label for="edit_mode_box">Włącz tryb edycji</label><input type="checkbox" id="edit_mode_box" value="false"/>
-    <form class="edit_mode_element" action="{{ site_data['add_new_button_link'] }}"><input type="submit"
-                                                                                                         value="{{ site_data['add_new_button_text'] }}"/>
+    <form class="edit_mode_element" action="{{ site_data['add_new_button_link'] }}">
+        <input type="submit" value="{{ site_data['add_new_button_text'] }}"/>
     </form>
     <div class="table-container">
         {% if col_names != null %}
@@ -40,4 +40,5 @@
         {% endif %}
     </div>
     <script src="{{ url_for('static', filename='javascript/enter_edit_mode.js') }}"></script>
+
 {% endblock %}

@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+{% block title %}Lista pracowników{% endblock %}
+{% block content %}
+    <h1>Lista biur</h1>
+    <label for="edit_mode_box">Włącz tryb edycji</label><input type="checkbox" id="edit_mode_box" value="false"/>
+    <form class="edit_mode_element" action="{{ url_for('dodaj_biuro') }}">
+        <input type="submit" value="Dodaj biuro"/>
+    </form>
+    <div class="table-container">
+        <table>
+            <thead>
+            <tr>
+                <td>Numer</td>
+                <td>Liczba stanowisk</td>
+{#                <td>Oddział</td>#}
+                <td>Budynek</td>
+                <td>Numer piętra</td>
+            </tr>
+            </thead>
+            {% for biuro in biura %}
+                <tr>
+                    <td>{{ biuro['numer'] }}</td>
+                    <td>{{ biuro['liczba_stanowisk'] }}</td>
+{#                    <td>#}
+{#                        <a href="{{ url_for('pokaz_oddzial_info', adres=biuro['oddzial']['adres']) }}">{{ biuro['oddzial']['adres'] }}</a>#}
+{#                    </td>#}
+                    <td>
+                        <a href="{{ url_for('pokaz_budynek_info', adres=biuro['budynek']['adres']) }}">{{ biuro['budynek']['adres'] }}</a>
+                    </td>
+                    <td>{{ biuro['pietro'] }}</td>
+                    <td>
+                        <form action="{{ url_for('pokaz_biuro_info', numer_biura=biuro['numer']) }}">
+                            <input type="submit" value="Przejdź">
+                        </form>
+                    </td>
+                    <td class="edit_mode_element">
+                        <form>
+                            <input type="submit" value="Edytuj">
+                        </form>
+                    </td>
+                </tr>
+            {% endfor %}
+        </table>
+    </div>
+    <script src="{{ url_for('static', filename='javascript/enter_edit_mode.js') }}"></script>
+{% endblock %}

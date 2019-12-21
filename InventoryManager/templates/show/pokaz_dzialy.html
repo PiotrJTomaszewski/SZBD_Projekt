@@ -1,25 +1,29 @@
 {% extends "base.html" %}
-{% block title %}Lista oddziałów{% endblock %}
+{% block title %}Lista działów{% endblock %}
 {% block content %}
-    <h1>Lista oddziałów</h1>
+    <h1>Lista działów</h1>
     <label for="edit_mode_box">Włącz tryb edycji</label><input type="checkbox" id="edit_mode_box" value="false"/>
-    <form class="edit_mode_element" action="{{ url_for('dodaj_oddzial') }}">
-        <input type="submit" value="Dodaj oddział"/>
+    <form class="edit_mode_element" action="{{ url_for('dodaj_dzial') }}">
+        <input type="submit" value="Dodaj dział"/>
     </form>
     <div class="table-container">
         <table>
             <thead>
             <tr>
-                <td>Adres</td>
                 <td>Nazwa</td>
+                <td>Skrót nazwy</td>
+                <td>Oddział</td>
             </tr>
             </thead>
-            {% for oddzial in oddzialy %}
+            {% for dzial in dzialy %}
                 <tr>
-                    <td>{{ oddzial['adres'] }}</td>
-                    <td>{{ oddzial['nazwa'] }}</td>
+                    <td>{{ dzial['nazwa'] }}</td>
+                    <td>{{ dzial['skrot']}}</td>
                     <td>
-                        <form action="{{ url_for('pokaz_oddzial_info', adres=oddzial['adres']) }}">
+                        <a href="{{ url_for('pokaz_oddzial_info', adres=dzial['oddzial']['adres']) }}">{{ dzial['oddzial']['adres'] }}</a>
+                    </td>
+                    <td>
+                        <form action="{{ url_for('pokaz_dzial_info', nazwa=dzial['nazwa']) }}">
                             <input type="submit" value="Przejdź">
                         </form>
                     </td>

@@ -1,0 +1,97 @@
+{% extends "base.html" %}
+{% block title %}Informacje na temat budynku{% endblock %}
+{% block content %}
+    <h1>Informacje na temat budynku</h1>
+    <label for="edit_mode_box">Włącz tryb edycji</label><input type="checkbox" id="edit_mode_box" value="false"/>
+    <h1>Budynek {{ budynek['nazwa'] }} ({{ budynek['adres'] }}) w oddziale {{ budynek['oddzial']['adres'] }}</h1>
+    <div>
+        <h3>Informacje</h3>
+        <table>
+            <thead>
+            <tr>
+                <td>Adres</td>
+                <td>Nazwa</td>
+                <td>Liczba pięter</td>
+                <td>Oddział</td>
+            </tr>
+            </thead>
+            <tr>
+                <td>{{ budynek['adres'] }}</td>
+                <td>{{ budynek['nazwa'] }}</td>
+                <td>{{ budynek['liczba_pieter'] }}</td>
+                <td><a href="{{ url_for('pokaz_oddzial_info', adres=budynek['oddzial']['adres']) }}">{{ budynek['oddzial']['adres'] }}</a></td>
+                <td class="edit_mode_element">
+                    <input type="submit" value="Edytuj">
+                </td>
+            </tr>
+        </table>
+    </div>
+    <div>
+        <h3>Biura w budynku</h3>
+        {#        <form class="edit_mode_element" action="{{ url_for("", pesel=dane_osobowe['pesel']) }}">#}
+        {#            <input type="submit" value="Przypisz nowy sprzęt">#}
+        {#        </form>#}
+        <table>
+            <thead>
+            <tr>
+                <td>Numer</td>
+                <td>Liczba stanowisk</td>
+                <td>Piętro</td>
+            </tr>
+            </thead>
+            {% for biuro in biura %}
+                <tr>
+                    <td>{{ biuro['numer'] }}</td>
+                    <td>{{ biuro['liczba_stanowisk'] }}</td>
+                    <td>{{ biuro['pietro'] }}</td>
+                    <td>
+                        <form action="{{ url_for('pokaz_biuro_info', numer_biura=biuro['numer']) }}"><input
+                                type="submit" value="Przejdź">
+                        </form>
+                    </td>
+                    <td class="edit_mode_element">
+                        <input type="submit" value="Edytuj">
+                    </td>
+                </tr>
+            {% endfor %}
+        </table>
+    </div>
+    <div>
+        <h3>Dostęp do budynku</h3>
+        {#        <form class="edit_mode_element" style="display: none;" action="/"><input type="submit"#}
+        {#                                                                         value="Przyznaj nową kartę"></form>#}
+        {#        {% for karta in karty_dostepu %}#}
+        {#            <form class="edit_mode_element" style="display: none;" action="/"><input type="submit"#}
+        {#                                                                             value="Dodaj nowe prawo dostępu">#}
+        {#            </form>#}
+        <table>
+            <thead>
+            <tr>
+                <td>Numer karty</td>
+                <td>Data przyznania prawa</td>
+                <td>Data wygaśnięcia prawa</td>
+                <td>PESEL pracownika</td>
+                <td>Imię pracownika</td>
+                <td>Nazwisko pracownika</td>
+                <td>Biuro</td>
+            </tr>
+            </thead>
+            {% for dostep in dostepy %}
+                <tr>
+                    <td><a href="{{ url_for('pokaz_karta_dostepu_info', id_karty=dostep['karta']['numer']) }}"> {{ dostep['karta']['numer'] }}</a></td>
+                    <td>{{ dostep['data_przyznania'] }}</td>
+                    <td>{{ dostep['data_wygasniecia'] }}</td>
+                    <td>
+                        <a href="{{ url_for('pokaz_pracownik_info', pesel=dostep['pracownik']['pesel']) }}">{{ dostep['pracownik']['pesel'] }}</a>
+                    </td>
+                    <td>{{ dostep['pracownik']['imie'] }}</td>
+                    <td>{{ dostep['pracownik']['nazwisko'] }}</td>
+                    <td><a href="{{ url_for('pokaz_biuro_info', numer_biura=dostep['biuro']['numer']) }}">{{ dostep['biuro']['numer'] }}</a></td>
+                    <td class="edit_mode_element"><input type="submit" value="Edytuj"></td>
+                </tr>
+            {% endfor %}
+        </table>
+    </div>
+
+    <script src="{{ url_for('static', filename='javascript/enter_edit_mode.js') }}"></script>
+{% endblock %}

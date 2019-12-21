@@ -1,0 +1,118 @@
+{% extends "base.html" %}
+{% block title %}Informacje na temat oddziału{% endblock %}
+{% block content %}
+    <h1>Informacje na temat oddziału</h1>
+    <label for="edit_mode_box">Włącz tryb edycji</label><input type="checkbox" id="edit_mode_box" value="false"/>
+    <h1>Oddział "{{ oddzial['nazwa'] }}" pod adresem {{ oddzial['adres'] }}</h1>
+    <div>
+        <h3>Informacje</h3>
+        <table>
+            <thead>
+            <tr>
+                <td>Adres</td>
+                <td>Nazwa</td>
+            </tr>
+            </thead>
+            <tr>
+                <td>{{ oddzial['adres'] }}</td>
+                <td>{{ oddzial['nazwa'] }}</td>
+                <td class="edit_mode_element">
+                    <input type="submit" value="Edytuj">
+                </td>
+            </tr>
+        </table>
+    </div>
+    <div>
+        <h3>Działy</h3>
+        {#        <form class="edit_mode_element" action="{{ url_for("", pesel=dane_osobowe['pesel']) }}">#}
+        {#            <input type="submit" value="Przypisz nowy sprzęt">#}
+        {#        </form>#}
+        <table>
+            <thead>
+            <tr>
+                <td>Nazwa</td>
+                <td>Skrót</td>
+            </tr>
+            </thead>
+            {% for dzial in dzialy %}
+                <tr>
+                    <td>{{ dzial['nazwa'] }}</td>
+                    <td>{{ dzial['skrot'] }}</td>
+                    <td>
+                        <form action="{{ url_for('pokaz_dzial_info', nazwa=dzial['nazwa']) }}"><input type="submit"
+                                                                                                      value="Przejdź">
+                        </form>
+                    </td>
+                    <td class="edit_mode_element">
+                        <input type="submit" value="Edytuj">
+                    </td>
+                </tr>
+            {% endfor %}
+        </table>
+    </div>
+    <div>
+        <h3>Magazyny</h3>
+        {#        <form class="edit_mode_element" style="display: none;" action="/"><input type="submit"#}
+        {#                                                                         value="Przyznaj nową kartę"></form>#}
+        {#        {% for karta in karty_dostepu %}#}
+        {#            <form class="edit_mode_element" style="display: none;" action="/"><input type="submit"#}
+        {#                                                                             value="Dodaj nowe prawo dostępu">#}
+        {#            </form>#}
+        <table>
+            <thead>
+            <tr>
+                <td>Numer</td>
+                <td>Pojemność</td>
+            </tr>
+            </thead>
+            {% for magazyn in magazyny %}
+                <tr>
+                    <td>{{ magazyn['numer'] }}</td>
+                    <td>{{ magazyn['pojemnosc'] }}</td>
+                    <td>
+                        <form action="{{ url_for('pokaz_magazyn_info', numer=magazyn['numer']) }}">
+                            <input type="submit" value="Przejdź">
+                        </form>
+                    </td>
+                    <td class="edit_mode_element">
+                        <input type="submit" value="Edytuj">
+                    </td>
+                </tr>
+            {% endfor %}
+        </table>
+    </div>
+    <div>
+        <h3>Budynki</h3>
+        {#        <form class="edit_mode_element" style="display: none;" action="/"><input type="submit"#}
+        {#                                                                         value="Przyznaj nową kartę"></form>#}
+        {#        {% for karta in karty_dostepu %}#}
+        {#            <form class="edit_mode_element" style="display: none;" action="/"><input type="submit"#}
+        {#                                                                             value="Dodaj nowe prawo dostępu">#}
+        {#            </form>#}
+        <table>
+            <thead>
+            <tr>
+                <td>Adres</td>
+                <td>Nazwa</td>
+                <td>Liczba pięter</td>
+            </tr>
+            </thead>
+            {% for budynek in budynki %}
+                <tr>
+                    <td>{{ budynek['adres'] }}</td>
+                    <td>{{ budynek['nazwa'] }}</td>
+                    <td>{{ budynek['liczba_pieter'] }}</td>
+                    <td>
+                        <form action="{{ url_for('pokaz_budynek_info', adres=budynek['adres']) }}">
+                            <input type="submit" value="Przejdź">
+                        </form>
+                    </td>
+                    <td class="edit_mode_element">
+                        <input type="submit" value="Edytuj">
+                    </td>
+                </tr>
+            {% endfor %}
+        </table>
+    </div>
+    <script src="{{ url_for('static', filename='javascript/enter_edit_mode.js') }}"></script>
+{% endblock %}

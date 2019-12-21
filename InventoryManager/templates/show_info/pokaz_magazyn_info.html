@@ -1,0 +1,65 @@
+{% extends "base.html" %}
+{% block title %}Informacje na temat magazynu{% endblock %}
+{% block content %}
+    <h1>Informacje na temat magazynu</h1>
+    <label for="edit_mode_box">Włącz tryb edycji</label><input type="checkbox" id="edit_mode_box" value="false"/>
+    <h1>Magazyn numer {{ magazyn['numer'] }} w oddziale {{ magazyn['oddzial']['nazwa'] }}
+        ({{ magazyn['oddzial']['adres'] }})</h1>
+    <div>
+        <h3>Informacje</h3>
+        <table>
+            <thead>
+            <tr>
+                <td>Numer</td>
+                <td>Pojemność</td>
+                <td>Zajęte miejsce</td>
+                <td>Wolne miejsce</td>
+            </tr>
+            </thead>
+            <tr>
+                <td>{{ magazyn['numer'] }}</td>
+                <td>{{ magazyn['pojemnosc'] }}</td>
+                <td>{{ magazyn['zajete_miejsce'] }}</td>
+                <td>{{ magazyn['wolne_miejsce'] }}</td>
+                <td class="edit_mode_element">
+                    <input type="submit" value="Edytuj">
+                </td>
+            </tr>
+        </table>
+    </div>
+
+    <div>
+        <h3>Sprzęt na magazynie</h3>
+{#        <form class="edit_mode_element" action="{{ url_for("przypisz_sprzet", pesel=pracownik['pesel']) }}">#}
+{#            <input type="submit" value="Przypisz nowy sprzęt">#}
+{#        </form>#}
+        <table>
+            <thead>
+            <tr>
+                <td>Numer ewidencyjny</td>
+                <td>Typ</td>
+                <td>Nazwa</td>
+                <td>Producent</td>
+            </tr>
+            </thead>
+            {% for sprzet in sprzety %}
+                <tr>
+                    <td>{{ sprzet['numer'] }}</td>
+                    <td>{{ sprzet['typ'] }}</td>
+                    <td>{{ sprzet['nazwa'] }}</td>
+                    <td>{{ sprzet['producent'] }}</td>
+                    <td>
+                        <form action="{{ url_for('pokaz_sprzet_info', numer_ewidencyjny=sprzet['numer']) }}"><input
+                                type="submit" value="Przejdź">
+                        </form>
+                    </td>
+                    <td class="edit_mode_element">
+                        <input type="submit" value="Edytuj">
+                        <input type="submit" value="Przypisz sprzęt">
+                    </td>
+                </tr>
+            {% endfor %}
+        </table>
+    </div>
+    <script src="{{ url_for('static', filename='javascript/enter_edit_mode.js') }}"></script>
+{% endblock %}
