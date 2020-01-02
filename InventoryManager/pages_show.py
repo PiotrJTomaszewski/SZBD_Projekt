@@ -1,24 +1,5 @@
-from flask import Flask, render_template, request, flash, redirect, url_for
-import mysql.connector as db
+from flask import Flask, render_template, request, flash, redirect, url_for, Blueprint
 import data_generators.create_workers as creator
-
-from pages_show import show
-from pages_show_info import show_info
-from pages_add import add
-from pages_edit import edit
-from pages_assign import assign
-
-# Register blueprints
-app = Flask(__name__)
-app.register_blueprint(show)
-app.register_blueprint(show_info)
-app.register_blueprint(add)
-app.register_blueprint(edit)
-app.register_blueprint(assign)
-
-conn_args = {'host': 'localhost', 'database': 'sbdbazadanych', 'user': 'db_projekt', 'password': 'db_projekt'}
-
-app.secret_key = 'Super secret key. Please don\'t look at it :)'
 
 workers = creator.gen_workers_dict(10)
 
@@ -46,25 +27,48 @@ dane = {
          'numer_magazynu': 2, 'data_przyznania': '01/11/2016'}]
 }
 
-
-# TODO: Dodać wyświetlanie listy sprzętu i oprogramowania
-
-def read_from_database(what):
-    conn = db.connect(**conn_args)
-    cursor = conn.cursor()
-    cursor.execute('SELECT * FROM ' + what)
-    cols = [i[0].upper() for i in cursor.description]
-    rows = cursor.fetchall()
-    conn.close()
-    return cols, rows
+show = Blueprint('show', __name__)
 
 
-@app.route('/')
-def tmp_root():
-    strony = ['dodaj_oddzial', 'dodaj_magazyn', 'dodaj_sprzet', 'dodaj_oprogramowanie', 'dodaj_pracownika',
-              'dodaj_budynek', 'dodaj_dzial']
-    return render_template('tmp/tymczasowy_index.html', strony=strony)
+@show.route('/pracownicy')
+def pracownicy():
+    # col_names, rows = read_from_database('pracownik')
+    pracownicy = workers
+    for i in range(len(pracownicy)):
+        if pracownicy[i]['czy_nadal_pracuje'] == '1':
+            pracownicy[i]['czy_nadal_pracuje'] = 'Tak'
+        else:
+            pracownicy[i]['czy_nadal_pracuje'] = 'Nie'
+    return render_template('show/pokaz_pracownicy.html', pracownicy=pracownicy)
 
 
-if __name__ == '__main__':
-    app.run(debug=True)
+@show.route('/biura')
+def biura():
+    biura = [{'numer': i['numer'], 'budynek': i['budynek'],
+              'pietro': 3, 'liczba_stanowisk': 12} for i in dane['biura']]
+    return render_template('show/pokaz_biura.html', biura=biura)
+
+
+@show.route('/oddzialy')
+def oddzialy():
+    oddzialy = dane['oddzialy']
+    # col_names, rows = read_from_database('oddzial')
+    return render_template('show/pokaz_oddzialy.html', oddzialy=oddzialy)
+
+
+@show.route('/dzialy')
+def dzialy():
+    dzialy = dane['dzialy']
+    return render_template('show/pokaz_dzialy.html', dzialy=dzialy)
+
+
+@show.route('/budynki')
+def budynki():
+    budynki = dane['budynki']
+    return render_template('show/pokaz_budynki.html', budynki=budynki)
+
+
+@show.route('/magazyny')
+def magazyny():
+    magazyny = dane['magazyny']
+    return render_template('show/pokaz_magazyny.html', magazyny=magazyny)

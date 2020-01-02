@@ -1,24 +1,6 @@
-from flask import Flask, render_template, request, flash, redirect, url_for
-import mysql.connector as db
+from flask import Flask, render_template, request, flash, redirect, url_for, Blueprint
 import data_generators.create_workers as creator
-
-from pages_show import show
-from pages_show_info import show_info
-from pages_add import add
-from pages_edit import edit
-from pages_assign import assign
-
-# Register blueprints
-app = Flask(__name__)
-app.register_blueprint(show)
-app.register_blueprint(show_info)
-app.register_blueprint(add)
-app.register_blueprint(edit)
-app.register_blueprint(assign)
-
-conn_args = {'host': 'localhost', 'database': 'sbdbazadanych', 'user': 'db_projekt', 'password': 'db_projekt'}
-
-app.secret_key = 'Super secret key. Please don\'t look at it :)'
+from forms import *
 
 workers = creator.gen_workers_dict(10)
 
@@ -46,25 +28,34 @@ dane = {
          'numer_magazynu': 2, 'data_przyznania': '01/11/2016'}]
 }
 
-
-# TODO: Dodać wyświetlanie listy sprzętu i oprogramowania
-
-def read_from_database(what):
-    conn = db.connect(**conn_args)
-    cursor = conn.cursor()
-    cursor.execute('SELECT * FROM ' + what)
-    cols = [i[0].upper() for i in cursor.description]
-    rows = cursor.fetchall()
-    conn.close()
-    return cols, rows
+edit = Blueprint('edit', __name__)
 
 
-@app.route('/')
-def tmp_root():
-    strony = ['dodaj_oddzial', 'dodaj_magazyn', 'dodaj_sprzet', 'dodaj_oprogramowanie', 'dodaj_pracownika',
-              'dodaj_budynek', 'dodaj_dzial']
-    return render_template('tmp/tymczasowy_index.html', strony=strony)
+@edit.route('/edytuj_pracownika/<pesel>', methods=['GET', 'POST'])
+def edytuj_pracownika(pesel):
+    offices = [[biuro['numer'], 'Biuro {} w budynku {}'.format(biuro['numer'], biuro['budynek']['adres'])] for biuro in
+               dane['biura']]
+    depts = [[dzial['nazwa'], 'Dział {} ({})'.format(dzial['nazwa'], dzial['skrot'])] for dzial in
+             dane['dzialy']]
 
+    title = 'Edytuj pracownika'
 
-if __name__ == '__main__':
-    app.run(debug=True)
+    form = AddEditWorkerForm()
+    form.office_number.choices = offices
+    form.dept_name.choices = depts
+
+    worker = workers[0]
+    form.pesel.default = pesel
+    form.name.default = 'Anita'
+    form.surname.default = 'Testowa'
+    form.phone_number.default = worker.get(667123321)
+    form.is_still_working.default = True
+    form.process()
+    if request.method == 'POST':
+        if form.validate():
+            return redirect(url_for('show_info.pokaz_pracownik_info', pesel=form.pesel.value))
+        else:
+            flash('Proszę upewnić się czy wszystkie pola zostały poprawnie wypełnione!')
+            return render_template('add_modify/dodaj_edytuj_pracownika.html', form=form, title=title)
+    else:
+        return render_template('add_modify/dodaj_edytuj_pracownika.html', form=form, title=title)

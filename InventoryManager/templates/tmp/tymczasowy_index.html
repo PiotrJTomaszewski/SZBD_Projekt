@@ -10,31 +10,31 @@
     <a href="{{ link }}">{{ link }}</a><br/>
 {% endfor %}
 <div class="navigation-container">
-    <a href="{{ url_for('pracownicy') }}">
+    <a href="{{ url_for('show.pracownicy') }}">
         <button>Pracownicy</button>
     </a>
-    <a href="{{ url_for('oddzialy') }}">
+    <a href="{{ url_for('show.oddzialy') }}">
         <button>Oddziały</button>
     </a>
-    <a href="{{ url_for('budynki') }}">
+    <a href="{{ url_for('show.budynki') }}">
         <button>Budynki</button>
     </a>
-    <a href="{{ url_for('biura') }}">
+    <a href="{{ url_for('show.biura') }}">
         <button>Biura</button>
     </a>
-    <a href="{{ url_for('dzialy') }}">
+    <a href="{{ url_for('show.dzialy') }}">
         <button>Działy</button>
     </a>
     <br/>
-    <a href="{{ url_for('pokaz_oddzial_info', adres='Testowa') }}">Oddział info</a><br/>
-    <a href="{{ url_for('pokaz_dzial_info', nazwa='Information Technology') }}">Dział info</a><br/>
-    <a href="{{ url_for('pokaz_magazyn_info', numer='1') }}">Magazyn info</a><br/>
-    <a href="{{ url_for('pokaz_budynek_info', adres='Testowa 1') }}">Budynek info</a><br/>
-    <a href="{{ url_for('pokaz_biuro_info', numer_biura='12') }}">Biuro info</a><br/>
-    <a href="{{ url_for('pokaz_pracownik_info', pesel='125124251') }}">Pracownik info</a><br/>
-    <a href="{{ url_for('pokaz_karta_dostepu_info', id_karty='23') }}">Karta dostępu info</a><br/>
-    <a href="{{ url_for('pokaz_sprzet_info', numer_ewidencyjny='23') }}">Sprzęt info</a><br/>
-    <a href="{{ url_for('pokaz_oprogramowanie_info', numer_ewidencyjny='321') }}">Oprogramowanie info</a><br/>
+    <a href="{{ url_for('show_info.pokaz_oddzial_info', adres='Testowa') }}">Oddział info</a><br/>
+    <a href="{{ url_for('show_info.pokaz_dzial_info', nazwa='Information Technology') }}">Dział info</a><br/>
+    <a href="{{ url_for('show_info.pokaz_magazyn_info', numer='1') }}">Magazyn info</a><br/>
+    <a href="{{ url_for('show_info.pokaz_budynek_info', adres='Testowa 1') }}">Budynek info</a><br/>
+    <a href="{{ url_for('show_info.pokaz_biuro_info', numer_biura='12') }}">Biuro info</a><br/>
+    <a href="{{ url_for('show_info.pokaz_pracownik_info', pesel='125124251') }}">Pracownik info</a><br/>
+    <a href="{{ url_for('show_info.pokaz_karta_dostepu_info', id_karty='23') }}">Karta dostępu info</a><br/>
+    <a href="{{ url_for('show_info.pokaz_sprzet_info', numer_ewidencyjny='23') }}">Sprzęt info</a><br/>
+    <a href="{{ url_for('show_info.pokaz_oprogramowanie_info', numer_ewidencyjny='321') }}">Oprogramowanie info</a><br/>
 
 </div>
 </body>

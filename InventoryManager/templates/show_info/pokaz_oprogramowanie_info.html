@@ -52,7 +52,7 @@
                     <td>{{ sprzet['nazwa'] }}</td>
                     <td>{{ sprzet['producent'] }}</td>
                     <td>
-                        <form action="{{ url_for('pokaz_sprzet_info', numer_ewidencyjny=sprzet['numer']) }}"><input
+                        <form action="{{ url_for('show_info.pokaz_sprzet_info', numer_ewidencyjny=sprzet['numer']) }}"><input
                                 type="submit" value="Przejdź">
                         </form>
                     </td>

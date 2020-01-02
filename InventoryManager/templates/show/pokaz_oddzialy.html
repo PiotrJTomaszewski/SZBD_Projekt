@@ -3,7 +3,7 @@
 {% block content %}
     <h1>Lista oddziałów</h1>
     <label for="edit_mode_box">Włącz tryb edycji</label><input type="checkbox" id="edit_mode_box" value="false"/>
-    <form class="edit_mode_element" action="{{ url_for('dodaj_oddzial') }}">
+    <form class="edit_mode_element" action="{{ url_for('add.dodaj_oddzial') }}">
         <input type="submit" value="Dodaj oddział"/>
     </form>
     <div class="table-container">
@@ -19,7 +19,7 @@
                     <td>{{ oddzial['adres'] }}</td>
                     <td>{{ oddzial['nazwa'] }}</td>
                     <td>
-                        <form action="{{ url_for('pokaz_oddzial_info', adres=oddzial['adres']) }}">
+                        <form action="{{ url_for('show_info.pokaz_oddzial_info', adres=oddzial['adres']) }}">
                             <input type="submit" value="Przejdź">
                         </form>
                     </td>

@@ -3,7 +3,7 @@
 {% block content %}
     <h1>Lista biur</h1>
     <label for="edit_mode_box">Włącz tryb edycji</label><input type="checkbox" id="edit_mode_box" value="false"/>
-    <form class="edit_mode_element" action="{{ url_for('dodaj_biuro') }}">
+    <form class="edit_mode_element" action="{{ url_for('add.dodaj_biuro') }}">
         <input type="submit" value="Dodaj biuro"/>
     </form>
     <div class="table-container">
@@ -25,11 +25,11 @@
 {#                        <a href="{{ url_for('pokaz_oddzial_info', adres=biuro['oddzial']['adres']) }}">{{ biuro['oddzial']['adres'] }}</a>#}
 {#                    </td>#}
                     <td>
-                        <a href="{{ url_for('pokaz_budynek_info', adres=biuro['budynek']['adres']) }}">{{ biuro['budynek']['adres'] }}</a>
+                        <a href="{{ url_for('show_info.pokaz_budynek_info', adres=biuro['budynek']['adres']) }}">{{ biuro['budynek']['adres'] }}</a>
                     </td>
                     <td>{{ biuro['pietro'] }}</td>
                     <td>
-                        <form action="{{ url_for('pokaz_biuro_info', numer_biura=biuro['numer']) }}">
+                        <form action="{{ url_for('show_info.pokaz_biuro_info', numer_biura=biuro['numer']) }}">
                             <input type="submit" value="Przejdź">
                         </form>
                     </td>

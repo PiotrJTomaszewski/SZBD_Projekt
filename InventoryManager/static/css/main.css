@@ -1,11 +1,18 @@
-/*TODO: Trzeba wybrać sobie jakąś fajną paletę kolorystyczną.*/
+a {
+    color: inherit;
+}
 
 body {
-    margin: 0;
+    /*margin: 0;*/
     padding: 0;
     font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
     background-color: gainsboro;
     font-size: 13px;
+    width: 90%;
+    margin: auto;
+}
+
+.content {
 }
 
 table {
@@ -26,11 +33,6 @@ thead {
     margin: 20px;
 }
 
-.navigation-container {
-    width: 800px;
-    margin-bottom: 30px;
-}
-
 button {
     margin: 20px;
     width: 120px;
@@ -38,6 +40,12 @@ button {
 
 .edit_mode_element {
     display: none;
+}
+
+#navigation_container {
+    /*width: 800px;*/
+    /*margin-bottom: 30px;*/
+    padding-bottom: 30px;
 }
 
 #navigation_panel {
@@ -60,4 +68,19 @@ button {
 
 .navigation_panel_element .navigation_panel_link:hover {
     background-color: #ffffff;
+}
+
+#footer {
+    margin-top: 50px;
+}
+
+.single_flashed_message {
+    font-size: 30px;
+    font-weight: bold;
+    color: #b73939;
+    background-color: #8a584d3d;
+    padding: 10px;
+    margin-bottom: 20px;
+    border-width: 10px;
+    border-style: solid;
 }

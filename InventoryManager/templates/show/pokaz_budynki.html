@@ -3,7 +3,7 @@
 {% block content %}
     <h1>Lista budynków</h1>
     <label for="edit_mode_box">Włącz tryb edycji</label><input type="checkbox" id="edit_mode_box" value="false"/>
-    <form class="edit_mode_element" action="{{ url_for('dodaj_dzial') }}">
+    <form class="edit_mode_element" action="{{ url_for('add.dodaj_budynek') }}">
         <input type="submit" value="Dodaj budynek"/>
     </form>
     <div class="table-container">
@@ -22,10 +22,10 @@
                     <td>{{ budynek['nazwa']}}</td>
                     <td>{{ budynek['liczba_pieter']}}</td>
                     <td>
-                        <a href="{{ url_for('pokaz_oddzial_info', adres=budynek['oddzial']['adres']) }}">{{ budynek['oddzial']['adres'] }}</a>
+                        <a href="{{ url_for('show_info.pokaz_oddzial_info', adres=budynek['oddzial']['adres']) }}">{{ budynek['oddzial']['adres'] }}</a>
                     </td>
                     <td>
-                        <form action="{{ url_for('pokaz_budynek_info', adres=budynek['adres']) }}">
+                        <form action="{{ url_for('show_info.pokaz_budynek_info', adres=budynek['adres']) }}">
                             <input type="submit" value="Przejdź">
                         </form>
                     </td>

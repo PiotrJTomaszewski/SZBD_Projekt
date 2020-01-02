@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% from "macros.html" import flash_messages, render_field %}
+{% block title %}{{ title }}{% endblock %}
+{% block content %}
+    <h1>{{ title }}</h1>
+    {{ flash_messages() }}
+    <div id="data_input_form">
+        <form action="{{ url_for('dodaj_pracownika') }}" method=post>
+            <fieldset>
+                <legend>{{ title }}</legend>
+                {{ form.hidden_tag() }}
+                {{ render_field(form.pesel) }}
+                {{ render_field(form.name) }}
+                {{ render_field(form.surname) }}
+                {{ render_field(form.phone_number) }}
+                {{ render_field(form.email_address) }}
+                {{ render_field(form.dept_name) }}
+                {{ render_field(form.office_number) }}
+                {{ render_field(form.is_still_working) }}
+                {{ render_field(form.submit) }}
+            </fieldset>
+        </form>
+    </div>
+{% endblock %}

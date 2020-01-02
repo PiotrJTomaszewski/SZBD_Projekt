@@ -39,7 +39,7 @@
                     <td>{{ dzial['nazwa'] }}</td>
                     <td>{{ dzial['skrot'] }}</td>
                     <td>
-                        <form action="{{ url_for('pokaz_dzial_info', nazwa=dzial['nazwa']) }}"><input type="submit"
+                        <form action="{{ url_for('show_info.pokaz_dzial_info', nazwa=dzial['nazwa']) }}"><input type="submit"
                                                                                                       value="Przejdź">
                         </form>
                     </td>
@@ -70,7 +70,7 @@
                     <td>{{ magazyn['numer'] }}</td>
                     <td>{{ magazyn['pojemnosc'] }}</td>
                     <td>
-                        <form action="{{ url_for('pokaz_magazyn_info', numer=magazyn['numer']) }}">
+                        <form action="{{ url_for('show_info.pokaz_magazyn_info', numer=magazyn['numer']) }}">
                             <input type="submit" value="Przejdź">
                         </form>
                     </td>
@@ -103,7 +103,7 @@
                     <td>{{ budynek['nazwa'] }}</td>
                     <td>{{ budynek['liczba_pieter'] }}</td>
                     <td>
-                        <form action="{{ url_for('pokaz_budynek_info', adres=budynek['adres']) }}">
+                        <form action="{{ url_for('show_info.pokaz_budynek_info', adres=budynek['adres']) }}">
                             <input type="submit" value="Przejdź">
                         </form>
                     </td>

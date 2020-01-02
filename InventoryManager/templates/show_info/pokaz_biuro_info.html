@@ -19,8 +19,8 @@
             <tr>
                 <td>{{ biuro['numer'] }}</td>
                 <td>{{ biuro['liczba_stanowisk'] }}</td>
-{#                <td><a href="{{ url_for('pokaz_oddzial_info', adres=biuro['oddzial']['adres']) }}">{{ biuro['oddzial']['adres'] }}</a></td>#}
-                <td><a href="{{ url_for('pokaz_budynek_info', adres=biuro['budynek']['adres']) }}">{{ biuro['budynek']['adres'] }}</a></td>
+{#                <td><a href="{{ url_for('show_info.pokaz_oddzial_info', adres=biuro['oddzial']['adres']) }}">{{ biuro['oddzial']['adres'] }}</a></td>#}
+                <td><a href="{{ url_for('show_info.pokaz_budynek_info', adres=biuro['budynek']['adres']) }}">{{ biuro['budynek']['adres'] }}</a></td>
                 <td>{{ biuro['pietro'] }}</td>
                 <td class="edit_mode_element">
                     <input type="submit" value="Edytuj">
@@ -53,7 +53,7 @@
                     <td>{{ pracownik['numer_telefonu'] }}</td>
                     <td>{{ pracownik['adres_email'] }}</td>
                     <td>
-                        <form action="{{ url_for('pokaz_pracownik_info', pesel=pracownik['pesel']) }}"><input
+                        <form action="{{ url_for('show_info.pokaz_pracownik_info', pesel=pracownik['pesel']) }}"><input
                                 type="submit" value="Przejdź">
                         </form>
                     </td>
@@ -66,7 +66,7 @@
     </div>
     <div>
         <h3>Przyznany sprzęt</h3>
-{#        <form class="edit_mode_element" action="{{ url_for("przypisz_sprzet", pesel=pracownik['pesel']) }}">#}
+{#        <form class="edit_mode_element" action="{{ url_for("assign.przypisz_sprzet", pesel=pracownik['pesel']) }}">#}
 {#            <input type="submit" value="Przypisz nowy sprzęt">#}
 {#        </form>#}
         <table>
@@ -87,7 +87,7 @@
                     <td>{{ sprzet['producent'] }}</td>
                     <td>{{ sprzet['data_przyznania'] }}</td>
                     <td>
-                        <form action="{{ url_for('pokaz_sprzet_info', numer_ewidencyjny=sprzet['numer']) }}"><input
+                        <form action="{{ url_for('show_info.pokaz_sprzet_info', numer_ewidencyjny=sprzet['numer']) }}"><input
                                 type="submit" value="Przejdź">
                         </form>
                     </td>
@@ -120,11 +120,11 @@
             </thead>
             {% for dostep in dostepy %}
                 <tr>
-                    <td><a href="{{ url_for('pokaz_karta_dostepu_info', id_karty=dostep['karta']['numer']) }}"> {{ dostep['karta']['numer'] }}</a></td>
+                    <td><a href="{{ url_for('show_info.pokaz_karta_dostepu_info', id_karty=dostep['karta']['numer']) }}"> {{ dostep['karta']['numer'] }}</a></td>
                     <td>{{ dostep['data_przyznania'] }}</td>
                     <td>{{ dostep['data_wygasniecia'] }}</td>
                     <td>
-                        <a href="{{ url_for('pokaz_pracownik_info', pesel=dostep['pracownik']['pesel']) }}">{{ dostep['pracownik']['pesel'] }}</a>
+                        <a href="{{ url_for('show_info.pokaz_pracownik_info', pesel=dostep['pracownik']['pesel']) }}">{{ dostep['pracownik']['pesel'] }}</a>
                     </td>
                     <td>{{ dostep['pracownik']['imie'] }}</td>
                     <td>{{ dostep['pracownik']['nazwisko'] }}</td>

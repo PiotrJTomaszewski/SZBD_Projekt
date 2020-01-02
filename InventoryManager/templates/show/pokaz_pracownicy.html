@@ -3,7 +3,7 @@
 {% block content %}
     <h1>Lista pracowników</h1>
     <label for="edit_mode_box">Włącz tryb edycji</label><input type="checkbox" id="edit_mode_box" value="false"/>
-    <form class="edit_mode_element" action="{{ url_for('dodaj_pracownika') }}">
+    <form class="edit_mode_element" action="{{ url_for('add.dodaj_pracownika') }}">
         <input type="submit" value="Dodaj pracownika"/>
     </form>
     <div class="table-container">
@@ -29,13 +29,13 @@
                     <td>{{ pracownik['czy_nadal_pracuje'] }}</td>
                     <td>{{ pracownik['adres_email'] }}</td>
                     <td>
-                        <a href="{{ url_for('pokaz_dzial_info', nazwa=pracownik['dzial']['nazwa']) }}">{{ pracownik['dzial']['skrot'] }}</a>
+                        <a href="{{ url_for('show_info.pokaz_dzial_info', nazwa=pracownik['dzial']['nazwa']) }}">{{ pracownik['dzial']['skrot'] }}</a>
                     </td>
                     <td>
-                        <a href="{{ url_for('pokaz_biuro_info', numer_biura=pracownik['biuro']['numer']) }}">{{ pracownik['biuro']['numer'] }}</a>
+                        <a href="{{ url_for('show_info.pokaz_biuro_info', numer_biura=pracownik['biuro']['numer']) }}">{{ pracownik['biuro']['numer'] }}</a>
                     </td>
                     <td>
-                        <form action="{{ url_for('pokaz_pracownik_info', pesel=pracownik['pesel']) }}">
+                        <form action="{{ url_for('show_info.pokaz_pracownik_info', pesel=pracownik['pesel']) }}">
                             <input type="submit" value="Przejdź">
                         </form>
                     </td>

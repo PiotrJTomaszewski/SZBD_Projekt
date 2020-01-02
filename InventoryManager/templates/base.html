@@ -10,25 +10,25 @@
 <body>
 <div id="header">
     {% block header %}
-        <div>
+        <div id="navigation_container">
             <ul id="navigation_panel">
                 <li class="navigation_panel_element">
-                    <a href="{{ url_for('oddzialy') }}" class="navigation_panel_link">Oddziały</a>
+                    <a href="{{ url_for('show.oddzialy') }}" class="navigation_panel_link">Oddziały</a>
                 </li>
                 <li class="navigation_panel_element">
-                    <a href="{{ url_for('dzialy') }}" class="navigation_panel_link">Działy</a>
+                    <a href="{{ url_for('show.dzialy') }}" class="navigation_panel_link">Działy</a>
                 </li>
                 <li class="navigation_panel_element">
-                    <a href="{{ url_for('budynki') }}" class="navigation_panel_link">Budynki</a>
-                </li>
-                <li class="navigation_panel_element" >
-                    <a href="{{ url_for('biura') }}" class="navigation_panel_link">Biura</a>
+                    <a href="{{ url_for('show.budynki') }}" class="navigation_panel_link">Budynki</a>
                 </li>
                 <li class="navigation_panel_element">
-                    <a href="{{ url_for('magazyny') }}" class="navigation_panel_link">Magazyny</a>
+                    <a href="{{ url_for('show.biura') }}" class="navigation_panel_link">Biura</a>
                 </li>
                 <li class="navigation_panel_element">
-                    <a href="{{ url_for('pracownicy') }}" class="navigation_panel_link">Pracownicy</a>
+                    <a href="{{ url_for('show.magazyny') }}" class="navigation_panel_link">Magazyny</a>
+                </li>
+                <li class="navigation_panel_element">
+                    <a href="{{ url_for('show.pracownicy') }}" class="navigation_panel_link">Pracownicy</a>
                 </li>
             </ul>
         </div><br/><br/>

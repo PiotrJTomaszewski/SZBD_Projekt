@@ -27,7 +27,7 @@
                 <td>
                     {% if sprzet['stan']['gdzie'] == 'pracownik' %}
                         Przpisany do pracownika
-                        <a href="{{ url_for('pokaz_pracownik_info', pesel=sprzet['stan']['id']) }}">{{ sprzet['stan']['text'] }}</a>
+                        <a href="{{ url_for('show_info.pokaz_pracownik_info', pesel=sprzet['stan']['id']) }}">{{ sprzet['stan']['text'] }}</a>
                     {% elif sprzet['stan']['gdzie'] == 'biuro' %}
                         {#                        TODO: biuro#}
                     {% else %}
@@ -63,7 +63,7 @@
                     <td>{{ oprogramowanie['data_zakupu'] }}</td>
                     <td>{{ oprogramowanie['data_wygasniecia'] }}</td>
                     <td>
-                        <form action="{{ url_for('pokaz_oprogramowanie_info', numer_ewidencyjny=oprogramowanie['numer'])}}">
+                        <form action="{{ url_for('show_info.pokaz_oprogramowanie_info', numer_ewidencyjny=oprogramowanie['numer'])}}">
                             <input type="submit" value="Przejdź">
                         </form>
                     </td>

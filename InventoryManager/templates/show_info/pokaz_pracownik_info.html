@@ -26,19 +26,19 @@
                 <td>{{ pracownik['numer_telefonu'] }}</td>
                 <td>{{ pracownik['czy_nadal_pracuje'] }}</td>
                 <td>{{ pracownik['adres_email'] }}</td>
-                <td><a href="{{ url_for('pokaz_dzial_info', nazwa=pracownik['dzial']['nazwa']) }}">{{ pracownik['dzial']['skrot'] }}</a></td>
+                <td><a href="{{ url_for('show_info.pokaz_dzial_info', nazwa=pracownik['dzial']['nazwa']) }}">{{ pracownik['dzial']['skrot'] }}</a></td>
                 <td>
-                    <a href="{{ url_for('pokaz_biuro_info', numer_biura=pracownik['biuro']['numer']) }}">{{ pracownik['biuro']['numer'] }}</a>
+                    <a href="{{ url_for('show_info.pokaz_biuro_info', numer_biura=pracownik['biuro']['numer']) }}">{{ pracownik['biuro']['numer'] }}</a>
                 </td>
                 <td class="edit_mode_element">
-                    <input type="submit" value="Edytuj">
+                    <form><input type="submit" value="Edytuj" formaction="{{ url_for('edit.edytuj_pracownika', pesel=pracownik['pesel']) }}"></form>
                 </td>
             </tr>
         </table>
     </div>
     <div>
         <h3>Przyznany sprzęt</h3>
-        <form class="edit_mode_element" action="{{ url_for("przypisz_sprzet", pesel=pracownik['pesel']) }}">
+        <form class="edit_mode_element" action="{{ url_for('assign.przypisz_sprzet', pesel=pracownik['pesel']) }}">
             <input type="submit" value="Przypisz nowy sprzęt">
         </form>
         <table>
@@ -59,7 +59,7 @@
                     <td>{{ sprzet['producent'] }}</td>
                     <td>{{ sprzet['data_przyznania'] }}</td>
                     <td>
-                        <form action="{{ url_for('pokaz_sprzet_info', numer_ewidencyjny=sprzet['numer']) }}"><input
+                        <form action="{{ url_for('show_info.pokaz_sprzet_info', numer_ewidencyjny=sprzet['numer']) }}"><input
                                 type="submit" value="Przejdź">
                         </form>
                     </td>
@@ -94,9 +94,9 @@
                         <td>{{ prawo['data_przyznania'] }}</td>
                         <td>{{ prawo['data_wygasniecia'] }}</td>
                         <td>
-                            <a href="{{ url_for('pokaz_biuro_info', numer_biura=prawo['biuro']['numer']) }}">{{ prawo['biuro']['numer'] }}</a>
+                            <a href="{{ url_for('show_info.pokaz_biuro_info', numer_biura=prawo['biuro']['numer']) }}">{{ prawo['biuro']['numer'] }}</a>
                         </td>
-                        <td><a href="{{ url_for('pokaz_budynek_info', adres=prawo['budynek']['adres']) }}">{{ prawo['budynek']['adres'] }}</a></td>
+                        <td><a href="{{ url_for('show_info.pokaz_budynek_info', adres=prawo['budynek']['adres']) }}">{{ prawo['budynek']['adres'] }}</a></td>
                         <td class="edit_mode_element"><input type="submit" value="Edytuj"></td>
                     </tr>
                 {% endfor %}

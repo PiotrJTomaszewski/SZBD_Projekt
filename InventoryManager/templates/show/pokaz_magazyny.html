@@ -3,7 +3,7 @@
 {% block content %}
     <h1>Lista magazynów</h1>
     <label for="edit_mode_box">Włącz tryb edycji</label><input type="checkbox" id="edit_mode_box" value="false"/>
-    <form class="edit_mode_element" action="{{ url_for('dodaj_magazyn') }}">
+    <form class="edit_mode_element" action="{{ url_for('add.dodaj_magazyn') }}">
         <input type="submit" value="Dodaj magazyn"/>
     </form>
     <div class="table-container">
@@ -20,10 +20,10 @@
                     <td>{{ magazyn['numer'] }}</td>
                     <td>{{ magazyn['pojemnosc']}}</td>
                     <td>
-                        <a href="{{ url_for('pokaz_oddzial_info', adres=magazyn['oddzial']['adres']) }}">{{ magazyn['oddzial']['adres'] }}</a>
+                        <a href="{{ url_for('show_info.pokaz_oddzial_info', adres=magazyn['oddzial']['adres']) }}">{{ magazyn['oddzial']['adres'] }}</a>
                     </td>
                     <td>
-                        <form action="{{ url_for('pokaz_magazyn_info', numer=magazyn['numer']) }}">
+                        <form action="{{ url_for('show_info.pokaz_magazyn_info', numer=magazyn['numer']) }}">
                             <input type="submit" value="Przejdź">
                         </form>
                     </td>
