@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% from "macros.html" import flash_messages, render_field, data_delete_form %}
+{% block title %}Dodaj oprogramowanie{% endblock %}
+{% block content %}
+    <h1>Dodaj oprogramowanie</h1>
+    {{ flash_messages() }}
+    <div id="data_input_form">
+        <form action="{{ url_for('add.dodaj_oprogramowanie', numer_ewidencyjny=numer_ewidencyjny) }}" method=post>
+            <fieldset>
+                <legend>Dodaj oprogramowanie</legend>
+                {{ form.hidden_tag() }}
+                {{ render_field(form.name) }}
+                {{ render_field(form.brand) }}
+                {{ render_field(form.purchase_date) }}
+                {{ render_field(form.expiration_date) }}
+                {{ render_field(form.number_of_licences) }}
+                {{ render_field(form.notes) }}
+                {{ render_field(form.submit) }}
+            </fieldset>
+        </form>
+    </div>
+    {{ data_delete_form(url_for('delete.usun_oprogramowanie', numer_ewidencyjny=numer_ewidencyjny), 'Usuń sprzęt') }}
+{% endblock %}

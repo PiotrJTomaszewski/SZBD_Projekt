@@ -19,13 +19,13 @@
                     <td>{{ oddzial['adres'] }}</td>
                     <td>{{ oddzial['nazwa'] }}</td>
                     <td>
-                        <form action="{{ url_for('show_info.pokaz_oddzial_info', adres=oddzial['adres']) }}">
-                            <input type="submit" value="Przejdź">
+                        <form>
+                            <input type="submit" value="Przejdź" formaction="{{ url_for('show_info.pokaz_oddzial_info', adres=oddzial['adres']) }}">
                         </form>
                     </td>
                     <td class="edit_mode_element">
                         <form>
-                            <input type="submit" value="Edytuj">
+                            <input type="submit" value="Edytuj" formaction="{{ url_for('edit.edytuj_oddzial', adres=oddzial['adres']) }}">
                         </form>
                     </td>
                 </tr>

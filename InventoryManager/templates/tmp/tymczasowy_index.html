@@ -6,9 +6,7 @@
     <title>TMP</title>
 </head>
 <body>
-{% for link in strony %}
-    <a href="{{ link }}">{{ link }}</a><br/>
-{% endfor %}
+
 <div class="navigation-container">
     <a href="{{ url_for('show.pracownicy') }}">
         <button>Pracownicy</button>

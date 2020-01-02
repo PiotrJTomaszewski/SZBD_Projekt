@@ -23,13 +23,13 @@
                         <a href="{{ url_for('show_info.pokaz_oddzial_info', adres=magazyn['oddzial']['adres']) }}">{{ magazyn['oddzial']['adres'] }}</a>
                     </td>
                     <td>
-                        <form action="{{ url_for('show_info.pokaz_magazyn_info', numer=magazyn['numer']) }}">
-                            <input type="submit" value="Przejdź">
+                        <form>
+                            <input type="submit" value="Przejdź" formaction="{{ url_for('show_info.pokaz_magazyn_info', numer=magazyn['numer']) }}">
                         </form>
                     </td>
                     <td class="edit_mode_element">
                         <form>
-                            <input type="submit" value="Edytuj">
+                            <input type="submit" value="Edytuj" formaction="{{ url_for('edit.edytuj_magazyn', numer=magazyn['numer']) }}">
                         </form>
                     </td>
                 </tr>

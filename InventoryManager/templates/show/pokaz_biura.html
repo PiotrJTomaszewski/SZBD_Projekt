@@ -29,13 +29,13 @@
                     </td>
                     <td>{{ biuro['pietro'] }}</td>
                     <td>
-                        <form action="{{ url_for('show_info.pokaz_biuro_info', numer_biura=biuro['numer']) }}">
-                            <input type="submit" value="Przejdź">
+                        <form>
+                            <input type="submit" value="Przejdź" formaction="{{ url_for('show_info.pokaz_biuro_info', numer_biura=biuro['numer']) }}">
                         </form>
                     </td>
                     <td class="edit_mode_element">
                         <form>
-                            <input type="submit" value="Edytuj">
+                            <input type="submit" value="Edytuj" formaction="{{ url_for('edit.edytuj_biuro', numer=biuro['numer']) }}">
                         </form>
                     </td>
                 </tr>

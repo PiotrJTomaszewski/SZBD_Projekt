@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+{% from "macros.html" import flash_messages, render_field, data_delete_form %}
+{% block title %}Edytuj magazyn{% endblock %}
+{% block content %}
+    <h1>Edytuj magazyn o numerze {{ numer }}</h1>
+    {{ flash_messages() }}
+    <div id="data_input_form">
+        <form action="{{ url_for('edit.edytuj_magazyn', numer=numer) }}" method=post>
+            <fieldset>
+                <legend>Edytuj magazyn</legend>
+                {{ form.hidden_tag() }}
+                {{ render_field(form.capacity) }}
+                {{ render_field(form.branch_address) }}
+                {{ render_field(form.submit) }}
+            </fieldset>
+        </form>
+    </div>
+    {{ data_delete_form(url_for('delete.usun_magazyn', numer=numer), 'Usuń magazyn') }}
+{% endblock %}

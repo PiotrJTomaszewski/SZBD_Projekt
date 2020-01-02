@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+{% from "macros.html" import flash_messages, render_field, data_delete_form %}
+{% block title %}Dodaj sprzęt{% endblock %}
+{% block content %}
+    <h1>Dodaj sprzęt</h1>
+    {{ flash_messages() }}
+    <div id="data_input_form">
+        <form action="{{ url_for('add.dodaj_sprzęt') }}" method=post>
+            <fieldset>
+                <legend>Dodaj sprzęt</legend>
+                {{ form.hidden_tag() }}
+                {{ render_field(form.purchase_date) }}
+                {{ render_field(form.existing_type) }}
+                {{ render_field(form.new_type) }}
+                {{ render_field(form.brand) }}
+                {{ render_field(form.magazine_number) }}
+                {{ render_field(form.notes) }}
+                {{ render_field(form.submit) }}
+            </fieldset>
+        </form>
+    </div>
+{% endblock %}

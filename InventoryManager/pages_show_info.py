@@ -30,7 +30,7 @@ dane = {
 show_info = Blueprint('show_info', __name__)
 
 
-@show_info.route('/pokaz_pracownik_info/<pesel>')
+@show_info.route('/pokaz_info/pracownik/<pesel>')
 def pokaz_pracownik_info(pesel):
     pracownik = workers[0]
     pracownik['pesel'] = pesel
@@ -47,7 +47,7 @@ def pokaz_pracownik_info(pesel):
                            karty_dostepu=karty_dostepu)
 
 
-@show_info.route('/pokaz_sprzet_info/<numer_ewidencyjny>')
+@show_info.route('/pokaz_info/sprzet/<numer_ewidencyjny>')
 def pokaz_sprzet_info(numer_ewidencyjny):
     oprogramowania = [{'numer': 51, 'nazwa': 'Office 2012', 'producent': 'Microsoft', 'data_zakupu': '01/02/2013',
                        'data_wygasniecia': '05/06/2020'},
@@ -61,7 +61,7 @@ def pokaz_sprzet_info(numer_ewidencyjny):
     return render_template('show_info/pokaz_sprzet_info.html', sprzet=sprzet, oprogramowania=oprogramowania)
 
 
-@show_info.route('/pokaz_oprogramowanie_info/<numer_ewidencyjny>')
+@show_info.route('/pokaz_info/oprogramowanie/<numer_ewidencyjny>')
 def pokaz_oprogramowanie_info(numer_ewidencyjny):
     oprogramowanie = {'numer': 51, 'nazwa': 'Office 2012', 'producent': 'Microsoft', 'data_zakupu': '01/02/2013',
                       'data_wygasniecia': '05/06/2020', 'liczba_licencji': 'Nieograniczona', 'uwagi': 'Brak'}
@@ -69,7 +69,7 @@ def pokaz_oprogramowanie_info(numer_ewidencyjny):
     return render_template('show_info/pokaz_oprogramowanie_info.html', oprogramowanie=oprogramowanie, sprzety=sprzety)
 
 
-@show_info.route('/pokaz_biuro_info/<numer_biura>')
+@show_info.route('/pokaz_info/biuro/<numer_biura>')
 def pokaz_biuro_info(numer_biura):
     biuro = {'numer': numer_biura, 'budynek': {'nazwa': 'ASD', 'adres': 'Testowa 8'}, 'pietro': 4,
              'liczba_stanowisk': 3,
@@ -86,14 +86,15 @@ def pokaz_biuro_info(numer_biura):
                            sprzety=sprzety)
 
 
-@show_info.route('/pokaz_oddzial_info/<adres>')
+@show_info.route('/pokaz_info/oddzial/<adres>')
 def pokaz_oddzial_info(adres):
     oddzial = dane['oddzialy'][0]
+    oddzial['adres'] = adres
     return render_template('show_info/pokaz_oddzial_info.html', oddzial=oddzial, dzialy=dane['dzialy'],
                            magazyny=dane['magazyny'], budynki=dane['budynki'])
 
 
-@show_info.route('/pokaz_dzial_info/<nazwa>')
+@show_info.route('/pokaz_info/dzial/<nazwa>')
 def pokaz_dzial_info(nazwa):
     dzial = {'nazwa': 'Information Technology', 'skrot': 'IT',
              'oddzial': {'nazwa': 'Testowa', 'adres': 'Lokacja też testowa'}}
@@ -104,7 +105,7 @@ def pokaz_dzial_info(nazwa):
     return render_template('show_info/pokaz_dzial_info.html', dzial=dzial, pracownicy=pracownicy)
 
 
-@show_info.route('/pokaz_magazyn_info/<numer>')
+@show_info.route('/pokaz_info/magazyn/<numer>')
 def pokaz_magazyn_info(numer):
     magazyn = dane['magazyny'][0]
     magazyn['zajete_miejsce'] = 12
@@ -116,7 +117,7 @@ def pokaz_magazyn_info(numer):
     return render_template('show_info/pokaz_magazyn_info.html', magazyn=magazyn, sprzety=sprzety)
 
 
-@show_info.route('/pokaz_budynek_info/<adres>')
+@show_info.route('/pokaz_info/budynek/<adres>')
 def pokaz_budynek_info(adres):
     budynek = dane['budynki'][0]
     budynek['oddzial'] = {'adres': 'Testowa'}
@@ -128,6 +129,6 @@ def pokaz_budynek_info(adres):
     return render_template('show_info/pokaz_budynek_info.html', budynek=budynek, dostepy=dostepy, biura=biura)
 
 
-@show_info.route('/pokaz_karta_dostepu_info/<id_karty>')
+@show_info.route('/pokaz_info/karta_dostepu/<id_karty>')
 def pokaz_karta_dostepu_info(id_karty):
     return id_karty

@@ -1,13 +1,13 @@
 {% extends "base.html" %}
 {% from "macros.html" import flash_messages, render_field %}
-{% block title %}{{ title }}{% endblock %}
+{% block title %}Dodaj pracownika{% endblock %}
 {% block content %}
-    <h1>{{ title }}</h1>
+    <h1>Dodaj pracownika</h1>
     {{ flash_messages() }}
     <div id="data_input_form">
-        <form action="{{ url_for('dodaj_pracownika') }}" method=post>
+        <form action="{{ url_for('add.dodaj_pracownika') }}" method=post>
             <fieldset>
-                <legend>{{ title }}</legend>
+                <legend>Dodaj pracownika</legend>
                 {{ form.hidden_tag() }}
                 {{ render_field(form.pesel) }}
                 {{ render_field(form.name) }}

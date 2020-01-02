@@ -1,6 +1,8 @@
 from flask import Flask, render_template, request, flash, redirect, url_for, Blueprint
 import data_generators.create_workers as creator
 
+# TODO: Dodać wyświetlanie listy sprzętu i oprogramowania
+
 workers = creator.gen_workers_dict(10)
 
 dane = {
@@ -30,7 +32,7 @@ dane = {
 show = Blueprint('show', __name__)
 
 
-@show.route('/pracownicy')
+@show.route('/pokaz/pracownicy')
 def pracownicy():
     # col_names, rows = read_from_database('pracownik')
     pracownicy = workers
@@ -42,33 +44,33 @@ def pracownicy():
     return render_template('show/pokaz_pracownicy.html', pracownicy=pracownicy)
 
 
-@show.route('/biura')
+@show.route('/pokaz/biura')
 def biura():
     biura = [{'numer': i['numer'], 'budynek': i['budynek'],
               'pietro': 3, 'liczba_stanowisk': 12} for i in dane['biura']]
     return render_template('show/pokaz_biura.html', biura=biura)
 
 
-@show.route('/oddzialy')
+@show.route('/pokaz/oddzialy')
 def oddzialy():
     oddzialy = dane['oddzialy']
     # col_names, rows = read_from_database('oddzial')
     return render_template('show/pokaz_oddzialy.html', oddzialy=oddzialy)
 
 
-@show.route('/dzialy')
+@show.route('/pokaz/dzialy')
 def dzialy():
     dzialy = dane['dzialy']
     return render_template('show/pokaz_dzialy.html', dzialy=dzialy)
 
 
-@show.route('/budynki')
+@show.route('/pokaz/budynki')
 def budynki():
     budynki = dane['budynki']
     return render_template('show/pokaz_budynki.html', budynki=budynki)
 
 
-@show.route('/magazyny')
+@show.route('/pokaz/magazyny')
 def magazyny():
     magazyny = dane['magazyny']
     return render_template('show/pokaz_magazyny.html', magazyny=magazyny)

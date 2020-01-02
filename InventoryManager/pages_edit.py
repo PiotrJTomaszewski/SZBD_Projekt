@@ -31,14 +31,77 @@ dane = {
 edit = Blueprint('edit', __name__)
 
 
-@edit.route('/edytuj_pracownika/<pesel>', methods=['GET', 'POST'])
+@edit.route('/edytuj/oddzial/<adres>', methods=['GET', 'POST'])
+def edytuj_oddzial(adres):
+    form = AddEditBranchForm()
+    if request.method == 'POST':
+        if form.validate():
+            print(form.address)
+            return redirect(url_for('show_info.pokaz_oddzial_info', adres=adres))
+        else:
+            flash('Proszę upewnić się czy wszystkie pola zostały poprawnie wypełnione!')
+            return render_template('edit/edytuj_oddzial.html', form=form, adres=adres)
+    else:
+        return render_template('edit/edytuj_oddzial.html', form=form, adres=adres)
+
+
+@edit.route('/edytuj/budynek/<adres>', methods=['GET', 'POST'])
+def edytuj_budynek(adres):
+    oddzialy = [(oddzial['adres'], '{} ({})'.format(oddzial['nazwa'], oddzial['adres'])) for oddzial in
+                dane['oddzialy']]
+
+    form = AddEditBuildingForm()
+    form.branch_address.choices = oddzialy
+    form.process()
+
+    if request.method == 'POST':
+        if form.validate():
+            return redirect(url_for('show_info.pokaz_budynek_info', adres='TODO'))
+        else:
+            flash('Proszę upewnić się czy wszystkie pola zostały poprawnie wypełnione!')
+            return render_template('edit/edytuj_budynek.html', form=form, adres=adres)
+    else:
+        return render_template('edit/edytuj_budynek.html', form=form, adres=adres)
+
+
+@edit.route('/edytuj/biuro/<numer>', methods=['GET', 'POST'])
+def edytuj_biuro(numer):
+    form = AddEditOfficeForm()
+
+    if request.method == 'POST':
+        if form.validate():
+            return redirect(url_for('show_info.pokaz_biuro_info', numer='TODO'))
+        else:
+            flash('Proszę upewnić się czy wszystkie pola zostały poprawnie wypełnione!')
+            return render_template('edit/edytuj_biuro.html', form=form, numer=numer)
+    else:
+        return render_template('edit/edytuj_biuro.html', form=form, numer=numer)
+
+
+@edit.route('/edytuj/dzial/<nazwa>', methods=['GET', 'POST'])
+def edytuj_dzial(nazwa):
+    oddzialy = [(oddzial['adres'], '{} ({})'.format(oddzial['nazwa'], oddzial['adres'])) for oddzial in
+                dane['oddzialy']]
+
+    form = AddEditDepForm()
+    form.branch_address.choices = oddzialy
+
+    if request.method == 'POST':
+        if form.validate():
+            return redirect(url_for('show_info.pokaz_dzial_info', nazwa='TODO'))
+        else:
+            flash('Proszę upewnić się czy wszystkie pola zostały poprawnie wypełnione!')
+            return render_template('edit/edytuj_dzial.html', form=form, nazwa=nazwa)
+    else:
+        return render_template('edit/edytuj_dzial.html', form=form, nazwa=nazwa)
+
+
+@edit.route('/edytuj/pracownik/<pesel>', methods=['GET', 'POST'])
 def edytuj_pracownika(pesel):
     offices = [[biuro['numer'], 'Biuro {} w budynku {}'.format(biuro['numer'], biuro['budynek']['adres'])] for biuro in
                dane['biura']]
     depts = [[dzial['nazwa'], 'Dział {} ({})'.format(dzial['nazwa'], dzial['skrot'])] for dzial in
              dane['dzialy']]
-
-    title = 'Edytuj pracownika'
 
     form = AddEditWorkerForm()
     form.office_number.choices = offices
@@ -56,6 +119,39 @@ def edytuj_pracownika(pesel):
             return redirect(url_for('show_info.pokaz_pracownik_info', pesel=form.pesel.value))
         else:
             flash('Proszę upewnić się czy wszystkie pola zostały poprawnie wypełnione!')
-            return render_template('add_modify/dodaj_edytuj_pracownika.html', form=form, title=title)
+            return render_template('edit/edytuj_pracownika.html', form=form, pesel=pesel)
     else:
-        return render_template('add_modify/dodaj_edytuj_pracownika.html', form=form, title=title)
+        return render_template('edit/edytuj_pracownika.html', form=form, pesel=pesel)
+
+
+@edit.route('/edytuj/magazyn/<numer>', methods=['GET', 'POST'])
+def edytuj_magazyn(numer):
+    oddzialy = [(oddzial['adres'], '{} ({})'.format(oddzial['nazwa'], oddzial['adres'])) for oddzial in
+                dane['oddzialy']]
+    form = AddEditMagazineForm()
+    form.branch_address.choices = oddzialy
+
+    if request.method == 'POST':
+        if form.validate():
+            return redirect(url_for('show_info.pokaz_magazyn_info', numer='TODO'))
+        else:
+            flash('Proszę upewnić się czy wszystkie pola zostały poprawnie wypełnione!')
+            return render_template('add/dodaj_magazyn.html', form=form, numer=numer)
+    else:
+        return render_template('add/dodaj_magazyn.html', form=form, numer=numer)
+
+
+@edit.route('/edytuj/sprzet/<numer_ewidencyjny>', methods=['GET', 'POST'])
+def edytuj_sprzet(numer_ewidencyjny):
+    typy = {['laptop', 'laptop'], ['telefon', 'telefon']}
+    form = AddEditHardwareForm()
+    form.existing_type.choices = typy
+
+    if request.method == 'POST':
+        if form.validate():
+            return redirect(url_for('show_info.pokaz_sprzet_info', numer_ewidencyjny='TODO'))
+        else:
+            flash('Proszę upewnić się czy wszystkie pola zostały poprawnie wypełnione!')
+            return render_template('edit/edytuj_sprzet.html', form=form, numer_ewidencyjny=numer_ewidencyjny)
+    else:
+        return render_template('edit/edytuj_sprzet.html', form=form, numer_ewidencyjny=numer_ewidencyjny)

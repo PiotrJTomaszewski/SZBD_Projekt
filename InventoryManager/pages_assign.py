@@ -36,5 +36,5 @@ def przypisz_sprzet(pesel):
     pracownik = {"pesel": pesel, 'imie': 'Karol', 'nazwisko': 'Testowy'}
     przypisania = [{'id': 1, 'data_przydzialu': '11/12/2019'}, {'id': 4, 'data_przydzialu': '01/01/2019'}]
     sprzety = dane['sprzety']
-    return render_template('add_modify/przypisz_sprzet.html', pracownik=pracownik, przypisania=przypisania,
+    return render_template('add/templates/assign/przypisz_sprzet.html', pracownik=pracownik, przypisania=przypisania,
                            sprzety=sprzety)

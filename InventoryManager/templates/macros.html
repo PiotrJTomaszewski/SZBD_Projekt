@@ -24,3 +24,9 @@
         {% endwith %}
     </div>
 {% endmacro %}
+
+{% macro data_delete_form(action, text) %}
+    <div id = "data_delete_form">
+        <button type="submit" name="{{ action }}">{{ text }}</button>
+    </div>
+{% endmacro %}

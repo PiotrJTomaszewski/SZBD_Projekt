@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+{% from "macros.html" import flash_messages, render_field %}
+{% block title %}Edytuj oprogramowanie{% endblock %}
+{% block content %}
+    <h1>Edytuj oprogramowanie o numerze {{ numer_ewidencyjny }}</h1>
+    {{ flash_messages() }}
+    <div id="data_input_form">
+        <form action="{{ url_for('edit.edytuj_oprogramowanie', numer_ewidencyjny=numer_ewidencyjny) }}" method=post>
+            <fieldset>
+                <legend>Edytuj oprogramowanie</legend>
+                {{ form.hidden_tag() }}
+                {{ render_field(form.name) }}
+                {{ render_field(form.brand) }}
+                {{ render_field(form.purchase_date) }}
+                {{ render_field(form.expiration_date) }}
+                {{ render_field(form.number_of_licences) }}
+                {{ render_field(form.notes) }}
+                {{ render_field(form.submit) }}
+            </fieldset>
+        </form>
+    </div>
+{% endblock %}

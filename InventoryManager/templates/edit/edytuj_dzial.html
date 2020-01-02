@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% from "macros.html" import flash_messages, render_field, data_delete_form %}
+{% block title %}Edytuj dział{% endblock %}
+{% block content %}
+    <h1>Edytuj dział {{ nazwa }}</h1>
+    {{ flash_messages() }}
+    <div id="data_input_form">
+        <form action="{{ url_for('edit.edytuj_dzial', nazwa=nazwa) }}" method=post>
+            <fieldset>
+                <legend>Edytuj dział</legend>
+                {{ form.hidden_tag() }}
+                {{ render_field(form.name) }}
+                {{ render_field(form.short_name) }}
+                {{ render_field(form.branch_address) }}
+                {{ render_field(form.submit) }}
+            </fieldset>
+        </form>
+    </div>
+    {{ data_delete_form(url_for('delete.usun_dzial', nazwa=nazwa), 'Usuń dział') }}
+{% endblock %}

@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+{% from "macros.html" import flash_messages, render_field %}
+{% block title %}Dodaj magazyn{% endblock %}
+{% block content %}
+    <h1>Dodaj magazyn</h1>
+    {{ flash_messages() }}
+    <div id="data_input_form">
+        <form action="{{ url_for('add.dodaj_magazyn') }}" method=post>
+            <fieldset>
+                <legend>Dodaj magazyn</legend>
+                {{ form.hidden_tag() }}
+                {{ render_field(form.capacity) }}
+                {{ render_field(form.branch_address) }}
+                {{ render_field(form.submit) }}
+            </fieldset>
+        </form>
+    </div>
+{% endblock %}
