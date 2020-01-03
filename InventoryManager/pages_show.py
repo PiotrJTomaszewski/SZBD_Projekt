@@ -1,5 +1,6 @@
 from flask import Flask, render_template, request, flash, redirect, url_for, Blueprint
 import data_generators.create_workers as creator
+from database_connector import DatabaseConnector as DBC
 
 # TODO: Dodać wyświetlanie listy sprzętu i oprogramowania
 
@@ -32,45 +33,49 @@ dane = {
 show = Blueprint('show', __name__)
 
 
-@show.route('/pokaz/pracownicy')
-def pracownicy():
-    # col_names, rows = read_from_database('pracownik')
-    pracownicy = workers
-    for i in range(len(pracownicy)):
-        if pracownicy[i]['czy_nadal_pracuje'] == '1':
-            pracownicy[i]['czy_nadal_pracuje'] = 'Tak'
-        else:
-            pracownicy[i]['czy_nadal_pracuje'] = 'Nie'
-    return render_template('show/pokaz_pracownicy.html', pracownicy=pracownicy)
-
-
-@show.route('/pokaz/biura')
-def biura():
-    biura = [{'numer': i['numer'], 'budynek': i['budynek'],
-              'pietro': 3, 'liczba_stanowisk': 12} for i in dane['biura']]
-    return render_template('show/pokaz_biura.html', biura=biura)
-
-
 @show.route('/pokaz/oddzialy')
 def oddzialy():
-    oddzialy = dane['oddzialy']
+    oddzialy_dane = DBC().get_instance().get_all_branches()
     # col_names, rows = read_from_database('oddzial')
-    return render_template('show/pokaz_oddzialy.html', oddzialy=oddzialy)
-
-
-@show.route('/pokaz/dzialy')
-def dzialy():
-    dzialy = dane['dzialy']
-    return render_template('show/pokaz_dzialy.html', dzialy=dzialy)
+    return render_template('show/pokaz_oddzialy.html', oddzialy=oddzialy_dane)
 
 
 @show.route('/pokaz/budynki')
 def budynki():
-    budynki = dane['budynki']
-    return render_template('show/pokaz_budynki.html', budynki=budynki)
+    budynki_dane = dane['budynki']
+    return render_template('show/pokaz_budynki.html', budynki=budynki_dane)
+
+
+@show.route('/pokaz/biura')
+def biura():
+    biura_dane = [{'numer': i['numer'], 'budynek': i['budynek'],
+                   'pietro': 3, 'liczba_stanowisk': 12} for i in dane['biura']]
+    return render_template('show/pokaz_biura.html', biura=biura)
+
+
+@show.route('/pokaz/dzialy')
+def dzialy():
+    dzialy_dane = dane['dzialy']
+    return render_template('show/pokaz_dzialy.html', dzialy=dzialy_dane)
+
+
+@show.route('/pokaz/pracownicy')
+def pracownicy():
+    pracownicy_dane = DBC().get_instance().get_all_workers()
+    return render_template('show/pokaz_pracownicy.html', pracownicy=pracownicy_dane)
 
 
 @show.route('/pokaz/magazyny')
 def magazyny():
-    magazyny = dane['magazyny']
-    return render_template('show/pokaz_magazyny.html', magazyny=magazyny)
+    magazyny_dane = dane['magazyny']
+    return render_template('show/pokaz_magazyny.html', magazyny=magazyny_dane)
+
+
+@show.route('/pokaz/sprzet')
+def sprzet():
+    pass
+
+
+@show.route('/pokaz/oprogramowanie')
+def oprogramowanie():
+    pass

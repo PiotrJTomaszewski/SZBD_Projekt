@@ -47,14 +47,6 @@ dane = {
 }
 
 
-# Initialization
-@app.before_first_request
-def init():
-    conn_args = {'host': 'localhost', 'database': 'sbdbazadanych', 'user': 'db_projekt', 'password': 'db_projekt'}
-    db = DatabaseConnector(**conn_args)
-    db.get_workers()
-
-
 @app.route('/')
 def tmp_root():
     return render_template('tmp/tymczasowy_index.html')

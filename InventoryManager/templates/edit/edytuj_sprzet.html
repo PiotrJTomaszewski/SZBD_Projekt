@@ -5,7 +5,7 @@
     <h1>Edytuj sprzęt o numerze {{ numer_ewidencyjny }}</h1>
     {{ flash_messages() }}
     <div id="data_input_form">
-        <form action="{{ url_for('edit.edytuj_sprzęt', numer_ewidencyjny=numer_ewidencyjny) }}" method=post>
+        <form action="{{ url_for('edit.edytuj_sprzet', numer_ewidencyjny=numer_ewidencyjny) }}" method=post>
             <fieldset>
                 <legend>Dodaj sprzęt</legend>
                 {{ form.hidden_tag() }}
