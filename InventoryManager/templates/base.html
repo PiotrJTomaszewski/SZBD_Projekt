@@ -1,6 +1,7 @@
 <!doctype html>
 <html lang="pl-PL">
 <head>
+    {% from "macros.html" import flash_messages%}
     {% block head %}
         <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
         <meta CHARSET="UTF-8">
@@ -35,6 +36,7 @@
     {% endblock %}
 </div>
 <div id="content">
+    {{ flash_messages() }}
     {% block content %}
     {% endblock %}
 </div>

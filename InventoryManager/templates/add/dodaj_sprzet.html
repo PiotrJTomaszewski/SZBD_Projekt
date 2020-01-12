@@ -1,9 +1,8 @@
 {% extends "base.html" %}
-{% from "macros.html" import flash_messages, render_field, data_delete_form %}
+{% from "macros.html" import render_field %}
 {% block title %}Dodaj sprzęt{% endblock %}
 {% block content %}
     <h1>Dodaj sprzęt</h1>
-    {{ flash_messages() }}
     <div id="data_input_form">
         <form action="{{ url_for('add.dodaj_sprzet') }}" method=post>
             <fieldset>

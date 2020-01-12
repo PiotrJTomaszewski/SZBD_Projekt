@@ -1,6 +1,7 @@
 from flask import Flask, render_template, request, flash, redirect, url_for, Blueprint
 import data_generators.create_workers as creator
 from forms import *
+from database_connector import DatabaseConnector as DBC
 
 workers = creator.gen_workers_dict(10)
 
@@ -34,15 +35,28 @@ edit = Blueprint('edit', __name__)
 @edit.route('/edytuj/oddzial/<adres>', methods=['GET', 'POST'])
 def edytuj_oddzial(adres):
     form = AddEditBranchForm()
+    if request.method == 'GET':
+        current_data, error = DBC().get_instance().get_branch(adres)
+        if error is None:
+            form.name.default = current_data['nazwa']
+            form.address.default = current_data['adres']
+            form.process()
+        else:
+            flash('Wystąpił błąd!<br/>{}'.format(error.msg))
+        return render_template('edit/edytuj_oddzial.html', form=form, adres=adres)
     if request.method == 'POST':
         if form.validate():
-            print(form.address)
-            return redirect(url_for('show_info.pokaz_oddzial_info', adres=adres))
+            new_address = form.address.data
+            new_name = form.name.data
+            error = DBC().get_instance().edit_branch(current_address=adres, new_address=new_address, new_name=new_name)
+            if error is None:
+                return redirect(url_for('show_info.pokaz_oddzial_info', adres=new_address))
+            else:
+                flash('Wystąpił błąd!<br/>{}'.format(error.msg))
+                return render_template('edit/edytuj_oddzial.html', form=form, adres=adres)
         else:
             flash('Proszę upewnić się czy wszystkie pola zostały poprawnie wypełnione!')
             return render_template('edit/edytuj_oddzial.html', form=form, adres=adres)
-    else:
-        return render_template('edit/edytuj_oddzial.html', form=form, adres=adres)
 
 
 @edit.route('/edytuj/budynek/<adres>', methods=['GET', 'POST'])

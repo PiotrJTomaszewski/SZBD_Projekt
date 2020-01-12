@@ -1,9 +1,8 @@
 {% extends "base.html" %}
-{% from "macros.html" import flash_messages, render_field, data_delete_form %}
+{% from "macros.html" import render_field, data_delete_form %}
 {% block title %}Edytuj budynek{% endblock %}
 {% block content %}
     <h1>Edytuj budynek pod adresem {{ adres }}</h1>
-    {{ flash_messages() }}
     <div id="data_input_form">
         <form action="{{ url_for('edit.edytuj_budynek', adres=adres) }}" method=post>
             <fieldset>

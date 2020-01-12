@@ -17,7 +17,7 @@
             {% if messages %}
                 <div class="single_flashed_message">
                     {% for message in messages %}
-                        {{ message }}
+                        {{ message|safe }}
                     {% endfor %}
                 </div>
             {% endif %}

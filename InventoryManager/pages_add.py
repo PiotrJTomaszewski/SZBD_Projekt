@@ -1,6 +1,7 @@
 from flask import Flask, render_template, request, flash, redirect, url_for, Blueprint
 import data_generators.create_workers as creator
 from forms import *
+from database_connector import DatabaseConnector as DBC
 
 workers = creator.gen_workers_dict(10)
 
@@ -34,9 +35,17 @@ add = Blueprint('add', __name__)
 @add.route('/dodaj/oddzial', methods=['GET', 'POST'])
 def dodaj_oddzial():
     form = AddEditBranchForm()
+
     if request.method == 'POST':
-        if form.validate():
-            return redirect(url_for('show_info.pokaz_oddzial_info', adres='TODO'))
+        if form.validate():  # Input ok
+            adres = form.address.data
+            nazwa = form.name.data
+            result = DBC().get_instance().add_branch(adres, nazwa)
+            if result is None:  # If there was no error
+                return redirect(url_for('show_info.pokaz_oddzial_info', adres=adres))
+            else:
+                flash('Wystąpił błąd podczas dodawania oddziału!<br/> {}'.format(result.msg))
+                return render_template('add/dodaj_oddzial.html', form=form)
         else:
             flash('Proszę upewnić się czy wszystkie pola zostały poprawnie wypełnione!')
             return render_template('add/dodaj_oddzial.html', form=form)

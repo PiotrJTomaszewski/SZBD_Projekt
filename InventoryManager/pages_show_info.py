@@ -1,5 +1,6 @@
 from flask import Flask, render_template, request, flash, redirect, url_for, Blueprint
 import data_generators.create_workers as creator
+from database_connector import DatabaseConnector as DBC
 
 workers = creator.gen_workers_dict(10)
 
@@ -28,6 +29,17 @@ dane = {
 }
 
 show_info = Blueprint('show_info', __name__)
+
+
+@show_info.route('/pokaz_info/oddzial/<adres>')
+def pokaz_oddzial_info(adres):
+    branch, error = DBC().get_instance().get_branch(adres)
+    if error is not None:
+        flash('Wystąpił błąd!<br/>{}'.format(error.msg))
+    oddzial = dane['oddzialy'][0]
+    oddzial['adres'] = adres
+    return render_template('show_info/pokaz_oddzial_info.html', oddzial=branch, dzialy=dane['dzialy'],
+                           magazyny=dane['magazyny'], budynki=dane['budynki'])
 
 
 @show_info.route('/pokaz_info/pracownik/<pesel>')
@@ -84,14 +96,6 @@ def pokaz_biuro_info(numer_biura):
     sprzety = dane['sprzety']
     return render_template('show_info/pokaz_biuro_info.html', biuro=biuro, pracownicy=pracownicy, dostepy=dostepy,
                            sprzety=sprzety)
-
-
-@show_info.route('/pokaz_info/oddzial/<adres>')
-def pokaz_oddzial_info(adres):
-    oddzial = dane['oddzialy'][0]
-    oddzial['adres'] = adres
-    return render_template('show_info/pokaz_oddzial_info.html', oddzial=oddzial, dzialy=dane['dzialy'],
-                           magazyny=dane['magazyny'], budynki=dane['budynki'])
 
 
 @show_info.route('/pokaz_info/dzial/<nazwa>')

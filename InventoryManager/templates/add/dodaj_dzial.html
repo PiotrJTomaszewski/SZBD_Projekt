@@ -1,9 +1,8 @@
 {% extends "base.html" %}
-{% from "macros.html" import flash_messages, render_field %}
+{% from "macros.html" import render_field %}
 {% block title %}Dodaj dział{% endblock %}
 {% block content %}
     <h1>Dodaj dział</h1>
-    {{ flash_messages() }}
     <div id="data_input_form">
         <form action="{{ url_for('add.dodaj_dzial') }}" method=post>
             <fieldset>

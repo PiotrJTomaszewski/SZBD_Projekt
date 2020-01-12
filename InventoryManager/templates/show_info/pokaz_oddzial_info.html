@@ -17,7 +17,7 @@
                 <td>{{ oddzial['adres'] }}</td>
                 <td>{{ oddzial['nazwa'] }}</td>
                 <td class="edit_mode_element">
-                    <input type="submit" value="Edytuj">
+                    <form><input type="submit" value="Edytuj" formaction="{{ url_for('edit.edytuj_oddzial', adres=oddzial['adres']) }}"></form>
                 </td>
             </tr>
         </table>
@@ -39,8 +39,8 @@
                     <td>{{ dzial['nazwa'] }}</td>
                     <td>{{ dzial['skrot'] }}</td>
                     <td>
-                        <form action="{{ url_for('show_info.pokaz_dzial_info', nazwa=dzial['nazwa']) }}"><input type="submit"
-                                                                                                      value="Przejdź">
+                        <form action="{{ url_for('show_info.pokaz_dzial_info', nazwa=dzial['nazwa']) }}">
+                            <input type="submit" value="Przejdź">
                         </form>
                     </td>
                     <td class="edit_mode_element">

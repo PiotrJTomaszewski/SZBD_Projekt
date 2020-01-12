@@ -35,9 +35,10 @@ show = Blueprint('show', __name__)
 
 @show.route('/pokaz/oddzialy')
 def oddzialy():
-    oddzialy_dane = DBC().get_instance().get_all_branches()
-    # col_names, rows = read_from_database('oddzial')
-    return render_template('show/pokaz_oddzialy.html', oddzialy=oddzialy_dane)
+    branches_data, error = DBC().get_instance().get_all_branches()
+    if error is not None:
+        flash("Wystąpił błąd!<br/>{}".format(error.msg))
+    return render_template('show/pokaz_oddzialy.html', oddzialy=branches_data)
 
 
 @show.route('/pokaz/budynki')
@@ -50,7 +51,7 @@ def budynki():
 def biura():
     biura_dane = [{'numer': i['numer'], 'budynek': i['budynek'],
                    'pietro': 3, 'liczba_stanowisk': 12} for i in dane['biura']]
-    return render_template('show/pokaz_biura.html', biura=biura)
+    return render_template('show/pokaz_biura.html', biura=biura_dane)
 
 
 @show.route('/pokaz/dzialy')
