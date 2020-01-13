@@ -2,6 +2,7 @@ from flask import Flask, render_template, request, flash, redirect, url_for, Blu
 import data_generators.create_workers as creator
 from forms import *
 from database_connector import DatabaseConnector as DBC
+from mysql.connector import errorcode
 
 workers = creator.gen_workers_dict(10)
 
@@ -40,11 +41,16 @@ def dodaj_oddzial():
         if form.validate():  # Input ok
             adres = form.address.data
             nazwa = form.name.data
-            result = DBC().get_instance().add_branch(adres, nazwa)
-            if result is None:  # If there was no error
+            query = """INSERT INTO Oddzial (adres, nazwa) VALUES (%s, %s)"""
+            error = DBC().get_instance().execute_query_add_edit_delete(query, (adres, nazwa))
+            if error is None:  # If there was no error
                 return redirect(url_for('show_info.pokaz_oddzial_info', adres=adres))
             else:
-                flash('Wystąpił błąd podczas dodawania oddziału!<br/> {}'.format(result.msg))
+                # Translate errors
+                if error.errno == errorcode.ER_DUP_ENTRY:  # Duplicate entry
+                    error.msg = 'Oddział o podanym adresie już istnieje!'
+
+                flash('Wystąpił błąd podczas dodawania oddziału!<br/>{}'.format(error.msg))
                 return render_template('add/dodaj_oddzial.html', form=form)
         else:
             flash('Proszę upewnić się czy wszystkie pola zostały poprawnie wypełnione!')
@@ -55,15 +61,32 @@ def dodaj_oddzial():
 
 @add.route('/dodaj/budynek', methods=['GET', 'POST'])
 def dodaj_budynek():
-    oddzialy = [(oddzial['adres'], '{} ({})'.format(oddzial['nazwa'], oddzial['adres'])) for oddzial in
-                dane['oddzialy']]
-
+    branches, error = DBC().get_instance().execute_query_fetch("""SELECT adres, nazwa FROM Oddzial""")
+    if error is not None:
+        flash('Wystąpił błąd podczas pobierania dostępnych oddziałów!<br/>{}'.format(error))
+    branches_choices = [(branch[0], ('{} ({})'.format(branch[1], branch[0]))) for branch in branches]
     form = AddEditBuildingForm()
-    form.branch_address.choices = oddzialy
+    form.branch_address.choices = branches_choices
 
     if request.method == 'POST':
-        if form.validate():
-            return redirect(url_for('show_info.pokaz_budynek_info', adres='TODO'))
+        if form.validate():  # Input ok
+            address = form.address.data
+            name = form.name.data
+            number_of_floors = form.number_of_floors.data
+            branch_address = form.branch_address.data
+            error = DBC().get_instance().execute_query_add_edit_delete(
+                """INSERT INTO Budynek (adres, nazwa, ilosc_pieter, oddzial_adres)
+                VALUES(%s, %s, %s, %s)""", (address, name, number_of_floors, branch_address)
+            )
+            if error is None:  # If there was no error
+                return redirect(url_for('show_info.pokaz_budynek_info', adres=address))
+            else:
+                # Translate errors
+                if error.errno == errorcode.ER_DUP_ENTRY:  # Duplicate entry
+                    error.msg = 'Budynek o podanym adresie już istnieje!'
+
+                flash('Wystąpił błąd podczas dodawania budynku!<br/>{}'.format(error.msg))
+                return render_template('add/dodaj_budynek.html', form=form)
         else:
             flash('Proszę upewnić się czy wszystkie pola zostały poprawnie wypełnione!')
             return render_template('add/dodaj_budynek.html', form=form)
@@ -74,7 +97,8 @@ def dodaj_budynek():
 @add.route('/dodaj/biuro', methods=['GET', 'POST'])
 def dodaj_biuro():
     form = AddEditOfficeForm()
-    form.building_address.choices = [[0,0]]
+
+    form.building_address.choices = [[0, 0]]
     if request.method == 'POST':
         if form.validate():
             return redirect(url_for('show_info.pokaz_biuro_info', numer='TODO'))

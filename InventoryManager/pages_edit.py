@@ -2,6 +2,7 @@ from flask import Flask, render_template, request, flash, redirect, url_for, Blu
 import data_generators.create_workers as creator
 from forms import *
 from database_connector import DatabaseConnector as DBC
+from mysql.connector import errorcode
 
 workers = creator.gen_workers_dict(10)
 
@@ -36,10 +37,11 @@ edit = Blueprint('edit', __name__)
 def edytuj_oddzial(adres):
     form = AddEditBranchForm()
     if request.method == 'GET':
-        current_data, error = DBC().get_instance().get_branch(adres)
-        if error is None:
-            form.name.default = current_data['nazwa']
-            form.address.default = current_data['adres']
+        current_data, error = DBC().get_instance().execute_query_fetch(
+            """SELECT (adres, nazwa) FROM Oddzial WHERE adres = %s""", adres)
+        if error is None and current_data is not None and len(current_data) == 1:
+            form.name.default = current_data[1]
+            form.address.default = current_data[0]
             form.process()
         else:
             flash('Wystąpił błąd!<br/>{}'.format(error.msg))
@@ -48,10 +50,17 @@ def edytuj_oddzial(adres):
         if form.validate():
             new_address = form.address.data
             new_name = form.name.data
-            error = DBC().get_instance().edit_branch(current_address=adres, new_address=new_address, new_name=new_name)
+            error = DBC().get_instance().execute_query_add_edit_delete(
+                """UPDATE Oddzial
+                SET nazwa=%s, adres=%s
+                WHERE adres=%s""", (new_name, new_address, adres)
+            )
             if error is None:
                 return redirect(url_for('show_info.pokaz_oddzial_info', adres=new_address))
             else:
+                # Translate errors to Polish
+                if error.errno in (errorcode.ER_ROW_IS_REFERENCED, errorcode.ER_ROW_IS_REFERENCED_2):
+                    error.msg = 'Nie można zmienić adresu, jeśli oddział posiada podrzędny dział, magazyn lub budynek!'
                 flash('Wystąpił błąd!<br/>{}'.format(error.msg))
                 return render_template('edit/edytuj_oddzial.html', form=form, adres=adres)
         else:

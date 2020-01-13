@@ -20,7 +20,7 @@
                     <td>{{ dzial['nazwa'] }}</td>
                     <td>{{ dzial['skrot']}}</td>
                     <td>
-                        <a href="{{ url_for('show_info.pokaz_oddzial_info', adres=dzial['oddzial']['adres']) }}">{{ dzial['oddzial']['adres'] }}</a>
+                        <a href="{{ url_for('show_info.pokaz_oddzial_info', adres=dzial['oddzial_adres']) }}">{{ dzial['oddzial_adres'] }}</a>
                     </td>
                     <td>
                         <form>

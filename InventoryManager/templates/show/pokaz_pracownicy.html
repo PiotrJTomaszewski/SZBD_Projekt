@@ -14,9 +14,9 @@
                 <td>Nazwisko</td>
                 <td>Imię</td>
                 <td>Numer telefonu</td>
-                <td>Czy nadal pracuje</td>
+                {#<td>Czy nadal pracuje</td>#}
                 <td>Adres email</td>
-                <td>Oddział</td>
+                {#<td>Oddział</td>#}
                 <td>Dział</td>
                 <td>Biuro</td>
             </tr>
@@ -27,19 +27,19 @@
                     <td>{{ pracownik['nazwisko'] }}</td>
                     <td>{{ pracownik['imie'] }}</td>
                     <td>{{ pracownik['numer_telefonu'] }}</td>
-                    <td>{{ pracownik['czy_nadal_pracuje'] }}</td>
+                    {#<td>{{ pracownik['czy_nadal_pracuje'] }}</td>#}
                     <td>{{ pracownik['adres_email'] }}</td>
+                    {#<td>
+                        <a href="{{ url_for('show_info.pokaz_oddzial_info', adres=pracownik['oddzial_adres']) }}">
+                        {{ pracownik['oddzial_adres'] }}</a>
+                    </td>#}
                     <td>
-                        <a href="{{ url_for('show_info.pokaz_oddzial_info', adres=pracownik['oddzial']['adres']) }}">
-                        {{ pracownik['oddzial']['adres'] }}</a>
+                        <a href="{{ url_for('show_info.pokaz_dzial_info', nazwa=pracownik['dzial_nazwa']) }}">
+                        {{ pracownik['dzial_skrot'] }}</a>
                     </td>
                     <td>
-                        <a href="{{ url_for('show_info.pokaz_dzial_info', nazwa=pracownik['dzial']['nazwa']) }}">
-                        {{ pracownik['dzial']['skrot'] }}</a>
-                    </td>
-                    <td>
-                        <a href="{{ url_for('show_info.pokaz_biuro_info', numer_biura=pracownik['biuro']['numer']) }}">
-                        {{ pracownik['biuro']['numer'] }}</a>
+                        <a href="{{ url_for('show_info.pokaz_biuro_info', numer_biura=pracownik['biuro_numer']) }}">
+                        {{ pracownik['biuro_numer'] }}</a>
                     </td>
                     <td>
                         <form action="{{ url_for('show_info.pokaz_pracownik_info', pesel=pracownik['pesel']) }}">

@@ -1,6 +1,7 @@
 from flask import Flask, render_template, request, flash, redirect, url_for, Blueprint
 import data_generators.create_workers as creator
 from database_connector import DatabaseConnector as DBC
+from helpers import make_dictionaries_list, make_dictionary
 
 workers = creator.gen_workers_dict(10)
 
@@ -33,13 +34,52 @@ show_info = Blueprint('show_info', __name__)
 
 @show_info.route('/pokaz_info/oddzial/<adres>')
 def pokaz_oddzial_info(adres):
-    branch, error = DBC().get_instance().get_branch(adres)
+    branch, error = DBC().get_instance().execute_query_fetch(
+        """SELECT adres, nazwa from Oddzial
+        WHERE adres = %s""", [adres]
+    )
     if error is not None:
         flash('Wystąpił błąd!<br/>{}'.format(error.msg))
-    oddzial = dane['oddzialy'][0]
-    oddzial['adres'] = adres
-    return render_template('show_info/pokaz_oddzial_info.html', oddzial=branch, dzialy=dane['dzialy'],
-                           magazyny=dane['magazyny'], budynki=dane['budynki'])
+    branch_data = make_dictionary(['adres', 'nazwa'], branch[0])
+    depts, error = DBC().get_instance().execute_query_fetch(
+        """SELECT nazwa, skrot FROM Dzial
+        WHERE oddzial_adres = %s""", [adres]
+    )
+    if error is not None:
+        flash('Wystąpił błąd<br/>{}'.format(error.msg))
+    depts_data = make_dictionaries_list(['nazwa', 'skrot'], depts)
+
+    magazines, error = DBC().get_instance().execute_query_fetch(
+        """SELECT numer, pojemnosc, WolnaPojemnoscMagazynu(numer)
+        FROM Magazyn
+        WHERE oddzial_adres = %s""", [adres]
+    )
+    if error is not None:
+        flash('Wystąpił błąd!<br/>{}'.format(error.msg))
+    magazines_data = make_dictionaries_list(['numer', 'pojemnosc', 'wolna_przestrzen'], magazines)
+
+    buildings, error = DBC().get_instance().execute_query_fetch(
+        """SELECT adres, nazwa, ilosc_pieter FROM Budynek
+        WHERE oddzial_adres = %s""", [adres]
+    )
+    if error is not None:
+        flash('Wystąpił błąd!<br/>{}')
+    buildings_data = make_dictionaries_list(['adres', 'nazwa', 'liczba_pieter'], buildings)
+
+    return render_template('show_info/pokaz_oddzial_info.html', oddzial=branch_data, dzialy=depts_data,
+                           magazyny=magazines_data, budynki=buildings_data)
+
+
+@show_info.route('/pokaz_info/budynek/<adres>')
+def pokaz_budynek_info(adres):
+    budynek = dane['budynki'][0]
+    budynek['oddzial'] = {'adres': 'Testowa'}
+    dostepy = [{'karta': {'numer': 13, 'data_przyznania': '02/02/2013'}, 'data_przyznania': '01/12/2019',
+                'data_wygasniecia': '12/12/2019',
+                'pracownik': {'pesel': 21352134, 'imie': 'Łukasz', 'nazwisko': 'Cezary'},
+                'biuro': {'numer': 20}}]
+    biura = dane['biura']
+    return render_template('show_info/pokaz_budynek_info.html', budynek=budynek, dostepy=dostepy, biura=biura)
 
 
 @show_info.route('/pokaz_info/pracownik/<pesel>')
@@ -119,18 +159,6 @@ def pokaz_magazyn_info(numer):
     magazyn['oddzial']['nazwa'] = 'Testowy'
     magazyn['oddzial']['adres'] = 'Kwiatowa'
     return render_template('show_info/pokaz_magazyn_info.html', magazyn=magazyn, sprzety=sprzety)
-
-
-@show_info.route('/pokaz_info/budynek/<adres>')
-def pokaz_budynek_info(adres):
-    budynek = dane['budynki'][0]
-    budynek['oddzial'] = {'adres': 'Testowa'}
-    dostepy = [{'karta': {'numer': 13, 'data_przyznania': '02/02/2013'}, 'data_przyznania': '01/12/2019',
-                'data_wygasniecia': '12/12/2019',
-                'pracownik': {'pesel': 21352134, 'imie': 'Łukasz', 'nazwisko': 'Cezary'},
-                'biuro': {'numer': 20}}]
-    biura = dane['biura']
-    return render_template('show_info/pokaz_budynek_info.html', budynek=budynek, dostepy=dostepy, biura=biura)
 
 
 @show_info.route('/pokaz_info/karta_dostepu/<id_karty>')

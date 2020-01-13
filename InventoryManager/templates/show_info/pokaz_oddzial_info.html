@@ -63,12 +63,14 @@
             <tr>
                 <td>Numer</td>
                 <td>Pojemność</td>
+                <td>Wolna przestrzeń</td>
             </tr>
             </thead>
             {% for magazyn in magazyny %}
                 <tr>
                     <td>{{ magazyn['numer'] }}</td>
                     <td>{{ magazyn['pojemnosc'] }}</td>
+                    <td>{{ magazyn['wolna_przestrzen'] }}</td>
                     <td>
                         <form action="{{ url_for('show_info.pokaz_magazyn_info', numer=magazyn['numer']) }}">
                             <input type="submit" value="Przejdź">

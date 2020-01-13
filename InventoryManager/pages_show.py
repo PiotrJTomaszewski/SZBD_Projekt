@@ -1,6 +1,7 @@
 from flask import Flask, render_template, request, flash, redirect, url_for, Blueprint
 import data_generators.create_workers as creator
 from database_connector import DatabaseConnector as DBC
+from helpers import make_dictionaries_list
 
 # TODO: Dodać wyświetlanie listy sprzętu i oprogramowania
 
@@ -35,35 +36,66 @@ show = Blueprint('show', __name__)
 
 @show.route('/pokaz/oddzialy')
 def oddzialy():
-    branches_data, error = DBC().get_instance().get_all_branches()
+    branches, error = DBC().get_instance().execute_query_fetch(
+        """SELECT adres, nazwa FROM Oddzial ORDER BY adres""")
     if error is not None:
-        flash("Wystąpił błąd!<br/>{}".format(error.msg))
+        flash('Wystąpił błąd!<br/>{}'.format(error.msg))
+    branches_data = make_dictionaries_list(['adres', 'nazwa'], branches)
     return render_template('show/pokaz_oddzialy.html', oddzialy=branches_data)
 
 
 @show.route('/pokaz/budynki')
 def budynki():
-    budynki_dane = dane['budynki']
-    return render_template('show/pokaz_budynki.html', budynki=budynki_dane)
+    buildings, error = DBC().get_instance().execute_query_fetch(
+        """SELECT adres, nazwa, ilosc_pieter, oddzial_adres FROM Budynek ORDER BY adres"""
+    )
+    if error is not None:
+        flash('Wystąpił błąd!<br/>{}'.format(error.msg))
+    buildings_data = make_dictionaries_list(['adres', 'nazwa', 'liczba_pieter', 'oddzial_adres'], buildings)
+    return render_template('show/pokaz_budynki.html', budynki=buildings_data)
 
 
 @show.route('/pokaz/biura')
 def biura():
-    biura_dane = [{'numer': i['numer'], 'budynek': i['budynek'],
-                   'pietro': 3, 'liczba_stanowisk': 12} for i in dane['biura']]
-    return render_template('show/pokaz_biura.html', biura=biura_dane)
+    offices, error = DBC().get_instance().execute_query_fetch(
+        """SELECT numer, liczba_stanowisk, pietro, budynek_adres from Biuro ORDER BY numer"""
+    )
+    if error is not None:
+        flash('Wystąpił błąd!<br/>{}'.format(error.msg))
+    offices_data = make_dictionaries_list(['numer', 'liczba_stanowisk', 'pietro', 'budynek_adres'], offices)
+    return render_template('show/pokaz_biura.html', biura=offices_data)
 
 
 @show.route('/pokaz/dzialy')
 def dzialy():
-    dzialy_dane = dane['dzialy']
-    return render_template('show/pokaz_dzialy.html', dzialy=dzialy_dane)
+    depts, error = DBC().get_instance().execute_query_fetch(
+        """SELECT nazwa, skrot, oddzial_adres from Dzial ORDER BY nazwa"""
+    )
+    if error is not None:
+        flash('Wystąpił błąd!<br/>{}'.format(error.msg))
+    # if depts is None or len(depts) == 0:
+    #     flash('Nie znaleziono działów!')
+    #     return render_template('show/pokaz_dzialy.html', dzialy=[])
+    depts_data = make_dictionaries_list(['nazwa', 'skrot', 'oddzial_adres'], depts)
+    return render_template('show/pokaz_dzialy.html', dzialy=depts_data)
 
 
 @show.route('/pokaz/pracownicy')
 def pracownicy():
-    pracownicy_dane = DBC().get_instance().get_all_workers()
-    return render_template('show/pokaz_pracownicy.html', pracownicy=pracownicy_dane)
+    workers, error = DBC().get_instance().execute_query_fetch(
+        """SELECT p.pesel, p.imie, p.nazwisko, p.numer_telefonu, p.czy_nadal_pracuje, p.adres_email, p.dzial_nazwa, 
+        p.biuro_numer, d.skrot 
+        FROM Pracownik p JOIN Dzial d on p.dzial_nazwa = d.nazwa
+        WHERE czy_nadal_pracuje = 1
+        ORDER BY pesel"""
+    )
+    if error is not None:
+        flash('Wystąpił błąd!<br/>{}'.format(error.msg))
+    workers_data = make_dictionaries_list(
+        ['pesel', 'imie', 'nazwisko', 'numer_telefonu', 'czy_nadal_pracuje', 'adres_email', 'dzial_nazwa',
+         'biuro_numer', 'dzial_skrot'], workers)
+    print(workers_data)
+    return render_template('show/pokaz_pracownicy.html', pracownicy=workers_data)
 
 
 @show.route('/pokaz/magazyny')

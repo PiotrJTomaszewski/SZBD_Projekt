@@ -1,13 +1,15 @@
 from flask import Flask, render_template, request, flash, redirect, url_for, Blueprint
-import data_generators.create_workers as creator
-from forms import *
+from database_connector import DatabaseConnector as DBC
 
 delete = Blueprint('delete', __name__)
 
 
 @delete.route('/usun/oddzial/<adres>')
 def usun_oddzial(adres):
-    pass
+    error = DBC().get_instance().delete_branch(adres)
+    if error is not None:
+        flash('Wystąpił błąd podczas usuwania oddziału!<br/>{}'.format(error.msg))
+    return redirect(url_for('show.oddzialy'))
 
 
 @delete.route('/usun/budynek/<adres>')
