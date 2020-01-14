@@ -1,5 +1,8 @@
 from flask_wtf import FlaskForm
-from wtforms import TextField, SubmitField, SelectField, BooleanField, IntegerField, DateField, validators
+from wtforms import TextField, SubmitField, SelectField, BooleanField, IntegerField, \
+    SelectMultipleField, validators, Field
+from wtforms.fields.html5 import DateField
+from wtforms.widgets import CheckboxInput, ListWidget
 
 
 # TODO: Translate errors to Polish (enable existing translation)
@@ -36,6 +39,10 @@ class AddEditBuildingForm(FlaskForm):
 
 
 class AddEditOfficeForm(FlaskForm):
+    number = IntegerField('Numer biura', [
+        validators.InputRequired('Proszę podać numer biura'),
+        validators.NumberRange(min=0, message='Numer biura nie może być mniejszy od 0')
+    ])
     number_of_posts = IntegerField('Liczba stanowisk', [
         validators.InputRequired('Proszę podać liczbę stanowisk'),
         validators.NumberRange(min=1, message='Liczba stanowisk musi być większa od 0')
@@ -109,6 +116,10 @@ class AddEditWorkerForm(FlaskForm):
 # class AddEditAccessPermission(FlaskForm):
 
 class AddEditMagazineForm(FlaskForm):
+    number = IntegerField('Numer magazynu', [
+        validators.InputRequired('Proszę podać numer magazynu'),
+        validators.NumberRange(min=0, message='Numer magazynu nie może być mniejszy od 0')
+    ])
     capacity = IntegerField('Pojemność magazynu', [
         validators.InputRequired('Proszę podać pojemność magazynu'),
         validators.NumberRange(min=1, message='Pojemność magazynu nie może być mniejsza od 1')
@@ -121,7 +132,20 @@ class AddEditMagazineForm(FlaskForm):
 
 # class AddEditAssignmentForm(FlaskForm):
 
+# class MultiCheckboxField(SelectMultipleField):
+#     widget = ListWidget(prefix_label=False)
+#     option_widget = CheckboxInput()
+
+class CheckboxField(Field):
+    widget = CheckboxInput()
+    _value = lambda x: 1
+
+
 class AddEditHardwareForm(FlaskForm):
+    number = IntegerField('Numer ewidencyjny', [
+        validators.InputRequired('Proszę podać numer ewidencyjny'),
+        validators.NumberRange(min=0, message='Numer ewidencyjny nie może być mniejszy od 0')
+    ])
     purchase_date = DateField('Data zakupu', [
         validators.InputRequired('Proszę podać datę zakupu')
     ])
@@ -129,7 +153,9 @@ class AddEditHardwareForm(FlaskForm):
         validators.InputRequired('Proszę podać nazwę'),
         validators.Length(max=30, message='Nazwa nie może być dłuższa niż 30 znaków')
     ])
+    new_or_existing_switch = CheckboxField('Zdefiniować nowy typ?')
     existing_type = SelectField('Istniejący typ', [
+        validators.Optional()
     ])
     new_type = TextField('Nowy typ', [
         validators.Optional(),
@@ -144,7 +170,7 @@ class AddEditHardwareForm(FlaskForm):
     # ])
     magazine_number = SelectField('Magazyn', [
         validators.InputRequired('Proszę wybrać magazyn')
-    ])
+    ], coerce=str)
     notes = TextField('Uwagi (opcjonalne)', [
         validators.Length(max=150, message='Uwagi nie mogą być dłuższe niż 150 znaków')
     ])

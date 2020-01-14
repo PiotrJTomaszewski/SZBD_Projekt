@@ -69,6 +69,26 @@ class DatabaseConnector:
             connection_object.close()
             return error
 
+        def execute_query_add_edit_delete_with_fetch(self, query, arguments=None):
+            error = None
+            connection_object = self.connection_pool.get_connection()
+            cursor = connection_object.cursor()
+            try:
+                if arguments is None:
+                    cursor.execute(query)
+                else:
+                    cursor.execute(query, arguments)
+            except db.Error as err:
+                error = err
+
+            records = []
+            if error is None:
+                records = cursor.fetchall()
+                connection_object.commit()
+            cursor.close()
+            connection_object.close()
+            return records, error
+
         # # Get all
         # def get_all_branches(self, get_all_data=True):
         #     if get_all_data:  # Get all of the fields

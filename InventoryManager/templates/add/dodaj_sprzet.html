@@ -8,9 +8,15 @@
             <fieldset>
                 <legend>Dodaj sprzęt</legend>
                 {{ form.hidden_tag() }}
+                {{ render_field(form.number) }}
                 {{ render_field(form.purchase_date) }}
-                {{ render_field(form.existing_type) }}
-                {{ render_field(form.new_type) }}
+                {{ render_field(form.new_or_existing_switch) }}
+                <div id="existing_type_div" style="display: block">
+                    {{ render_field(form.existing_type) }}
+                </div>
+                <div id="new_type_div" style="display: none">
+                    {{ render_field(form.new_type) }}
+                </div>
                 {{ render_field(form.brand) }}
                 {{ render_field(form.magazine_number) }}
                 {{ render_field(form.notes) }}
@@ -18,4 +24,16 @@
             </fieldset>
         </form>
     </div>
+    <script type="text/javascript">
+        document.getElementById("new_or_existing_switch").onclick = function () {
+            if (document.getElementById('new_or_existing_switch').checked === true) {
+                document.getElementById('existing_type_div').style.display = 'none';
+                document.getElementById('new_type_div').style.display = 'block';
+            }
+            else {
+                document.getElementById('existing_type_div').style.display = 'block';
+                document.getElementById('new_type_div').style.display = 'none';
+            }
+        };
+    </script>
 {% endblock %}

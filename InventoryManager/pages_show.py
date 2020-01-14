@@ -86,7 +86,6 @@ def pracownicy():
         """SELECT p.pesel, p.imie, p.nazwisko, p.numer_telefonu, p.czy_nadal_pracuje, p.adres_email, p.dzial_nazwa, 
         p.biuro_numer, d.skrot 
         FROM Pracownik p JOIN Dzial d on p.dzial_nazwa = d.nazwa
-        WHERE czy_nadal_pracuje = 1
         ORDER BY pesel"""
     )
     if error is not None:
@@ -94,14 +93,23 @@ def pracownicy():
     workers_data = make_dictionaries_list(
         ['pesel', 'imie', 'nazwisko', 'numer_telefonu', 'czy_nadal_pracuje', 'adres_email', 'dzial_nazwa',
          'biuro_numer', 'dzial_skrot'], workers)
-    print(workers_data)
+    for worker in workers_data:
+        if worker['czy_nadal_pracuje'] == '1':
+            worker['czy_nadal_pracuje'] = 'Tak'
+        else:
+            worker['czy_nadal_pracuje'] = 'Nie'
     return render_template('show/pokaz_pracownicy.html', pracownicy=workers_data)
 
 
 @show.route('/pokaz/magazyny')
 def magazyny():
-    magazyny_dane = dane['magazyny']
-    return render_template('show/pokaz_magazyny.html', magazyny=magazyny_dane)
+    magazines, error = DBC().get_instance().execute_query_fetch(
+        """SELECT numer, pojemnosc, oddzial_adres FROM Magazyn"""
+    )
+    if error is not None:
+        flash('Wystąpił błąd!<br/>{}'.format(error.msg))
+    magazines_data = make_dictionaries_list(['numer', 'pojemnosc', 'oddzial_adres'], magazines)
+    return render_template('show/pokaz_magazyny.html', magazyny=magazines_data)
 
 
 @show.route('/pokaz/sprzet')

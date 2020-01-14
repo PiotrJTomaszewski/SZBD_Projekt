@@ -14,7 +14,7 @@ CREATE TABLE Budynek (
 );
 
 CREATE TABLE Biuro (
-    numer              INTEGER NOT NULL AUTO_INCREMENT,
+    numer              INTEGER NOT NULL,
     liczba_stanowisk   INTEGER NOT NULL,
     pietro             INTEGER NOT NULL,
     budynek_adres      VARCHAR(30) NOT NULL,
@@ -64,7 +64,7 @@ CREATE TABLE PrawoDostepu (
 );
 
 CREATE TABLE Magazyn (
-    numer           INTEGER NOT NULL AUTO_INCREMENT,
+    numer           INTEGER NOT NULL,
     pojemnosc       INTEGER NOT NULL,
     oddzial_adres   VARCHAR(30) NOT NULL,
     CONSTRAINT magazyn_pk PRIMARY KEY ( numer ),
@@ -101,6 +101,11 @@ CREATE TABLE Sprzet (
 CREATE INDEX sprzet__idx ON
     Sprzet (
         numer_ewidencyjny
+    ASC );
+
+CREATE INDEX sprzet_typ__idx ON
+    Sprzet (
+        typ
     ASC );
 
 CREATE TABLE SprzetWPrzypisaniu (
