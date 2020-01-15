@@ -14,10 +14,10 @@ CREATE FUNCTION PrzypiszSprzet(pNumerEwidencyjny INTEGER, pPrzypisanieId INTEGER
     DECLARE CONTINUE HANDLER FOR SQLEXCEPTION
       SET vKodBledu = 2; -- Wyjątek podczas wstawiania rekordu
     SELECT magazyn_numer INTO vIdObecnegoMagazynu FROM Sprzet WHERE numer_ewidencyjny = pNumerEwidencyjny;
-    IF vIdObecnegoMagazynu IS NULL THEN
+    IF vIdObecnegoMagazynu IS NOT NULL THEN
       INSERT INTO SprzetWPrzypisaniu (sprzet_numer_ewidencyjny, przypisanie_id_przydzialu)
       VALUES (pNumerEwidencyjny, pPrzypisanieId);
-      UPDATE Sprzet SET magazyn_numer = NULL;
+      UPDATE Sprzet SET magazyn_numer = NULL WHERE numer_ewidencyjny = pNumerEwidencyjny;
     ELSE
       SET vKodBledu = 1; -- Sprzęt nie jest na magazynie
     END IF;

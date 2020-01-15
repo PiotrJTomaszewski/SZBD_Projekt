@@ -32,9 +32,9 @@ class AddEditBuildingForm(FlaskForm):
         validators.InputRequired('Proszę podać liczę pięter'),
         validators.NumberRange(min=1, message='Liczba pięter musi być większa od 0'),
     ])
-    branch_address = SelectField('Oddział', [
-        validators.InputRequired('Proszę wybrać oddział')
-    ], coerce=str)
+    # branch_address = SelectField('Oddział', [
+    #     validators.InputRequired('Proszę wybrać oddział')
+    # ], coerce=str)
     submit = SubmitField('Zatwierdź')
 
 
@@ -65,9 +65,9 @@ class AddEditDepForm(FlaskForm):
         validators.InputRequired('Proszę podać skrót nazwy'),
         validators.Length(max=5, message='Skrót nazwy nie może być dłuższy niż 5 znaków')
     ])
-    branch_address = SelectField('Oddział', [
-        validators.InputRequired('Proszę wybrać oddział')
-    ], coerce=str)
+    # branch_address = SelectField('Oddział', [
+    #     validators.InputRequired('Proszę wybrać oddział')
+    # ], coerce=str)
     submit = SubmitField('Zatwierdź')
 
 
@@ -107,7 +107,7 @@ class AddEditAccessCardForm(FlaskForm):
     assign_date = DateField('Data przyznania', [
         validators.InputRequired('Proszę podać datę przyznania')
     ])
-    worker_pesel = SelectField('PESEL pracownika', [
+    worker_pesel = SelectField('Pracownik', [
         validators.InputRequired('Proszę wybrać pracownika'),
     ], coerce=str)
     submit = SubmitField('Zatwierdź')
@@ -122,9 +122,9 @@ class AddEditMagazineForm(FlaskForm):
         validators.InputRequired('Proszę podać pojemność magazynu'),
         validators.NumberRange(min=1, message='Pojemność magazynu nie może być mniejsza od 1')
     ])
-    branch_address = SelectField('Oddział', [
-        validators.InputRequired('Proszę wybrać oddział')
-    ], coerce=str)
+    # branch_address = SelectField('Oddział', [
+    #     validators.InputRequired('Proszę wybrać oddział')
+    # ], coerce=str)
     submit = SubmitField('Zatwierdź')
 
 

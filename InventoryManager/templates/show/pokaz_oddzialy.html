@@ -1,6 +1,7 @@
 {% extends "base.html" %}
 {% block title %}Lista oddziałów{% endblock %}
 {% block content %}
+    {% block header %}{% endblock %}
     <h1>Lista oddziałów</h1>
     <label for="edit_mode_box">Włącz tryb edycji</label><input type="checkbox" id="edit_mode_box" value="false"/>
     <form class="edit_mode_element" action="{{ url_for('add.dodaj_oddzial') }}">
@@ -20,7 +21,7 @@
                     <td>{{ oddzial['nazwa'] }}</td>
                     <td>
                         <form>
-                            <input type="submit" value="Przejdź" formaction="{{ url_for('show_info.pokaz_oddzial_info', adres=oddzial['adres']) }}">
+                            <input type="submit" value="Przejdź" formaction="{{ url_for('wybierz_oddzial', adres=oddzial['adres']) }}">
                         </form>
                     </td>
                     <td class="edit_mode_element">

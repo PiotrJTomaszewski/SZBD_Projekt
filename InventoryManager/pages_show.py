@@ -1,53 +1,30 @@
-from flask import Flask, render_template, request, flash, redirect, url_for, Blueprint
+from flask import Flask, render_template, request, flash, redirect, url_for, Blueprint, session
 import data_generators.create_workers as creator
 from database_connector import DatabaseConnector as DBC
 from helpers import make_dictionaries_list
 
 # TODO: Dodać wyświetlanie listy sprzętu i oprogramowania
 
-workers = creator.gen_workers_dict(10)
-
-dane = {
-    'oddzialy': [{'adres': 'Marcelińska', 'nazwa': 'Oddział Główny'},
-                 {'adres': 'Rybaki', 'nazwa': 'Oddział Komunikacyjny'}],
-    'budynki': [
-        {'adres': 'Marcelińska 5', 'nazwa': 'Budynek A', 'liczba_pieter': 1, 'oddzial': {'adres': 'Konopnickiej'}},
-        {'adres': 'Marcelińska 6', 'nazwa': 'Budynek B', 'liczba_pieter': 2, 'oddzial': {'adres': 'JeszczeJedna'}},
-        {'adres': 'Rybaki 14', 'nazwa': 'Call-center', 'liczba_pieter': 4, 'oddzial': {'adres': 'Testowa'}}],
-    'magazyny': [{'numer': 1, 'oddzial': {'adres': 'Marcelińska'}, 'pojemnosc': 3},
-                 {'numer': 2, 'oddzial': {'adres': 'Marcelińska'}, 'pojemnosc': 20},
-                 {'numer': 3, 'oddzial': {'adres': 'Rybaki'}, 'pojemnosc': 12},
-                 {'numer': 4, 'oddzial': {'adres': 'Rybaki'}, 'pojemnosc': 30}],
-    'dzialy': [{'nazwa': 'Human Relations', 'skrot': 'HR', 'oddzial': {'adres': 'Testowa'}},
-               {'nazwa': 'Information Technology', 'skrot': 'IT', 'oddzial': {'adres': 'NieTestowa'}}],
-    'biura': [{'numer': 1, 'budynek': {'adres': 'Marcelińska 5'}, 'liczba_stanowisk': 23, 'pietro': 31},
-              {'numer': 12, 'budynek': {'adres': 'Rybaki 14'}, 'liczba_stanowisk': 512, 'pietro': 777}],
-    'sprzety': [
-        {'numer': 1, 'typ': 'laptop', 'nazwa': 'Testowa nazwa', 'producent': 'Testowy producent',
-         'data_zakupu': '01/12/2019',
-         'numer_magazynu': 1, 'data_przyznania': '11/12/2019'},
-        {'numer': 4, 'typ': 'telefon', 'nazwa': 'Lorem Impsum', 'producent': 'Lorem Impsum',
-         'data_zakupu': '03/12/2019',
-         'numer_magazynu': 2, 'data_przyznania': '01/11/2016'}]
-}
-
 show = Blueprint('show', __name__)
 
 
-@show.route('/pokaz/oddzialy')
-def oddzialy():
-    branches, error = DBC().get_instance().execute_query_fetch(
-        """SELECT adres, nazwa FROM Oddzial ORDER BY adres""")
-    if error is not None:
-        flash('Wystąpił błąd!<br/>{}'.format(error.msg))
-    branches_data = make_dictionaries_list(['adres', 'nazwa'], branches)
-    return render_template('show/pokaz_oddzialy.html', oddzialy=branches_data)
+# @show.route('/pokaz/oddzialy')
+# def oddzialy():
+#     branches, error = DBC().get_instance().execute_query_fetch(
+#         """SELECT adres, nazwa FROM Oddzial ORDER BY adres""")
+#     if error is not None:
+#         flash('Wystąpił błąd!<br/>{}'.format(error.msg))
+#     branches_data = make_dictionaries_list(['adres', 'nazwa'], branches)
+#     return render_template('show/pokaz_oddzialy.html', oddzialy=branches_data)
 
 
 @show.route('/pokaz/budynki')
 def budynki():
     buildings, error = DBC().get_instance().execute_query_fetch(
-        """SELECT adres, nazwa, ilosc_pieter, oddzial_adres FROM Budynek ORDER BY adres"""
+        """SELECT adres, nazwa, ilosc_pieter, oddzial_adres
+        FROM Budynek WHERE oddzial_adres = %s
+        ORDER BY adres""",
+        [session['wybrany_oddzial_adres']]
     )
     if error is not None:
         flash('Wystąpił błąd!<br/>{}'.format(error.msg))
@@ -58,7 +35,10 @@ def budynki():
 @show.route('/pokaz/biura')
 def biura():
     offices, error = DBC().get_instance().execute_query_fetch(
-        """SELECT numer, liczba_stanowisk, pietro, budynek_adres from Biuro ORDER BY numer"""
+        """SELECT B.numer, B.liczba_stanowisk, B.pietro, B.budynek_adres, B2.oddzial_adres
+        FROM Biuro B JOIN Budynek B2 on B.budynek_adres = B2.adres
+        WHERE B2.oddzial_adres = %s
+        ORDER BY numer""", [session['wybrany_oddzial_adres']]
     )
     if error is not None:
         flash('Wystąpił błąd!<br/>{}'.format(error.msg))
@@ -69,7 +49,10 @@ def biura():
 @show.route('/pokaz/dzialy')
 def dzialy():
     depts, error = DBC().get_instance().execute_query_fetch(
-        """SELECT nazwa, skrot, oddzial_adres from Dzial ORDER BY nazwa"""
+        """SELECT nazwa, skrot, oddzial_adres
+        FROM Dzial
+        WHERE oddzial_adres = %s
+        ORDER BY nazwa""", [session['wybrany_oddzial_adres']]
     )
     if error is not None:
         flash('Wystąpił błąd!<br/>{}'.format(error.msg))
@@ -84,9 +67,10 @@ def dzialy():
 def pracownicy():
     workers, error = DBC().get_instance().execute_query_fetch(
         """SELECT p.pesel, p.imie, p.nazwisko, p.numer_telefonu, p.czy_nadal_pracuje, p.adres_email, p.dzial_nazwa, 
-        p.biuro_numer, d.skrot 
+        p.biuro_numer, d.skrot, d.oddzial_adres 
         FROM Pracownik p JOIN Dzial d on p.dzial_nazwa = d.nazwa
-        ORDER BY pesel"""
+        WHERE d.oddzial_adres = %s
+        ORDER BY pesel""", [session['wybrany_oddzial_adres']]
     )
     if error is not None:
         flash('Wystąpił błąd!<br/>{}'.format(error.msg))
@@ -104,7 +88,9 @@ def pracownicy():
 @show.route('/pokaz/magazyny')
 def magazyny():
     magazines, error = DBC().get_instance().execute_query_fetch(
-        """SELECT numer, pojemnosc, oddzial_adres FROM Magazyn"""
+        """SELECT numer, pojemnosc, oddzial_adres
+        FROM Magazyn
+        WHERE oddzial_adres = %s""", [session['wybrany_oddzial_adres']]
     )
     if error is not None:
         flash('Wystąpił błąd!<br/>{}'.format(error.msg))
@@ -112,11 +98,46 @@ def magazyny():
     return render_template('show/pokaz_magazyny.html', magazyny=magazines_data)
 
 
-@show.route('/pokaz/sprzet')
-def sprzet():
-    pass
+@show.route('/pokaz/sprzet_w_magazynach')
+def sprzet_w_magazynach():
+    hardware_in_magazines, error = DBC().get_instance().execute_query_fetch(
+        """SELECT S.numer_ewidencyjny, S.data_zakupu, S.nazwa, S.typ, S.producent, S.magazyn_numer
+        FROM Sprzet S
+        WHERE (SELECT oddzial_adres FROM Magazyn M WHERE M.numer = S.magazyn_numer) = %s""",
+        [session['wybrany_oddzial_adres']]
+    )
+    print(hardware_in_magazines)
+    if error is not None:
+        print(error)
+        flash('Wystąpił błąd!<br/>Nie można pobrać dostępnego sprzętu')
+    hardware_data = make_dictionaries_list(
+        ['numer_ewidencyjny', 'data_zakupu', 'nazwa', 'typ', 'producent', 'numer_magazynu'], hardware_in_magazines)
+
+    return render_template('show/pokaz_sprzet_w_magazynach.html', sprzety=hardware_data)
 
 
 @show.route('/pokaz/oprogramowanie')
 def oprogramowanie():
-    pass
+    return render_template('show/pokaz_oprogramowanie.html', oprogramowanie=[])
+
+
+@show.route('/pokaz/historia_przypisan')
+def historia_przypisan():
+    history, error = DBC().get_instance().execute_query_fetch(
+        """SELECT P.id_przydzialu, P.data_przydzialu, P.data_zwrotu, P.pracownik_pesel, P.biuro_numer,
+         SWP.sprzet_numer_ewidencyjny, S.typ, S.nazwa
+        FROM Przypisanie P JOIN SprzetWPrzypisaniu SWP on P.id_przydzialu = SWP.przypisanie_id_przydzialu
+        JOIN Sprzet S on SWP.sprzet_numer_ewidencyjny = S.numer_ewidencyjny
+        WHERE (P.pracownik_pesel IS NOT NULL AND (
+            SELECT D.oddzial_adres FROM Pracownik P2 JOIN Dzial D on P2.dzial_nazwa = D.nazwa
+            WHERE P2.pesel = P.pracownik_pesel) = %s)
+            OR
+            (P.biuro_numer IS NOT NULL AND (
+                SELECT B2.oddzial_adres FROM Biuro B JOIN Budynek B2 on B.budynek_adres = B2.adres
+                WHERE P.biuro_numer = B.numer) = %s)
+        ORDER BY P.data_przydzialu DESC
+        """, [session['wybrany_oddzial_adres'], session['wybrany_oddzial_adres']])
+    history_data = make_dictionaries_list(['id_przydzialu', 'data_przydzialu', 'data_zwrotu', 'pracownik_pesel',
+                                           'biuro_numer', 'sprzet_numer_ewidencyjny', 'sprzet_typ', 'sprzet_nazwa'],
+                                          history)
+    return render_template('show/pokaz_historia_przypisan.html', wpisy=history_data)

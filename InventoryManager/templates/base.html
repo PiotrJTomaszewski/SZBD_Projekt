@@ -13,9 +13,9 @@
     {% block header %}
         <div id="navigation_container">
             <ul id="navigation_panel">
-                <li class="navigation_panel_element">
+{#                <li class="navigation_panel_element">
                     <a href="{{ url_for('show.oddzialy') }}" class="navigation_panel_link">Oddziały</a>
-                </li>
+                </li>#}
                 <li class="navigation_panel_element">
                     <a href="{{ url_for('show.dzialy') }}" class="navigation_panel_link">Działy</a>
                 </li>
@@ -31,8 +31,24 @@
                 <li class="navigation_panel_element">
                     <a href="{{ url_for('show.pracownicy') }}" class="navigation_panel_link">Pracownicy</a>
                 </li>
+                <li class="navigation_panel_element">
+                    <a href="{{ url_for('show.sprzet_w_magazynach') }}" class="navigation_panel_link">Sprzęt w magazynach</a>
+                </li>
+                <li class="navigation_panel_element">
+                    <a href="{{ url_for('show.oprogramowanie') }}" class="navigation_panel_link">Oprogramowanie</a>
+                </li>
+                <li class="navigation_panel_element">
+                    <a href="{{ url_for('show.historia_przypisan') }}" class="navigation_panel_link">Historia przypisań</a>
+                </li>
             </ul>
-        </div><br/><br/>
+        </div>
+        {% if session['wybrany_oddzial_adres'] %}
+            <div>
+                <h1>Przeglądasz oddział {{ session['wybrany_oddzial_nazwa'] }} ({{ session['wybrany_oddzial_adres'] }}).
+                <a href="{{ url_for('strona_glowna') }}">Wybierz inny oddział</a></h1>
+            </div>
+        {% endif %}
+        <br/>
     {% endblock %}
 </div>
 <div id="content">

@@ -48,7 +48,7 @@
                     </td>
                     <td class="edit_mode_element">
                         <form>
-                            <input type="submit" value="Edytuj">
+                            <input type="submit" value="Edytuj" formaction="{{ url_for('edit.edytuj_pracownika', pesel=pracownik['pesel']) }}">
                         </form>
                     </td>
                 </tr>

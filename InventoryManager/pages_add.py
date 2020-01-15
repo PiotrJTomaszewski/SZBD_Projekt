@@ -1,34 +1,7 @@
-from flask import Flask, render_template, request, flash, redirect, url_for, Blueprint
-import data_generators.create_workers as creator
+from flask import Flask, render_template, request, flash, redirect, url_for, Blueprint, session
 from forms import *
 from database_connector import DatabaseConnector as DBC
 from mysql.connector import errorcode
-
-workers = creator.gen_workers_dict(10)
-
-dane = {
-    'oddzialy': [{'adres': 'Marcelińska', 'nazwa': 'Oddział Główny'},
-                 {'adres': 'Rybaki', 'nazwa': 'Oddział Komunikacyjny'}],
-    'budynki': [
-        {'adres': 'Marcelińska 5', 'nazwa': 'Budynek A', 'liczba_pieter': 1, 'oddzial': {'adres': 'Konopnickiej'}},
-        {'adres': 'Marcelińska 6', 'nazwa': 'Budynek B', 'liczba_pieter': 2, 'oddzial': {'adres': 'JeszczeJedna'}},
-        {'adres': 'Rybaki 14', 'nazwa': 'Call-center', 'liczba_pieter': 4, 'oddzial': {'adres': 'Testowa'}}],
-    'magazyny': [{'numer': 1, 'oddzial': {'adres': 'Marcelińska'}, 'pojemnosc': 3},
-                 {'numer': 2, 'oddzial': {'adres': 'Marcelińska'}, 'pojemnosc': 20},
-                 {'numer': 3, 'oddzial': {'adres': 'Rybaki'}, 'pojemnosc': 12},
-                 {'numer': 4, 'oddzial': {'adres': 'Rybaki'}, 'pojemnosc': 30}],
-    'dzialy': [{'nazwa': 'Human Relations', 'skrot': 'HR', 'oddzial': {'adres': 'Testowa'}},
-               {'nazwa': 'Information Technology', 'skrot': 'IT', 'oddzial': {'adres': 'NieTestowa'}}],
-    'biura': [{'numer': 1, 'budynek': {'adres': 'Marcelińska 5'}, 'liczba_stanowisk': 23, 'pietro': 31},
-              {'numer': 12, 'budynek': {'adres': 'Rybaki 14'}, 'liczba_stanowisk': 512, 'pietro': 777}],
-    'sprzety': [
-        {'numer': 1, 'typ': 'laptop', 'nazwa': 'Testowa nazwa', 'producent': 'Testowy producent',
-         'data_zakupu': '01/12/2019',
-         'numer_magazynu': 1, 'data_przyznania': '11/12/2019'},
-        {'numer': 4, 'typ': 'telefon', 'nazwa': 'Lorem Impsum', 'producent': 'Lorem Impsum',
-         'data_zakupu': '03/12/2019',
-         'numer_magazynu': 2, 'data_przyznania': '01/11/2016'}]
-}
 
 add = Blueprint('add', __name__)
 
@@ -62,22 +35,22 @@ def dodaj_oddzial():
 
 @add.route('/dodaj/budynek', methods=['GET', 'POST'])
 def dodaj_budynek():
-    branches, error = DBC().get_instance().execute_query_fetch("""SELECT adres, nazwa FROM Oddzial""")
-    if error is not None:
-        flash('Wystąpił błąd podczas pobierania dostępnych oddziałów!<br/>{}'.format(error.msg))
-    branches_choices = [(branch[0], ('{} ({})'.format(branch[1], branch[0]))) for branch in branches]
-    form = AddEditBuildingForm()
-    form.branch_address.choices = branches_choices
+    # branches, error = DBC().get_instance().execute_query_fetch("""SELECT adres, nazwa FROM Oddzial""")
+    # if error is not None:
+    #     flash('Wystąpił błąd podczas pobierania dostępnych oddziałów!<br/>{}'.format(error.msg))
+    # branches_choices = [(branch[0], ('{} ({})'.format(branch[1], branch[0]))) for branch in branches]
+    form = AddEditBuildingForm(address=session['wybrany_oddzial_adres']+' ')
+    # form.branch_address.choices = branches_choices
 
     if request.method == 'POST':
         if form.validate():  # Input ok
             address = form.address.data
             name = form.name.data
             number_of_floors = form.number_of_floors.data
-            branch_address = form.branch_address.data
+            # branch_address = form.branch_address.data
             error = DBC().get_instance().execute_query_add_edit_delete(
                 """INSERT INTO Budynek (adres, nazwa, ilosc_pieter, oddzial_adres)
-                VALUES(%s, %s, %s, %s)""", (address, name, number_of_floors, branch_address)
+                VALUES(%s, %s, %s, %s)""", (address, name, number_of_floors, session['wybrany_oddzial_adres'])
             )
             if error is None:  # If there was no error
                 flash('Budynek został pomyślnie dodany')
@@ -98,7 +71,11 @@ def dodaj_budynek():
 
 @add.route('/dodaj/biuro', methods=['GET', 'POST'])
 def dodaj_biuro():
-    buildings, error = DBC().get_instance().execute_query_fetch("""SELECT adres, nazwa FROM Budynek ORDER BY nazwa""")
+    buildings, error = DBC().get_instance().execute_query_fetch("""
+    SELECT adres, nazwa 
+    FROM Budynek 
+    WHERE oddzial_adres = %s
+    ORDER BY nazwa""", [session['wybrany_oddzial_adres']])
     if error is not None:
         flash('Wystąpił błąd podczas pobierania dostępnych budynków!<br/>{}'.format(error.msg))
     buildings_choices = [(building[0], ('{} ({})'.format(building[1], building[0]))) for building in buildings]
@@ -117,7 +94,6 @@ def dodaj_biuro():
                 (number, number_of_posts, floor, building_address)
             )
             if error is None:  # If there was no error
-                print(result[0][0])
                 if result[0][0] == 0:  # Result code
                     # ok
                     flash('Biuro zostało pomyślnie dodane')
@@ -145,21 +121,21 @@ def dodaj_biuro():
 @add.route('/dodaj/dzial', methods=['GET', 'POST'])
 def dodaj_dzial():
     goto = 'add/dodaj_dzial.html'
-    branches, error = DBC().get_instance().execute_query_fetch("""SELECT adres, nazwa FROM Oddzial""")
-    if error is not None:
-        flash('Wystąpił błąd podczas pobierania dostępnych oddziałów!<br/>{}'.format(error.msg))
-    branches_choices = [(branch[0], ('{} ({})'.format(branch[1], branch[0]))) for branch in branches]
+    # branches, error = DBC().get_instance().execute_query_fetch("""SELECT adres, nazwa FROM Oddzial""")
+    # if error is not None:
+    #     flash('Wystąpił błąd podczas pobierania dostępnych oddziałów!<br/>{}'.format(error.msg))
+    # branches_choices = [(branch[0], ('{} ({})'.format(branch[1], branch[0]))) for branch in branches]
     form = AddEditDepForm()
-    form.branch_address.choices = branches_choices
+    # form.branch_address.choices = branches_choices
 
     if request.method == 'POST':
         if form.validate():  # Input ok
             name = form.name.data
             name_short = form.short_name.data
-            branch_address = form.branch_address.data
+            # branch_address = form.branch_address.data
             error = DBC().get_instance().execute_query_add_edit_delete(
                 """INSERT INTO Dzial (nazwa, skrot, oddzial_adres)
-                VALUES(%s, %s, %s)""", (name, name_short, branch_address)
+                VALUES(%s, %s, %s)""", (name, name_short, session['wybrany_oddzial_adres'])
             )
             if error is None:  # If there was no error
                 flash('Dział został pomyślnie dodany')
@@ -181,20 +157,25 @@ def dodaj_dzial():
 @add.route('/dodaj/pracownik', methods=['GET', 'POST'])
 def dodaj_pracownika():
     goto = 'add/dodaj_pracownika.html'
-    offices, error = DBC().get_instance().execute_query_fetch("""SELECT B.numer, B.budynek_adres, B.pietro, B2.oddzial_adres, IleWolnychMiejscBiuro(B.numer)
-     FROM Biuro B JOIN Budynek B2 on B.budynek_adres = B2.adres
+    offices, error = DBC().get_instance().execute_query_fetch("""
+    SELECT B.numer, B.budynek_adres, B.pietro, IleWolnychMiejscBiuro(B.numer)
+    FROM Biuro B JOIN Budynek B2 on B.budynek_adres = B2.adres
     WHERE IleWolnychMiejscBiuro(B.numer) > 0
-    ORDER BY numer""")
+     AND B2.oddzial_adres = %s
+    ORDER BY numer""", [session['wybrany_oddzial_adres']])
     if error is not None:
         flash('Wystąpił błąd podczas pobierania dostępnych biur!<br/>{}'.format(error.msg))
-    offices_choices = [(office[0], '{} w {}, piętro {}, oddział {} - wolne miejsce {}'.format(
-        office[0], office[1], office[2], office[3], office[4]))
+    offices_choices = [(office[0], '{} w {}, piętro {}, wolne miejsce {}'.format(
+        office[0], office[1], office[2], office[3]))
                        for office in offices]
-    depts, error = DBC().get_instance().execute_query_fetch("""SELECT nazwa, skrot,  oddzial_adres
-     FROM Dzial ORDER BY nazwa""")
+    depts, error = DBC().get_instance().execute_query_fetch("""
+    SELECT nazwa, skrot
+    FROM Dzial
+    WHERE oddzial_adres = %s
+    ORDER BY nazwa""", [session['wybrany_oddzial_adres']])
     if error is not None:
         flash('Wystąpił błąd podczas pobierania dostępnych działów!<br/>{}'.format(error.msg))
-    depts_choices = [(dept[0], ('{} ({}) oddział {}'.format(dept[0], dept[1], dept[2]))) for dept in depts]
+    depts_choices = [(dept[0], ('{} ({})'.format(dept[0], dept[1]))) for dept in depts]
 
     form = AddEditWorkerForm()
     form.office_number.choices = offices_choices
@@ -213,21 +194,21 @@ def dodaj_pracownika():
             email = form.email_address.data
             dept_name = form.dept_name.data
             office_number = form.office_number.data
-            # Check if office and departament are in the same branch
-            office_branch = ''
-            for o in offices:
-                if o[0] == office_number:
-                    office_branch = o[3]
-                    break
-            dept_branch = ''
-            for d in depts:
-                if d[0] == dept_name:
-                    dept_branch = d[2]
-                    break
-            if office_branch != dept_branch:
-                flash('Wystąpił błąd podczas dodawania pracownika!<br/>\
-                      Biuro i dział muszą należeć do tego samego oddziału!')
-                return render_template(goto, form=form)
+            # # Check if office and departament are in the same branch
+            # office_branch = ''
+            # for o in offices:
+            #     if o[0] == office_number:
+            #         office_branch = o[3]
+            #         break
+            # dept_branch = ''
+            # for d in depts:
+            #     if d[0] == dept_name:
+            #         dept_branch = d[2]
+            #         break
+            # if office_branch != dept_branch:
+            #     flash('Wystąpił błąd podczas dodawania pracownika!<br/>\
+            #           Biuro i dział muszą należeć do tego samego oddziału!')
+            #     return render_template(goto, form=form)
             error = DBC().get_instance().execute_query_add_edit_delete(
                 """INSERT INTO Pracownik (pesel, imie, nazwisko, numer_telefonu, czy_nadal_pracuje, 
                 adres_email, dzial_nazwa, biuro_numer)
@@ -254,9 +235,11 @@ def dodaj_pracownika():
 @add.route('/dodaj/karta', methods=['GET', 'POST'])
 def dodaj_karte():
     goto = 'add/dodaj_karte.html'
-    workers, error = DBC().get_instance().execute_query_fetch("""SELECT P.pesel, P.imie, P.nazwisko, D.skrot
+    workers, error = DBC().get_instance().execute_query_fetch("""
+    SELECT P.pesel, P.imie, P.nazwisko, D.skrot
     FROM Pracownik P JOIN Dzial D on P.dzial_nazwa = D.nazwa
-    ORDER BY P.nazwisko, P.imie""")
+    WHERE D.oddzial_adres = %s
+    ORDER BY P.nazwisko, P.imie""", [session['wybrany_oddzial_adres']])
     if error is not None:
         flash('Wystąpił błąd podczas pobierania dostępnych pracowników!')
     workers_choices = [(str(w[0]), '{} - {} {} ({})'.format(w[0], w[2], w[1], w[3])) for w in workers]
@@ -289,21 +272,31 @@ def dodaj_karte():
 @add.route('/dodaj/magazyn', methods=['GET', 'POST'])
 def dodaj_magazyn():
     goto = 'add/dodaj_magazyn.html'
-    branches, error = DBC().get_instance().execute_query_fetch("""SELECT adres, nazwa FROM Oddzial""")
+    # branches, error = DBC().get_instance().execute_query_fetch("""SELECT adres, nazwa FROM Oddzial""")
+    # if error is not None:
+    #     flash('Wystąpił błąd podczas pobierania dostępnych oddziałów!<br/>{}'.format(error.msg))
+    # branches_choices = [(branch[0], ('{} ({})'.format(branch[1], branch[0]))) for branch in branches]
+
+    next_available_number, error = DBC().get_instance().execute_query_fetch("""SELECT MAX(numer)+1
+    FROM Magazyn""")
     if error is not None:
-        flash('Wystąpił błąd podczas pobierania dostępnych oddziałów!<br/>{}'.format(error.msg))
-    branches_choices = [(branch[0], ('{} ({})'.format(branch[1], branch[0]))) for branch in branches]
-    form = AddEditMagazineForm()
-    form.branch_address.choices = branches_choices
+        flash('Wystąpił błąd podczas pobierania sugerowanego numeru magazynu')
+    print(next_available_number)
+    if next_available_number is None or len(next_available_number) == 0:
+        next_available_number = 0
+    else:
+        next_available_number = next_available_number[0][0]
+    form = AddEditMagazineForm(number=next_available_number)
+    # form.branch_address.choices = branches_choices
 
     if request.method == 'POST':
         if form.validate():  # Input ok
             number = form.number.data
-            branch_address = form.branch_address.data
+            # branch_address = form.branch_address.data
             capacity = form.capacity.data
             error = DBC().get_instance().execute_query_add_edit_delete(
                 """INSERT INTO Magazyn (numer, pojemnosc, oddzial_adres)
-                VALUES(%s, %s, %s)""", (number, capacity, branch_address)
+                VALUES(%s, %s, %s)""", (number, capacity, session['wybrany_oddzial_adres'])
             )
             if error is None:  # If there was no error
                 flash('Magazyn został pomyślnie dodany')
@@ -345,9 +338,10 @@ def dodaj_sprzet():
     form.existing_type.choices = types_choices
 
     magazines, error = DBC().get_instance().execute_query_fetch(
-        """SELECT numer, WolnaPojemnoscMagazynu(numer), oddzial_adres from Magazyn
-        WHERE WolnaPojemnoscMagazynu(numer) > 0""")
-    magazines_choices = [(m[0], '{} w oddziale {} - wolne miejsce {}'.format(m[0], m[2], m[1])) for m in magazines]
+        """SELECT numer, WolnaPojemnoscMagazynu(numer) from Magazyn
+        WHERE WolnaPojemnoscMagazynu(numer) > 0
+         AND oddzial_adres = %s""", [session['wybrany_oddzial_adres']])
+    magazines_choices = [(m[0], '{} - wolne miejsce {}'.format(m[0], m[1])) for m in magazines]
     form.magazine_number.choices = magazines_choices
 
     if request.method == 'POST':

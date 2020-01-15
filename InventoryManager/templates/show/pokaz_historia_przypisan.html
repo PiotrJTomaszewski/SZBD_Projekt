@@ -1,0 +1,55 @@
+{% extends "base.html" %}
+{% block title %}Historia przypisań{% endblock %}
+{% block content %}
+    <h1>Historia przypisań</h1>
+    {#<label for="edit_mode_box">Włącz tryb edycji</label><input type="checkbox" id="edit_mode_box" value="false"/>#}
+    {#<form class="edit_mode_element" action="{{ url_for('assig') }}">
+        <input type="submit" value="Dodaj sprzęt"/>
+    </form>#}
+    <div class="table-container">
+        <table>
+            <thead>
+            <tr>
+                <td>Id przydziału</td>
+                <td>Data przydziału</td>
+                <td>Data zwrotu</td>
+                <td>PESEL pracownika</td>
+                <td>Numer biura</td>
+                <td>Numer ewidencyjny sprzętu</td>
+                <td>Typ sprzętu</td>
+                <td>Nazwa sprzętu</td>
+            </tr>
+            </thead>
+            {% for wpis in wpisy %}
+                <tr>
+                    <td>{{ wpis['id_przydzialu'] }}</td>
+                    <td>{{ wpis['data_przydzialu']}}</td>
+                    {% if wpis['data_zwrotu'] %}
+                        <td>{{ wpis['data_zwrotu']}}</td>
+                    {% else %}
+                        <td>Jeszcze nie zwrócono</td>
+                    {% endif %}
+                    {% if wpis['pracownik_pesel'] %}
+                        <td><a href="{{ url_for('show_info.pokaz_pracownik_info', pesel=wpis['pracownik_pesel']) }}">{{ wpis['pracownik_pesel'] }}</a></td>
+                     {% else %}
+                        <td>Brak</td>
+                    {% endif %}
+                    {% if wpis['biuro_numer'] %}
+                        <td><a href="{{ url_for('show_info.pokaz_biuro_info', numer_biura=wpis['biuro_numer']) }}">{{ wpis['biuro_numer']}}</a></td>
+                    {% else %}
+                        <td>Brak</td>
+                    {% endif %}
+                    <td><a href="{{ url_for('show_info.pokaz_sprzet_info', numer_ewidencyjny=wpis['sprzet_numer_ewidencyjny']) }}">{{ wpis['sprzet_numer_ewidencyjny'] }}</a></td>
+                    <td>{{ wpis['sprzet_typ'] }}</td>
+                    <td>{{ wpis['sprzet_nazwa'] }}</td>
+                    {#<td class="edit_mode_element">
+                        <form>
+                            <input type="submit" value="Edytuj" formaction="{{ url_for('edit.edytuj_sprzet', numer_ewidencyjny=sprzet['numer_ewidencyjny']) }}">
+                        </form>
+                    </td>#}
+                </tr>
+            {% endfor %}
+        </table>
+    </div>
+    <script src="{{ url_for('static', filename='javascript/enter_edit_mode.js') }}"></script>
+{% endblock %}

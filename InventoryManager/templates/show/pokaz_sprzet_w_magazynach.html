@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 {% block title %}Lista sprzętu{% endblock %}
 {% block content %}
-    <h1>Lista sprzętu</h1>
+    <h1>Lista sprzętu w magazynach</h1>
     <label for="edit_mode_box">Włącz tryb edycji</label><input type="checkbox" id="edit_mode_box" value="false"/>
     <form class="edit_mode_element" action="{{ url_for('add.dodaj_sprzet') }}">
         <input type="submit" value="Dodaj sprzęt"/>
@@ -15,7 +15,7 @@
                 <td>Typ</td>
                 <td>Producent</td>
                 <td>Data zakupu</td>
-                <td>Stan</td>
+                <td>Numer magazynu</td>
             </tr>
             </thead>
             {% for sprzet in sprzety %}
@@ -25,15 +25,15 @@
                     <td>{{ sprzet['typ']}}</td>
                     <td>{{ sprzet['producent'] }}</td>
                     <td>{{ sprzet['data_zakupu']}}</td>
-                    <td>{{ sprzet['stan'] }}</td>
+                    <td><a href="{{ url_for('show_info.pokaz_magazyn_info', numer=sprzet['numer_magazynu']) }}">{{ sprzet['numer_magazynu'] }}</a></td>
                     <td>
                         <form>
-                            <input type="submit" value="Przejdź" formaction="{{ url_for('show_info.pokaz_sprzet_info', numer=sprzet['numer_ewidencyjny']) }}">
+                            <input type="submit" value="Przejdź" formaction="{{ url_for('show_info.pokaz_sprzet_info', numer_ewidencyjny=sprzet['numer_ewidencyjny']) }}">
                         </form>
                     </td>
                     <td class="edit_mode_element">
                         <form>
-                            <input type="submit" value="Edytuj" formaction="{{ url_for('edit.edytuj_sprzet', numer=sprzet['numer_ewidencyjny']) }}">
+                            <input type="submit" value="Edytuj" formaction="{{ url_for('edit.edytuj_sprzet', numer_ewidencyjny=sprzet['numer_ewidencyjny']) }}">
                         </form>
                     </td>
                 </tr>
