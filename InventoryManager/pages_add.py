@@ -251,6 +251,41 @@ def dodaj_pracownika():
         return render_template(goto, form=form)
 
 
+@add.route('/dodaj/karta', methods=['GET', 'POST'])
+def dodaj_karte():
+    goto = 'add/dodaj_karte.html'
+    workers, error = DBC().get_instance().execute_query_fetch("""SELECT P.pesel, P.imie, P.nazwisko, D.skrot
+    FROM Pracownik P JOIN Dzial D on P.dzial_nazwa = D.nazwa
+    ORDER BY P.nazwisko, P.imie""")
+    if error is not None:
+        flash('Wystąpił błąd podczas pobierania dostępnych pracowników!')
+    workers_choices = [(str(w[0]), '{} - {} {} ({})'.format(w[0], w[2], w[1], w[3])) for w in workers]
+    form = AddEditAccessCardForm()
+    form.worker_pesel.choices = workers_choices
+
+    if request.method == 'POST':
+        if form.validate_on_submit():  # Input ok
+            pesel = form.worker_pesel.data
+            assign_date = form.assign_date.data
+
+            error = DBC().get_instance().execute_query_add_edit_delete(
+                """INSERT INTO KartaDostepu (data_przyznania, pracownik_pesel)
+                VALUES(%s, %s)""", (assign_date, pesel)
+            )
+            if error is None:  # If there was no error
+                flash('Karta dostępu została pomyślnie dodana')
+                # We're showing the worker info
+                return redirect(url_for('show_info.pokaz_pracownik_info', pesel=pesel))  # sic!
+            else:
+                flash('Wystąpił błąd podczas dodawania karty!<br/>{}'.format(error.msg))
+                return render_template(goto, form=form)
+        else:
+            flash('Proszę upewnić się czy wszystkie pola zostały poprawnie wypełnione!')
+            return render_template(goto, form=form)
+    else:
+        return render_template(goto, form=form)
+
+
 @add.route('/dodaj/magazyn', methods=['GET', 'POST'])
 def dodaj_magazyn():
     goto = 'add/dodaj_magazyn.html'
@@ -293,11 +328,6 @@ def dodaj_sprzet():
     types, error = DBC().get_instance().execute_query_fetch("""SELECT DISTINCT typ FROM Sprzet""")
     if error is not None:
         flash('Wystąpił błąd podczas pobierania dostępnych typów sprzętu!<br/>{}'.format(error.msg))
-    form = AddEditHardwareForm()
-    # types_choices = [('0', '0')]
-    # if types is not None and len(types) > 0:
-    types_choices = [(t[0], t[0]) for t in types]
-    form.existing_type.choices = types_choices
 
     # Get some available evidence number
     available_number = DBC().get_instance().execute_query_fetch("""SELECT max(numer_ewidencyjny)+1 FROM Sprzet""")
@@ -307,17 +337,21 @@ def dodaj_sprzet():
         available_number = 0
     else:
         available_number = available_number[0][0][0]
-    form.number.default = available_number
-    form.process()
+
+    form = AddEditHardwareForm(number=available_number)
+    # types_choices = [('0', '0')]
+    # if types is not None and len(types) > 0:
+    types_choices = [(t[0], t[0]) for t in types]
+    form.existing_type.choices = types_choices
+
     magazines, error = DBC().get_instance().execute_query_fetch(
         """SELECT numer, WolnaPojemnoscMagazynu(numer), oddzial_adres from Magazyn
         WHERE WolnaPojemnoscMagazynu(numer) > 0""")
-    magazines_choices = [(str(m[0]), '{} w oddziale {} - wolne miejsce {}'.format(m[0], m[2], m[1])) for m in magazines]
+    magazines_choices = [(m[0], '{} w oddziale {} - wolne miejsce {}'.format(m[0], m[2], m[1])) for m in magazines]
     form.magazine_number.choices = magazines_choices
-    print(form.magazine_number.choices)
+
     if request.method == 'POST':
-        print(form.magazine_number.data)
-        if form.validate():  # Input ok
+        if form.validate_on_submit():  # Input ok
             number = form.number.data
             purchase_date = form.purchase_date.data
             name = form.name.data
@@ -330,26 +364,27 @@ def dodaj_sprzet():
             manufacturer = form.brand.data
             notes = form.notes.data
             magazine_number = form.magazine_number.data
-            if notes is None or notes == '':
-                error = DBC().get_instance().execute_query_add_edit_delete(
-                    """INSERT INTO Sprzet (numer_ewidencyjny, data_zakupu, nazwa, typ, producent, magazyn_numer) 
-                    VALUES (%s, %s, %s, %s, %s, %s)""", (number, purchase_date, name, hw_type, manufacturer, magazine_number)
-                )
-            else:
-                error = DBC().get_instance().execute_query_add_edit_delete(
-                    """INSERT INTO Sprzet (numer_ewidencyjny, data_zakupu, nazwa, typ, producent, uwagi, magazyn_numer)
-                    VALUES(%s, %s, %s, %s, %s, %s, %s)""",
-                    (number, purchase_date, name, hw_type, manufacturer, notes, magazine_number)
-                )
+            # if notes is None or notes == '':
+            #     error = DBC().get_instance().execute_query_add_edit_delete(
+            #         """INSERT INTO Sprzet (numer_ewidencyjny, data_zakupu, nazwa, typ, producent, magazyn_numer)
+            #         VALUES (%s, %s, %s, %s, %s, %s)""",
+            #         (number, purchase_date, name, hw_type, manufacturer, magazine_number)
+            #     )
+            # else:
+            error = DBC().get_instance().execute_query_add_edit_delete(
+                """INSERT INTO Sprzet (numer_ewidencyjny, data_zakupu, nazwa, typ, producent, uwagi, magazyn_numer)
+                VALUES(%s, %s, %s, %s, %s, %s, %s)""",
+                (number, purchase_date, name, hw_type, manufacturer, notes, magazine_number)
+            )
             if error is None:  # If there was no error
                 flash('Sprzet został pomyślnie dodany')
                 return redirect(url_for('show_info.pokaz_sprzet_info', numer_ewidencyjny=number))
             else:
                 # Translate errors
                 if error.errno == errorcode.ER_DUP_ENTRY:  # Duplicate entry
-                    error.msg = 'Magazyn o podanym numerze już istnieje!'
+                    error.msg = 'Sprzęt o podanym numerze ewidencyjnym już istnieje!'
 
-            flash('Wystąpił błąd podczas dodawania magazynu!<br/>{}'.format(error.msg))
+            flash('Wystąpił błąd podczas dodawania sprzętu!<br/>{}'.format(error.msg))
             return render_template(goto, form=form)
         else:
             flash('Proszę upewnić się czy wszystkie pola zostały poprawnie wypełnione!')
@@ -358,7 +393,53 @@ def dodaj_sprzet():
         return render_template(goto, form=form)
 
 
-@add.route('/dodaj/oprogramowanie')
+@add.route('/dodaj/oprogramowanie', methods=['GET', 'POST'])
 def dodaj_oprogramowanie():
-    domyslne = {'numer_ewidencyjny': 15, 'data_zakupu': '2019-12-16'}
-    return render_template('add/dodaj_oprogramowanie.html', domyslne=domyslne)
+    goto = 'add/dodaj_oprogramowanie.html'
+
+    # Get some available evidence number
+    available_number = DBC().get_instance().execute_query_fetch(
+        """SELECT max(numer_ewidencyjny)+1 FROM Oprogramowanie""")
+    if available_number is None or len(available_number) == 0:
+        available_number = 0
+    elif available_number[0][0][0] is None:
+        available_number = 0
+    else:
+        available_number = available_number[0][0][0]
+
+    form = AddEditSoftware(number=available_number)
+
+    if request.method == 'POST':
+        if form.validate_on_submit():  # Input ok
+            number = form.number.data
+            name = form.name.data
+            manufacturer = form.brand.data
+            purchase_date = form.purchase_date.data
+            expiration_date = form.expiration_date.data
+            licence_count = form.number_of_licences.data
+            notes = form.notes.data
+
+            error = DBC().get_instance().execute_query_add_edit_delete(
+                """INSERT INTO Oprogramowanie (numer_ewidencyjny, nazwa, producent, data_zakupu,
+                 data_wygasniecia, ilosc_licencji, uwagi)
+                VALUES (%s, %s, %s, %s, %s, %s, %s)""",
+                (number, name, manufacturer, purchase_date, expiration_date, licence_count, notes)
+            )
+
+            if error is None:  # If there was no error
+                flash('Oprogramowanie zostało pomyślnie dodane')
+                return redirect(url_for('show_info.pokaz_oprogramowanie_info', numer_ewidencyjny=number))
+            else:
+                # Translate errors
+                if error.errno == errorcode.ER_DUP_ENTRY:  # Duplicate entry
+                    error.msg = 'Oprogramowanie o podanym numerze ewidencyjnym już istnieje!'
+                elif error.errno == 4025:  # Constraint CHK_data failed
+                    error.msg = 'Licencja nie może wygasać przed zakupem!'
+
+            flash('Wystąpił błąd podczas dodawania oprogramowania!<br/>{}'.format(error.msg))
+            return render_template(goto, form=form)
+        else:
+            flash('Proszę upewnić się czy wszystkie pola zostały poprawnie wypełnione!')
+            return render_template(goto, form=form)
+    else:
+        return render_template(goto, form=form)

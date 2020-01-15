@@ -30,7 +30,7 @@ class AddEditBuildingForm(FlaskForm):
     ])
     number_of_floors = IntegerField('Liczba pięter', [
         validators.InputRequired('Proszę podać liczę pięter'),
-        validators.NumberRange(min=1, message='Liczba pięter musi być większa od 0', ),
+        validators.NumberRange(min=1, message='Liczba pięter musi być większa od 0'),
     ])
     branch_address = SelectField('Oddział', [
         validators.InputRequired('Proszę wybrać oddział')
@@ -103,17 +103,15 @@ class AddEditWorkerForm(FlaskForm):
     submit = SubmitField('Zatwierdź')
 
 
-# class AddEditAccessCardForm(FlaskForm):
-#     assign_date = DateField('Data przyznania', [
-#         validators.InputRequired('Proszę podać datę przyznania')
-#     ])
-#     worker_pesel = TextField('PESEL pracownika', [
-#         validators.InputRequired('Proszę podać numer PESEL'),
-#         validators.Regexp('^[0-9]{11}$', message='Numer PESEL musi składać się z 11 cyfr')
-#     ])
-#     submit = SubmitField('Zatwierdź')
+class AddEditAccessCardForm(FlaskForm):
+    assign_date = DateField('Data przyznania', [
+        validators.InputRequired('Proszę podać datę przyznania')
+    ])
+    worker_pesel = SelectField('PESEL pracownika', [
+        validators.InputRequired('Proszę wybrać pracownika'),
+    ], coerce=str)
+    submit = SubmitField('Zatwierdź')
 
-# class AddEditAccessPermission(FlaskForm):
 
 class AddEditMagazineForm(FlaskForm):
     number = IntegerField('Numer magazynu', [
@@ -170,7 +168,7 @@ class AddEditHardwareForm(FlaskForm):
     # ])
     magazine_number = SelectField('Magazyn', [
         validators.InputRequired('Proszę wybrać magazyn')
-    ], coerce=str)
+    ], coerce=int)
     notes = TextField('Uwagi (opcjonalne)', [
         validators.Length(max=150, message='Uwagi nie mogą być dłuższe niż 150 znaków')
     ])
@@ -178,6 +176,10 @@ class AddEditHardwareForm(FlaskForm):
 
 
 class AddEditSoftware(FlaskForm):
+    number = IntegerField('Numer ewidencyjny', [
+        validators.InputRequired('Proszę podać numer ewidencyjny'),
+        validators.NumberRange(min=0, message='Numer ewidencyjny nie może być mniejszy od 0')
+    ])
     name = TextField('Nazwa', [
         validators.InputRequired('Proszę podać nazwę'),
         validators.Length(max=30, message='Nazwa nie może być dłuższa niż 30 znaków')

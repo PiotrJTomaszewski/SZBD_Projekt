@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% from "macros.html" import render_field %}
+{% block title %}Dodaj kartę dostępu{% endblock %}
+{% block content %}
+    <h1>Dodaj kartę dostępu</h1>
+    <div id="data_input_form">
+        <form action="{{ url_for('add.dodaj_karte') }}" method=post>
+            <fieldset>
+                <legend>Dodaj kartę dostępu</legend>
+                {{ form.hidden_tag() }}
+                {{ render_field(form.worker_pesel) }}
+                {{ render_field(form.assign_date) }}
+                {{ render_field(form.submit) }}
+            </fieldset>
+        </form>
+    </div>
+{% endblock %}

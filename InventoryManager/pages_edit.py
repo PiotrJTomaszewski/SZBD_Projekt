@@ -38,7 +38,7 @@ def edytuj_oddzial(adres):
     form = AddEditBranchForm()
     if request.method == 'GET':
         current_data, error = DBC().get_instance().execute_query_fetch(
-            """SELECT (adres, nazwa) FROM Oddzial WHERE adres = %s""", adres)
+            """SELECT (adres, nazwa) FROM Oddzial WHERE adres = %s""", [adres])
         if error is None and current_data is not None and len(current_data) == 1:
             form.name.default = current_data[1]
             form.address.default = current_data[0]
@@ -53,7 +53,7 @@ def edytuj_oddzial(adres):
             error = DBC().get_instance().execute_query_add_edit_delete(
                 """UPDATE Oddzial
                 SET nazwa=%s, adres=%s
-                WHERE adres=%s""", (new_name, new_address, adres)
+                WHERE adres=%s""", [new_name, new_address, adres]
             )
             if error is None:
                 return redirect(url_for('show_info.pokaz_oddzial_info', adres=new_address))
