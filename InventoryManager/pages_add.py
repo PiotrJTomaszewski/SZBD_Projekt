@@ -331,7 +331,7 @@ def dodaj_sprzet():
 
     if request.method == 'POST':
         if form.validate_on_submit():  # Input ok
-            number = form.number.data
+            number = form.number.data  # TODO: Make this not necessary
             purchase_date = form.purchase_date.data
             name = form.name.data
             define_new_type = form.new_or_existing_switch.data
@@ -390,7 +390,7 @@ def dodaj_oprogramowanie():
 
     if request.method == 'POST':
         if form.validate_on_submit():  # Input ok
-            number = form.number.data
+            number = form.number.data  # TODO: Make this not necessary
             name = form.name.data
             manufacturer = form.brand.data
             purchase_date = form.purchase_date.data

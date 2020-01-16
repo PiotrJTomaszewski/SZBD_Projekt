@@ -81,7 +81,7 @@ def edytuj_budynek(adres):
                 if error.errno == errorcode.ER_DUP_ENTRY:  # Duplicate entry
                     error.msg = 'Budynek o podanym adresie już istnieje!'
                 elif error.errno in (errorcode.ER_ROW_IS_REFERENCED, errorcode.ER_ROW_IS_REFERENCED_2):
-                    error.msg = 'Nie można zmienić adresu jeśli budynek posiada podrzędne obiekty!'
+                    error.msg = 'Nie można zmienić adresu jeśli w budynku znajdują się biura!'
 
                 flash('Wystąpił błąd podczas edycji budynku!<br/>{}'.format(error.msg))
                 return render_template(goto, form=form, adres=adres)
