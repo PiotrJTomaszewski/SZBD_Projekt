@@ -164,3 +164,23 @@ def pokaz_magazyn_info(numer):
 @show_info.route('/pokaz_info/karta_dostepu/<id_karty>')
 def pokaz_karta_dostepu_info(id_karty):
     return id_karty
+
+
+# Redirects you to any other show info page (needed on the search page)
+@show_info.route('/pokaz_info_dowolne/<typ>/<klucz>')
+def pokaz_dowolne_info(typ, klucz):
+    # Not finished yet and probably won't ever be
+    if typ == 'oddzial':
+        return redirect(url_for('show_info.pokaz_oddzial_info', adres=klucz))
+    elif typ == 'budynek':
+        return redirect(url_for('show_info.pokaz_budynek_info', adres=klucz))
+    elif typ == 'biuro':
+        return redirect(url_for('show_info.pokaz_biuro_info', numer_biura=klucz))
+    elif typ == 'dzial':
+        return redirect(url_for('show_info.pokaz_dzial_info', nazwa=klucz))
+    elif typ == 'pracownik':
+        return redirect(url_for('show_info.pokaz_pracownik_info', pesel=klucz))
+    elif typ == 'magazyn':
+        return redirect(url_for('show_info.pokaz_magazyn_info', numer=klucz))
+    else:
+        return redirect(url_for('niew_znaleziono'))

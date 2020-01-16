@@ -187,28 +187,13 @@ def dodaj_pracownika():
             name = form.name.data
             surname = form.surname.data
             phone_number = form.phone_number.data
-            if form.is_still_working:
+            if form.is_still_working.data:
                 is_still_working = '1'
             else:
                 is_still_working = '0'
             email = form.email_address.data
             dept_name = form.dept_name.data
             office_number = form.office_number.data
-            # # Check if office and departament are in the same branch
-            # office_branch = ''
-            # for o in offices:
-            #     if o[0] == office_number:
-            #         office_branch = o[3]
-            #         break
-            # dept_branch = ''
-            # for d in depts:
-            #     if d[0] == dept_name:
-            #         dept_branch = d[2]
-            #         break
-            # if office_branch != dept_branch:
-            #     flash('Wystąpił błąd podczas dodawania pracownika!<br/>\
-            #           Biuro i dział muszą należeć do tego samego oddziału!')
-            #     return render_template(goto, form=form)
             error = DBC().get_instance().execute_query_add_edit_delete(
                 """INSERT INTO Pracownik (pesel, imie, nazwisko, numer_telefonu, czy_nadal_pracuje, 
                 adres_email, dzial_nazwa, biuro_numer)

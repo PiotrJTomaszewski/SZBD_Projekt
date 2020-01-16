@@ -258,7 +258,7 @@ def edytuj_pracownika(pesel):
             new_name = form.name.data
             new_surname = form.surname.data
             new_phone_number = form.phone_number.data
-            if form.is_still_working:
+            if form.is_still_working.data:
                 new_is_still_working = '1'
             else:
                 new_is_still_working = '0'
