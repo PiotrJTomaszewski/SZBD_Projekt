@@ -38,7 +38,7 @@
     </div>
     <div>
         <h3>Przyznany sprzęt</h3>
-        <form class="edit_mode_element" action="{{ url_for('assign.przypisz_sprzet', pesel=pracownik['pesel']) }}">
+        <form class="edit_mode_element" action="{{ url_for('assign.przypisz_sprzet_pracownik', pesel=pracownik['pesel']) }}">
             <input type="submit" value="Przypisz nowy sprzęt">
         </form>
         <table>

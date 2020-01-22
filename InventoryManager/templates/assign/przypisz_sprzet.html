@@ -1,9 +1,9 @@
 {% extends "base.html" %}
 {% block title %}Przypisz sprzęt{% endblock %}
 {% block content %}
-    <h1>Przypisz sprzęt do pracownika {{ pracownik['imie'] }} {{ pracownik['nazwisko'] }}, numer PESEL {{ pracownik['pesel'] }}, dział {{ pracownik['dzial_skrot'] }}</h1>
+    <h1>{{ tytul }}</h1>
     <div>
-        <form action="{{ url_for('assign.przypisz_sprzet', pesel=pracownik['pesel']) }}" autocomplete="off" method="post">
+        <form action="{{ post_adres }}" autocomplete="off" method="post">
             {% if przypisania %}
             <span title="Zaznacz jeśli chcesz utworzyć nowe przypisanie. Pozostaw niezaznaczone aby dodać nowy sprzęt do istniejącego przypisania."><label for="new_assignment_checkbox">Nowe przypisanie?</label></span>
             <input type="checkbox" id="new_assignment_checkbox" name="new_assignment_checkbox"><br/>
