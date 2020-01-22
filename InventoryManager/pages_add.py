@@ -71,6 +71,7 @@ def dodaj_budynek():
 
 @add.route('/dodaj/biuro', methods=['GET', 'POST'])
 def dodaj_biuro():
+    # TODO: Pobierać liczbę pięter w budynku
     buildings, error = DBC().get_instance().execute_query_fetch("""
     SELECT adres, nazwa 
     FROM Budynek 

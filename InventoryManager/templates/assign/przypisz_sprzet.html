@@ -1,18 +1,30 @@
 {% extends "base.html" %}
 {% block title %}Przypisz sprzęt{% endblock %}
 {% block content %}
-    <h1>Przypisz sprzęt do pracownika {{ pracownik['imie'] }} {{ pracownik['nazwisko'] }} ({{ pracownik['pesel'] }})</h1>
+    <h1>Przypisz sprzęt do pracownika {{ pracownik['imie'] }} {{ pracownik['nazwisko'] }}, numer PESEL {{ pracownik['pesel'] }}, dział {{ pracownik['dzial_skrot'] }}</h1>
     <div>
-        <form action="/">
-            <label>Nowe przypisanie?</label><input type="checkbox" id="new_assignment_box"/><br/>
+        <form action="{{ url_for('assign.przypisz_sprzet', pesel=pracownik['pesel']) }}" autocomplete="off" method="post">
+            {% if przypisania %}
+            <span title="Zaznacz jeśli chcesz utworzyć nowe przypisanie. Pozostaw niezaznaczone aby dodać nowy sprzęt do istniejącego przypisania."><label for="new_assignment_checkbox">Nowe przypisanie?</label></span>
+            <input type="checkbox" id="new_assignment_checkbox" name="new_assignment_checkbox"><br/>
+            {# If the user has any current assignments #}
             <div id="new_assignment" style="display: none">
-                <label>Data przypisania</label><input type="date"/><br/>
+                <label for="assignment_date">Data przypisania</label>
+                <input type="date" id="assignment_date" name="assignment_date_box"/><br/>
             </div>
-            <select id="old_assignment">
+            <select id="old_assignment" name="old_assignment_box">
                 {% for przypisanie in przypisania %}
-                    <option>Numer {{ przypisanie['id'] }} przyznane {{ przypisanie['data_przydzialu'] }}</option>
+                    <option value="{{ przypisanie['id'] }}">Numer {{ przypisanie['id'] }} przyznane {{ przypisanie['data_przydzialu'] }}</option>
                 {% endfor %}
             </select>
+            {% else %}
+            <input type="checkbox" name="new_assignment_checkbox" checked="checked" style="display: none"> {# Hidden checkbox #}
+            <div>
+                <label for="assignment_date">Data przypisania</label>
+                <input type="date" id="assignment_date" name="assignment_date_box"/><br/>
+            </div>
+            {% endif %}
+
             <table>
                 <thead>
                 <tr>
@@ -33,17 +45,16 @@
                         <td>{{ sprzet['producent'] }}</td>
                         <td>{{ sprzet['data_zakupu'] }}</td>
                         <td>{{ sprzet['numer_magazynu'] }}</td>
-                        <td><input type="checkbox" title="Wybierz"/></td>
+                        <td><input type="checkbox" title="Wybierz" name="hardware" value="{{ sprzet['numer'] }}"/></td>
                     </tr>
                 {% endfor %}
             </table>
             <input type="submit" value="Potwierdź"/>
-            <input type="submit" value="Anuluj"/>
         </form>
     </div>
     <script>
         function hideShowField() {
-            if (document.getElementById("new_assignment_box").checked === true) {
+            if (document.getElementById("new_assignment_checkbox").checked === true) {
                 document.getElementById('new_assignment').style.display = 'block';
                 document.getElementById("old_assignment").style.display = 'none';
             }
@@ -53,7 +64,7 @@
             }
         }
 
-        document.getElementById("new_assignment_box").onclick = function () {
+        document.getElementById("new_assignment_checkbox").onclick = function () {
             hideShowField();
         };
     </script>

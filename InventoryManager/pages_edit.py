@@ -96,6 +96,7 @@ def edytuj_budynek(adres):
 def edytuj_biuro(numer):
     goto = 'edit/edytuj_biuro.html'
     form = AddEditOfficeForm()
+    # TODO: Pobierać liczbę pięter w budynku
     buildings, error = DBC().get_instance().execute_query_fetch("""
         SELECT adres, nazwa 
         FROM Budynek 
