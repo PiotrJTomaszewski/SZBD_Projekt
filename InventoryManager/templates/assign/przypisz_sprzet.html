@@ -4,26 +4,11 @@
     <h1>{{ tytul }}</h1>
     <div>
         <form action="{{ post_adres }}" autocomplete="off" method="post">
-            {% if przypisania %}
-            <span title="Zaznacz jeśli chcesz utworzyć nowe przypisanie. Pozostaw niezaznaczone aby dodać nowy sprzęt do istniejącego przypisania."><label for="new_assignment_checkbox">Nowe przypisanie?</label></span>
-            <input type="checkbox" id="new_assignment_checkbox" name="new_assignment_checkbox"><br/>
-            {# If the user has any current assignments #}
-            <div id="new_assignment" style="display: none">
-                <label for="assignment_date">Data przypisania</label>
-                <input type="date" id="assignment_date" name="assignment_date_box"/><br/>
-            </div>
-            <select id="old_assignment" name="old_assignment_box">
-                {% for przypisanie in przypisania %}
-                    <option value="{{ przypisanie['id'] }}">Numer {{ przypisanie['id'] }} przyznane {{ przypisanie['data_przydzialu'] }}</option>
-                {% endfor %}
-            </select>
-            {% else %}
             <input type="checkbox" name="new_assignment_checkbox" checked="checked" style="display: none"> {# Hidden checkbox #}
             <div>
                 <label for="assignment_date">Data przypisania</label>
                 <input type="date" id="assignment_date" name="assignment_date_box"/><br/>
             </div>
-            {% endif %}
 
             <table>
                 <thead>

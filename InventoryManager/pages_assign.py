@@ -8,7 +8,7 @@ assign = Blueprint('assign', __name__)
 @assign.route('/przypisz_sprzet/pracownik/<pesel>')
 def przypisz_sprzet_pracownik(pesel):
     worker_data, error = DBC().get_instance().execute_query_fetch("""
-    SELECT pesel, imie, nazwisko, skrot, oddzial_adres
+    SELECT pesel, imie, nazwisko, skrot, oddzial_adres, biuro_numer
     FROM Pracownik P
     JOIN Dzial D on P.dzial_nazwa = D.nazwa
     WHERE pesel = %s""", [pesel])
@@ -16,10 +16,12 @@ def przypisz_sprzet_pracownik(pesel):
         print(error)
         flash('Nie udało się pobrać danych pracownika')
         return redirect(url_for("show.pracownicy"))
-    worker = make_dictionary(['pesel', 'imie', 'nazwisko', 'dzial_skrot', 'oddzial_adres'], worker_data[0])
+    worker = make_dictionary(['pesel', 'imie', 'nazwisko', 'dzial_skrot', 'oddzial_adres', 'biuro_numer'],
+                             worker_data[0])
 
-    title = 'Przypisz sprzęt do pracownika {imie} {nazwisko}, numer PESEL {pesel}, dział {dzial}'.format(
-        imie=worker['imie'], nazwisko=worker['nazwisko'], pesel=worker['pesel'], dzial=worker['dzial_skrot']
+    title = 'Przypisz sprzęt do pracownika {imie} {nazwisko}, numer PESEL {pesel}, dział {dzial}, biuro {biuro}'.format(
+        imie=worker['imie'], nazwisko=worker['nazwisko'], pesel=worker['pesel'], dzial=worker['dzial_skrot'],
+        biuro=worker['biuro_numer']
     )
     post_address = url_for('assign._przypisz_sprzet_pracownik_post', pesel=pesel)
 
@@ -38,6 +40,7 @@ def przypisz_sprzet_pracownik(pesel):
                                                 available_hardware_data)
     if not available_hardware:
         flash('Nie ma wolnego sprzętu w magazynach')
+        return redirect(url_for('show_info.pokaz_pracownik_info', pesel=pesel))
 
     current_assignments_data, error = DBC().get_instance().execute_query_fetch("""
     SELECT id_przydzialu, DATE_FORMAT(data_przydzialu, '%d.%m.%Y')
@@ -58,7 +61,7 @@ def przypisz_sprzet_pracownik(pesel):
 @assign.route('/post/przypisz_sprzet/pracownik/<pesel>', methods=['POST', 'GET'])
 def _przypisz_sprzet_pracownik_post(pesel):
     if request.method == 'GET':
-        redirect(url_for('assign.przypisz_sprzet_pracownik', pesel=pesel))
+        return redirect(url_for('assign.przypisz_sprzet_pracownik', pesel=pesel))
     if request.method == 'POST':
         worker_data, error = DBC().get_instance().execute_query_fetch("""
             SELECT pesel, imie, nazwisko, skrot, oddzial_adres
@@ -71,28 +74,26 @@ def _przypisz_sprzet_pracownik_post(pesel):
             return redirect(url_for("show.pracownicy"))
         worker = make_dictionary(['pesel', 'imie', 'nazwisko', 'dzial_skrot', 'oddzial_adres'], worker_data[0])
 
-        create_new_assignment = (request.form.get('new_assignment_checkbox') is not None)
-        if create_new_assignment:
-            assignment_date = request.form.get('assignment_date_box')
-            if request.form.get('assignment_date_box') != '':
-                assignment_id, error = DBC().get_instance().execute_query_add_edit_delete_with_fetch_last_id("""
-                INSERT INTO Przypisanie
-                (data_przydzialu, pracownik_pesel)
-                VALUES (%s, %s)""", [assignment_date, worker['pesel']])
-                if error:
-                    print(error)
-                    flash('Wystąpił bład podczas dodawania nowego przypisania')
-                    redirect(url_for('assign.przypisz_sprzet_pracownik', pesel=pesel))
-                assignment_id = assignment_id[0][0]
-            else:  # New assignment date box empty
-                flash('Wybrano stworzenie nowego przypisania, więc data przypisania nie może być pusta')
-                redirect(url_for('assign.przypisz_sprzet_pracownik', pesel=pesel))
-        else:  # Use existing assignment
-            assignment_id = request.form.get('old_assignment_box')
         list_of_hardware = request.form.getlist('hardware')
         if len(list_of_hardware) == 0:
             flash('Nie wybrano żadnego sprzętu')
-            redirect(url_for('assign.przypisz_sprzet_pracownik', pesel=pesel))
+            return redirect(url_for('assign.przypisz_sprzet_pracownik', pesel=pesel))
+
+        assignment_date = request.form.get('assignment_date_box')
+        if request.form.get('assignment_date_box') != '':
+            assignment_id, error = DBC().get_instance().execute_query_add_edit_delete_with_fetch_last_id("""
+            INSERT INTO Przypisanie
+            (data_przydzialu, pracownik_pesel)
+            VALUES (%s, %s)""", [assignment_date, worker['pesel']])
+            if error:
+                print(error)
+                flash('Wystąpił bład podczas dodawania nowego przypisania')
+                return redirect(url_for('assign.przypisz_sprzet_pracownik', pesel=pesel))
+            assignment_id = assignment_id[0][0]
+        else:  # New assignment date box empty
+            flash('Data przypisania nie może być pusta')
+            return redirect(url_for('assign.przypisz_sprzet_pracownik', pesel=pesel))
+
         # Assign hardware
         for hardware in list_of_hardware:
             error_code, error = DBC().get_instance().execute_query_add_edit_delete_with_fetch("""
@@ -107,7 +108,7 @@ def _przypisz_sprzet_pracownik_post(pesel):
                         flash('Wystąpił błąd podczas przypisywania sprzętu ' + msg)
                 else:
                     flash('Wystąpił błąd podczas przypisywania sprzętu ' + error.msg)
-                redirect(url_for('assign.przypisz_sprzet_pracownik', pesel=pesel))
+                return redirect(url_for('assign.przypisz_sprzet_pracownik', pesel=pesel))
     return redirect(url_for('show_info.pokaz_pracownik_info', pesel=pesel))
 
 
@@ -138,12 +139,13 @@ def przypisz_sprzet_biuro(numer_biura):
     if error:
         print(error)
         flash('Nie udało się pobrać dostępnego sprzętu')
-        return redirect(url_for("show.biura"))
+        return redirect(url_for('show.biura'))
 
     available_hardware = make_dictionaries_list(['numer', 'typ', 'nazwa', 'producent', 'data_zakupu', 'numer_magazynu'],
                                                 available_hardware_data)
     if not available_hardware:
         flash('Nie ma wolnego sprzętu w magazynach')
+        return redirect(url_for("show_info.pokaz_biuro_info", numer_biura=numer_biura))
 
     current_assignments_data, error = DBC().get_instance().execute_query_fetch("""
     SELECT id_przydzialu, DATE_FORMAT(data_przydzialu, '%d.%m.%Y')
@@ -164,7 +166,7 @@ def przypisz_sprzet_biuro(numer_biura):
 @assign.route('/post/przypisz_sprzet/biuro/<numer_biura>', methods=['POST', 'GET'])
 def _przypisz_sprzet_biuro_post(numer_biura):
     if request.method == 'GET':
-        redirect(url_for('assign.przypisz_sprzet_biuro', numer_biura=numer_biura))
+        return redirect(url_for('assign.przypisz_sprzet_biuro', numer_biura=numer_biura))
     if request.method == 'POST':
         office_data, error = DBC().get_instance().execute_query_fetch("""
         SELECT numer, pietro, budynek_adres, oddzial_adres
@@ -177,28 +179,26 @@ def _przypisz_sprzet_biuro_post(numer_biura):
             return redirect(url_for("show.biura"))
         office = make_dictionary(['numer', 'pietro', 'budynek_adres', 'oddzial_adres'], office_data[0])
 
-        create_new_assignment = (request.form.get('new_assignment_checkbox') is not None)
-        if create_new_assignment:
-            assignment_date = request.form.get('assignment_date_box')
-            if request.form.get('assignment_date_box') != '':
-                assignment_id, error = DBC().get_instance().execute_query_add_edit_delete_with_fetch_last_id("""
-                INSERT INTO Przypisanie
-                (data_przydzialu, biuro_numer)
-                VALUES (%s, %s)""", [assignment_date, office['numer']])
-                if error:
-                    print(error)
-                    flash('Wystąpił bład podczas dodawania nowego przypisania')
-                    redirect(url_for('assign.przypisz_sprzet_biuro', numer_biura=numer_biura))
-                assignment_id = assignment_id[0][0]
-            else:  # New assignment date box empty
-                flash('Wybrano stworzenie nowego przypisania, więc data przypisania nie może być pusta')
-                redirect(url_for('assign.przypisz_sprzet_biuro', numer_biura=numer_biura))
-        else:  # Use existing assignment
-            assignment_id = request.form.get('old_assignment_box')
         list_of_hardware = request.form.getlist('hardware')
         if len(list_of_hardware) == 0:
             flash('Nie wybrano żadnego sprzętu')
-            redirect(url_for('assign.przypisz_sprzet_biuro', numer_biura=numer_biura))
+            return redirect(url_for('assign.przypisz_sprzet_biuro', numer_biura=numer_biura))
+
+        assignment_date = request.form.get('assignment_date_box')
+        if request.form.get('assignment_date_box') != '':
+            assignment_id, error = DBC().get_instance().execute_query_add_edit_delete_with_fetch_last_id("""
+            INSERT INTO Przypisanie
+            (data_przydzialu, biuro_numer)
+            VALUES (%s, %s)""", [assignment_date, office['numer']])
+            if error:
+                print(error)
+                flash('Wystąpił bład podczas dodawania nowego przypisania')
+                return redirect(url_for('assign.przypisz_sprzet_biuro', numer_biura=numer_biura))
+            assignment_id = assignment_id[0][0]
+        else:  # New assignment date box empty
+            flash('Data przypisania nie może być pusta')
+            return redirect(url_for('assign.przypisz_sprzet_biuro', numer_biura=numer_biura))
+
         # Assign hardware
         for hardware in list_of_hardware:
             error_code, error = DBC().get_instance().execute_query_add_edit_delete_with_fetch("""
@@ -213,5 +213,5 @@ def _przypisz_sprzet_biuro_post(numer_biura):
                         flash('Wystąpił błąd podczas przypisywania sprzętu ' + msg)
                 else:
                     flash('Wystąpił błąd podczas przypisywania sprzętu ' + error.msg)
-                redirect(url_for('assign.przypisz_sprzet_biuro', numer_biura=numer_biura))
+                return redirect(url_for('assign.przypisz_sprzet_biuro', numer_biura=numer_biura))
     return redirect(url_for('show_info.pokaz_biuro_info', numer_biura=numer_biura))
