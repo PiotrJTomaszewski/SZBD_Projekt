@@ -8,6 +8,7 @@ from pages_show_info import show_info
 from pages_add import add
 from pages_edit import edit
 from pages_assign import assign
+from pages_deassign import deassign
 from pages_delete import delete
 
 # Register blueprints
@@ -17,6 +18,7 @@ app.register_blueprint(show_info)
 app.register_blueprint(add)
 app.register_blueprint(edit)
 app.register_blueprint(assign)
+app.register_blueprint(deassign)
 app.register_blueprint(delete)
 
 app.secret_key = 'Super secret key. Please don\'t look at it :)'

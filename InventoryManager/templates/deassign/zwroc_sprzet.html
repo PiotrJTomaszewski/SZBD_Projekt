@@ -1,0 +1,82 @@
+{% extends "base.html" %}
+{% block titile %}Zwróć sprzęt{% endblock %}
+{% block content %}
+<h1>Zwróć sprzęt z przypisania numer {{ przypisanie['id'] }} przyznanego w dniu {{ przypisanie['data_przyznania'] }}</h1>
+<div id="owner">
+    <h1>Właściciel: {{ wlasciciel['typ'] }}</h1>
+    <h3>Dane właściciela</h3>
+    <table>
+        <thead>
+            <tr>
+                {% for naglowek in wlasciciel['naglowki'] %}
+                <td>{{ naglowek }}</td>
+                {% endfor %}
+            </tr>
+        </thead>
+        <tr>
+            {% for informacja in wlasciciel['dane'] %}
+            <td>{{ informacja }}</td>
+            {% endfor %}
+        </tr>
+    </table>
+</div>
+
+<h3>Sprzęt w przypisaniu</h3>
+<div id="assignment_hardware">
+    <table>
+        <thead>
+        <tr>
+            <td>Numer ewidencyjny</td>
+            <td>Typ</td>
+            <td>Nazwa</td>
+            <td>Producent</td>
+            <td>Data zakupu</td>
+        </tr>
+        </thead>
+        {% for sprzet in sprzety %}
+         <tr>
+            <td>{{ sprzet['numer'] }}</td>
+            <td>{{ sprzet['typ'] }}</td>
+            <td>{{ sprzet['nazwa'] }}</td>
+            <td>{{ sprzet['producent'] }}</td>
+            <td>{{ sprzet['data_zakupu'] }}</td>
+         </tr>
+        {% endfor %}
+    </table>
+</div>
+
+<span title="Wyświetlone są tylko te magazyny, które posiadają wystarczającą ilość wolnego miejsca aby pomieścić cały sprzęt z przypisania">
+<h3>Wybierz magazyn</h3></span>
+<form method="post">
+<div id="magazines">
+    <table>
+        <thead>
+        <tr>
+            <td>Numer magazynu</td>
+            <td>Całkowita pojemność</td>
+            <td>Pozostała pojemność</td>
+            <td>Wybierz</td>
+        </tr>
+        </thead>
+    {% for magazyn in magazyny %}
+    <tr>
+        <td>{{ magazyn['numer'] }}</td>
+        <td>{{ magazyn['pojemnosc'] }}</td>
+        <td>{{ magazyn['wolna_pojemnosc'] }}</td>
+        <td><input type="radio" name="magazine_number" value="{{ magazyn['numer'] }}" checked="checked"></td>
+    </tr>
+    {% endfor %}
+    </table>
+</div>
+<br/><br/>
+<div>
+<label for="return_date">Data zwrotu</label>
+<input type="date" name="return_date" id="return_date" required="required">
+<script type="text/javascript">
+document.getElementById('return_date').valueAsDate = new Date();
+</script>
+</div>
+
+<button type="submit" formaction="{{ url_for('deassign.wykonaj_zwroc_sprzet', id_przydzialu=przypisanie['id']) }}">Zwróć sprzęt</button>
+</form>
+{% endblock %}

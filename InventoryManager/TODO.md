@@ -5,3 +5,6 @@ Piotr: <br/>
   - [ ] Dodać wyszukiwanie sprzętu i oprogramowania
   - [ ] Sortowanie
   - [ ] Podpowiedzi po najechaniu myszą - \<span title="Podpowiedź">Element\</span>)
+  - [ ] Sprawdzanie czy ręcznie wpisany adres nie zmienia oddziału
+  - [ ] Sprawdzanie czy pracownik nadal pracuje
+  - [ ] Potwiedzanie wykonania operacji
