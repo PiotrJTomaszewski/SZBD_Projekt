@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+{% block title %}Zwróć oprogramowanie{% endblock %}
+{% block content %}
+<h1>Zwróć oprogramowanie przypisane do sprzętu</h1>
+<div id="hardware_info">
+<table>
+    <thead>
+    <tr>
+        <td>Numer ewidencyjny</td>
+        <td>Typ</td>
+        <td>Nazwa</td>
+        <td>Producent</td>
+        <td>Data zakupu</td>
+        <td>Stan / położenie</td>
+    </tr>
+    </thead>
+    <tr>
+        <td>{{ sprzet['numer'] }}</td>
+        <td>{{ sprzet['typ'] }}</td>
+        <td>{{ sprzet['nazwa'] }}</td>
+        <td>{{ sprzet['producent'] }}</td>
+        <td>{{ sprzet['data_zakupu'] }}</td>
+        <td>{{ sprzet['stan'] }}</td>
+    </tr>
+</table>
+</div>
+
+<span title="Wybierz kopie oprogramowania, które chcesz zwrócić">
+<h3>Aktualnie przypisane oprogramowanie</h3></span>
+<div id="assigned_software">
+<form id="software_to_return" name="software_to_return" action="{{ url_for('deassign.wykonaj_zwroc_oprogramowanie', numer_ewidencyjny = sprzet['numer']) }}" method="post">
+<table>
+    <thead>
+    <tr>
+        <td>Numer ewidencyjny</td>
+        <td>Nazwa</td>
+        <td>Producent</td>
+        <td>Data zakupu</td>
+        <td>Data wygaśnięcia</td>
+        <td>Liczba licencji</td>
+        <td>Wybierz</td>
+    </tr>
+    </thead>
+
+    {% for oprogramowanie in przypisane_oprogramowanie %}
+    <tr>
+        <td>{{ oprogramowanie['numer'] }}</td>
+        <td>{{ oprogramowanie['nazwa'] }}</td>
+        <td>{{ oprogramowanie['producent'] }}</td>
+        <td>{{ oprogramowanie['data_zakupu'] }}</td>
+        <td>{{ oprogramowanie['data_wygasniecia'] }}</td>
+        <td>{{ oprogramowanie['liczba_licencji'] }}</td>
+        <td><input type="checkbox" name="chosen_software" value="{{ oprogramowanie['numer'] }}"></td>
+    </tr>
+    {% endfor %}
+</table>
+<br/>
+<input type="submit" value="Zatwierdź">
+</form>
+</div>
+{% endblock %}

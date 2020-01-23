@@ -5,7 +5,7 @@ from helpers import *
 assign = Blueprint('assign', __name__)
 
 
-@assign.route('/przypisz_sprzet/pracownik/<pesel>')
+@assign.route('/przypisz/sprzet/pracownik/<pesel>')
 def przypisz_sprzet_pracownik(pesel):
     worker_data, error = DBC().get_instance().execute_query_fetch("""
     SELECT pesel, imie, nazwisko, skrot, oddzial_adres, biuro_numer
@@ -58,7 +58,7 @@ def przypisz_sprzet_pracownik(pesel):
                            sprzety=available_hardware, post_adres=post_address)
 
 
-@assign.route('/post/przypisz_sprzet/pracownik/<pesel>', methods=['POST', 'GET'])
+@assign.route('/wykonaj/przypisz/sprzet/pracownik/<pesel>', methods=['POST', 'GET'])
 def _przypisz_sprzet_pracownik_post(pesel):
     if request.method == 'GET':
         return redirect(url_for('assign.przypisz_sprzet_pracownik', pesel=pesel))
@@ -109,10 +109,11 @@ def _przypisz_sprzet_pracownik_post(pesel):
                 else:
                     flash('Wystąpił błąd podczas przypisywania sprzętu ' + error.msg)
                 return redirect(url_for('assign.przypisz_sprzet_pracownik', pesel=pesel))
+        flash('Sprzęt został przypisany pomyślnie')
     return redirect(url_for('show_info.pokaz_pracownik_info', pesel=pesel))
 
 
-@assign.route('/przypisz_sprzet/biuro/<numer_biura>')
+@assign.route('/przypisz/sprzet/biuro/<numer_biura>')
 def przypisz_sprzet_biuro(numer_biura):
     office_data, error = DBC().get_instance().execute_query_fetch("""
     SELECT numer, pietro, budynek_adres, oddzial_adres
@@ -163,7 +164,7 @@ def przypisz_sprzet_biuro(numer_biura):
                            sprzety=available_hardware, post_adres=post_address)
 
 
-@assign.route('/post/przypisz_sprzet/biuro/<numer_biura>', methods=['POST', 'GET'])
+@assign.route('/wykonaj/przypisz/sprzet/biuro/<numer_biura>', methods=['POST', 'GET'])
 def _przypisz_sprzet_biuro_post(numer_biura):
     if request.method == 'GET':
         return redirect(url_for('assign.przypisz_sprzet_biuro', numer_biura=numer_biura))
@@ -214,4 +215,78 @@ def _przypisz_sprzet_biuro_post(numer_biura):
                 else:
                     flash('Wystąpił błąd podczas przypisywania sprzętu ' + error.msg)
                 return redirect(url_for('assign.przypisz_sprzet_biuro', numer_biura=numer_biura))
+        flash('Sprzęt został przypisany pomyślnie')
     return redirect(url_for('show_info.pokaz_biuro_info', numer_biura=numer_biura))
+
+
+@assign.route('/przypisz/oprogramowanie/sprzet/<numer_ewidencyjny>')
+def przypisz_oprogramowanie(numer_ewidencyjny):
+    hardware, error = DBC().get_instance().execute_query_fetch("""
+    SELECT S.numer_ewidencyjny, S.typ, S.nazwa, S.producent, S.data_zakupu, S.magazyn_numer, P.pracownik_pesel, P.biuro_numer
+     FROM Sprzet S
+     LEFT OUTER JOIN SprzetWPrzypisaniu S2 on S.numer_ewidencyjny = S2.sprzet_numer_ewidencyjny
+     LEFT OUTER JOIN Przypisanie P on S2.przypisanie_id_przydzialu = P.id_przydzialu
+     WHERE S.numer_ewidencyjny = %s""", [numer_ewidencyjny])
+    if error or not hardware:
+        flash('Wystąpił błąd! Nie znaleziono sprzętu')
+        return redirect(url_for('show_info.pokaz_sprzet_info', numer_ewidencyjny=numer_ewidencyjny))
+    hardware_data = make_dictionary(
+        ['numer', 'typ', 'nazwa', 'producent', 'data_zakupu', 'magazyn_numer', 'pracownik_pesel', 'biuro_numer'],
+        hardware[0])
+    if hardware_data.get('pracownik_pesel'):
+        hardware_data['stan'] = 'Przypiany do pracownika {}'.format(hardware_data['pracownik_pesel'])
+    elif hardware_data.get('biuro_numer'):
+        hardware_data['stan'] = 'Przypisany do biura {}'.format(hardware_data['biuro_numer'])
+    else:
+        hardware_data['stan'] = 'W magazynie {}'.format(hardware_data['magazyn_numer'])
+
+    available_software, error = DBC().get_instance().execute_query_fetch("""
+    SELECT numer_ewidencyjny, nazwa, producent, DATE_FORMAT(data_zakupu, '%d.%m.%Y'), 
+    DATE_FORMAT(data_wygasniecia, '%d.%m.%Y'), ilosc_licencji
+    FROM Oprogramowanie
+    WHERE (ilosc_licencji IS NULL
+    OR IleWolnychLicencji(numer_ewidencyjny) > 0)
+    AND (data_wygasniecia IS NULL
+    OR data_wygasniecia > CURRENT_DATE)""")
+    if error:
+        flash('Wystąpił błąd podczas pobierania dostępnego oprogramowania')
+        return redirect(url_for('show_info.pokaz_sprzet_info', numer_ewidencyjny=numer_ewidencyjny))
+    if not available_software:
+        flash('Nie znaleziono żadnej dostępnej kopii oprogramowania')
+        return redirect(url_for('show_info.pokaz_sprzet_info', numer_ewidencyjny=numer_ewidencyjny))
+    available_software_data = make_dictionaries_list(
+        ['numer', 'nazwa', 'producent', 'data_zakupu', 'data_wygasniecia', 'liczba_licencji'], available_software)
+
+    for i in range(len(available_software_data)):
+        if not available_software_data[i].get('data_wygasniecia'):
+            available_software_data[i]['data_wygasniecia'] = 'Nie wygasa'
+        if not available_software_data[i].get('liczba_licencji'):
+            available_software_data[i]['liczba_licencji'] = 'Nieograniczona'
+    return render_template('assign/przypisz_oprogramowanie.html', sprzet=hardware_data,
+                           dostepne_oprogramowanie=available_software_data)
+
+
+@assign.route('/wykonaj/przypisz/oprogramowanie/sprzet/<numer_ewidencyjny>', methods=['GET', 'POST'])
+def wykonaj_przypisz_oprogramowanie(numer_ewidencyjny):
+    if request.method == 'GET':
+        return redirect(url_for('assign.przypisz_oprogramowanie', numer_ewidencyjny=numer_ewidencyjny))
+    if request.method == 'POST':
+        if not request.form:
+            flash('Proszę wybrać oprogramowanie')
+            return redirect(url_for('assign.przypisz_oprogramowanie', numer_ewidencyjny=numer_ewidencyjny))
+        chosen_software = request.form.getlist('chosen_software')
+        chosen_software = [int(x) for x in chosen_software]
+        for software in chosen_software:
+            result, error = DBC().get_instance().execute_query_add_edit_delete_with_fetch("""
+            SELECT ZainstalujOprogramowanie(%s, %s) FROM dual""", [numer_ewidencyjny, software])
+            if error:
+                flash('Wystąpił błąd podczas przypisywania opgoramowania do sprzętu')
+                return redirect(url_for('show_info.pokaz_sprzet_info', numer_ewidencyjny=numer_ewidencyjny))
+            if result[0][0] == 1:
+                flash('Wystąpił błąd, oprogramowanie {} nie posiada wystarczającej liczby licencji'.format(software))
+                return redirect(url_for('assign.przypisz_oprogramowanie', numer_ewidencyjny=numer_ewidencyjny))
+            if result[0][0] == 2:
+                flash('Wystąpił błąd, upewnij się czy oprogramowanie {} nie było już zainstalowane na wybranym sprzęcie'.format(software))
+                return redirect(url_for('assign.przypisz_oprogramowanie', numer_ewidencyjny=numer_ewidencyjny))
+        flash('Oprogramowanie zostało przypisane pomyślnie')
+    return redirect(url_for('show_info.pokaz_sprzet_info', numer_ewidencyjny=numer_ewidencyjny))

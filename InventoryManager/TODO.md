@@ -8,3 +8,4 @@ Piotr: <br/>
   - [ ] Sprawdzanie czy ręcznie wpisany adres nie zmienia oddziału
   - [ ] Sprawdzanie czy pracownik nadal pracuje
   - [ ] Potwiedzanie wykonania operacji
+  - [ ] Zweryfikować typ joinów

@@ -6,7 +6,7 @@ from helpers import *
 deassign = Blueprint('deassign', __name__)
 
 
-@deassign.route('/zwroc_sprzet/<id_przydzialu>')
+@deassign.route('/zwroc/sprzet/<id_przydzialu>')
 def zwroc_sprzet(id_przydzialu):
     assignment, error = DBC().get_instance().execute_query_fetch("""
     SELECT id_przydzialu, DATE_FORMAT(data_przydzialu, '%d.%m.%Y'), pracownik_pesel, biuro_numer, data_zwrotu
@@ -75,7 +75,7 @@ def zwroc_sprzet(id_przydzialu):
                            sprzety=hardware_data, magazyny=magazines_data)
 
 
-@deassign.route('/wykonaj/zwroc_sprzet/<id_przydzialu>', methods=['GET', 'POST'])
+@deassign.route('/wykonaj/zwroc/sprzet/<id_przydzialu>', methods=['GET', 'POST'])
 def wykonaj_zwroc_sprzet(id_przydzialu):
     if request.method == 'GET':
         return redirect(url_for('deassign.zwroc_sprzet', id_przydzialu=id_przydzialu))
@@ -119,3 +119,72 @@ def wykonaj_zwroc_sprzet(id_przydzialu):
                 print('Wybrany magazyn jest pełen!')
                 return redirect(url_for('show_historia_przypisania'))
         return redirect(url_for('show.historia_przypisan'))
+
+
+@deassign.route('/zwroc/oprogramowanie/sprzet/<numer_ewidencyjny>')
+def zwroc_oprogramowanie(numer_ewidencyjny):
+    hardware, error = DBC().get_instance().execute_query_fetch("""
+        SELECT S.numer_ewidencyjny, S.typ, S.nazwa, S.producent, S.data_zakupu, S.magazyn_numer, P.pracownik_pesel, P.biuro_numer
+         FROM Sprzet S
+         LEFT OUTER JOIN SprzetWPrzypisaniu S2 on S.numer_ewidencyjny = S2.sprzet_numer_ewidencyjny
+         LEFT OUTER JOIN Przypisanie P on S2.przypisanie_id_przydzialu = P.id_przydzialu
+         WHERE S.numer_ewidencyjny = %s""", [numer_ewidencyjny])
+    if error or not hardware:
+        flash('Wystąpił błąd! Nie znaleziono sprzętu')
+        return redirect(url_for('show_info.pokaz_sprzet_info', numer_ewidencyjny=numer_ewidencyjny))
+    hardware_data = make_dictionary(
+        ['numer', 'typ', 'nazwa', 'producent', 'data_zakupu', 'magazyn_numer', 'pracownik_pesel', 'biuro_numer'],
+        hardware[0])
+    if hardware_data.get('pracownik_pesel'):
+        hardware_data['stan'] = 'Przypiany do pracownika {}'.format(hardware_data['pracownik_pesel'])
+    elif hardware_data.get('biuro_numer'):
+        hardware_data['stan'] = 'Przypisany do biura {}'.format(hardware_data['biuro_numer'])
+    else:
+        hardware_data['stan'] = 'W magazynie {}'.format(hardware_data['magazyn_numer'])
+
+    assigned_software, error = DBC().get_instance().execute_query_fetch("""
+        SELECT numer_ewidencyjny, nazwa, producent, DATE_FORMAT(data_zakupu, '%d.%m.%Y'), 
+        DATE_FORMAT(data_wygasniecia, '%d.%m.%Y'), ilosc_licencji
+        FROM Oprogramowanie
+        JOIN OprogramowanieNaSprzecie ONS on Oprogramowanie.numer_ewidencyjny = ONS.oprogramowanie_numer
+        WHERE ONS.sprzet_numer = %s""", [hardware_data['numer']])
+    if error:
+        flash('Wystąpił błąd podczas pobierania dostępnego oprogramowania')
+        return redirect(url_for('show_info.pokaz_sprzet_info', numer_ewidencyjny=numer_ewidencyjny))
+    if not assigned_software:
+        flash('Wybrany sprzęt nie posiada przypisanego oprogramowania')
+        return redirect(url_for('show_info.pokaz_sprzet_info', numer_ewidencyjny=numer_ewidencyjny))
+
+    assigned_software_data = make_dictionaries_list(
+        ['numer', 'nazwa', 'producent', 'data_zakupu', 'data_wygasniecia', 'liczba_licencji'], assigned_software)
+
+    for i in range(len(assigned_software_data)):
+        if not assigned_software_data[i].get('data_wygasniecia'):
+            assigned_software_data[i]['data_wygasniecia'] = 'Nie wygasa'
+        if not assigned_software_data[i].get('liczba_licencji'):
+            assigned_software_data[i]['liczba_licencji'] = 'Nieograniczona'
+
+    return render_template('deassign/zwroc_oprogramowanie.html', sprzet=hardware_data,
+                           przypisane_oprogramowanie=assigned_software_data)
+
+
+@deassign.route('/wykonaj/zwroc/oprogramowanie/sprzet/<numer_ewidencyjny>', methods=['GET', 'POST'])
+def wykonaj_zwroc_oprogramowanie(numer_ewidencyjny):
+    if request.method == 'GET':
+        return redirect(url_for('deassign.zwroc_oprogramowanie', numer_ewidencyjny=numer_ewidencyjny))
+    if request.method == 'POST':
+        if not request.form:
+            flash('Proszę wybrać oprogramowanie')
+            return redirect(url_for('deassign.zwroc_oprogramowanie', numer_ewidencyjny=numer_ewidencyjny))
+        chosen_software = request.form.getlist('chosen_software')
+        chosen_software = [int(x) for x in chosen_software]
+        for software in chosen_software:
+            error = DBC().get_instance().execute_query_add_edit_delete("""
+                DELETE FROM OprogramowanieNaSprzecie
+                WHERE sprzet_numer = %s
+                AND oprogramowanie_numer = %s""", [numer_ewidencyjny, software])
+            if error:
+                flash('Wystąpił błąd podczas przypisywania opgoramowania do sprzętu')
+                return redirect(url_for('show_info.pokaz_sprzet_info', numer_ewidencyjny=numer_ewidencyjny))
+        flash('Oprogramowanie zostało przypisane pomyślnie')
+    return redirect(url_for('show_info.pokaz_sprzet_info', numer_ewidencyjny=numer_ewidencyjny))
