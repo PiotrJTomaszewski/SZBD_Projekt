@@ -2,6 +2,7 @@ from flask import Flask, render_template, request, flash, redirect, url_for, Blu
 from forms import *
 from database_connector import DatabaseConnector as DBC
 from mysql.connector import errorcode
+from helpers import *
 
 add = Blueprint('add', __name__)
 
@@ -39,7 +40,7 @@ def dodaj_budynek():
     # if error is not None:
     #     flash('Wystąpił błąd podczas pobierania dostępnych oddziałów!<br/>{}'.format(error.msg))
     # branches_choices = [(branch[0], ('{} ({})'.format(branch[1], branch[0]))) for branch in branches]
-    form = AddEditBuildingForm(address=session['wybrany_oddzial_adres']+' ')
+    form = AddEditBuildingForm(address=session['wybrany_oddzial_adres'] + ' ')
     # form.branch_address.choices = branches_choices
 
     if request.method == 'POST':
@@ -218,43 +219,6 @@ def dodaj_pracownika():
         return render_template(goto, form=form)
 
 
-@add.route('/dodaj/karta', methods=['GET', 'POST'])
-def dodaj_karte():
-    goto = 'add/dodaj_karte.html'
-    workers, error = DBC().get_instance().execute_query_fetch("""
-    SELECT P.pesel, P.imie, P.nazwisko, D.skrot
-    FROM Pracownik P JOIN Dzial D on P.dzial_nazwa = D.nazwa
-    WHERE D.oddzial_adres = %s
-    ORDER BY P.nazwisko, P.imie""", [session['wybrany_oddzial_adres']])
-    if error is not None:
-        flash('Wystąpił błąd podczas pobierania dostępnych pracowników!')
-    workers_choices = [(str(w[0]), '{} - {} {} ({})'.format(w[0], w[2], w[1], w[3])) for w in workers]
-    form = AddEditAccessCardForm()
-    form.worker_pesel.choices = workers_choices
-
-    if request.method == 'POST':
-        if form.validate_on_submit():  # Input ok
-            pesel = form.worker_pesel.data
-            assign_date = form.assign_date.data
-
-            error = DBC().get_instance().execute_query_add_edit_delete(
-                """INSERT INTO KartaDostepu (data_przyznania, pracownik_pesel)
-                VALUES(%s, %s)""", (assign_date, pesel)
-            )
-            if error is None:  # If there was no error
-                flash('Karta dostępu została pomyślnie dodana')
-                # We're showing the worker info
-                return redirect(url_for('show_info.pokaz_pracownik_info', pesel=pesel))  # sic!
-            else:
-                flash('Wystąpił błąd podczas dodawania karty!<br/>{}'.format(error.msg))
-                return render_template(goto, form=form)
-        else:
-            flash('Proszę upewnić się czy wszystkie pola zostały poprawnie wypełnione!')
-            return render_template(goto, form=form)
-    else:
-        return render_template(goto, form=form)
-
-
 @add.route('/dodaj/magazyn', methods=['GET', 'POST'])
 def dodaj_magazyn():
     goto = 'add/dodaj_magazyn.html'
@@ -267,7 +231,6 @@ def dodaj_magazyn():
     FROM Magazyn""")
     if error is not None:
         flash('Wystąpił błąd podczas pobierania sugerowanego numeru magazynu')
-    print(next_available_number)
     if next_available_number is None or len(next_available_number) == 0:
         next_available_number = 0
     else:
@@ -423,3 +386,77 @@ def dodaj_oprogramowanie():
             return render_template(goto, form=form)
     else:
         return render_template(goto, form=form)
+
+
+@add.route('/dodaj/karta/pracownik/<pesel>')
+def dodaj_karta(pesel):
+    worker, error = DBC().get_instance().execute_query_fetch("""
+    SELECT pesel, imie, nazwisko, biuro_numer, dzial_nazwa
+    FROM Pracownik
+    WHERE pesel = %s""", [pesel])
+    if error or not worker:
+        flash('Wystąpił błąd podczas pobierania informacji o pracowniku')
+        return redirect(url_for('show.pracownicy'))
+    worker_data = make_dictionary(['pesel', 'imie', 'nazwisko', 'biuro_numer', 'dzial_nazwa'], worker[0])
+
+    offices, error = DBC().get_instance().execute_query_fetch("""
+    SELECT BI.numer, BI.pietro, BI.budynek_adres
+    FROM Biuro BI
+    JOIN Budynek BU on BI.budynek_adres = BU.adres
+    WHERE BU.oddzial_adres = %s
+    ORDER BY BI.numer""", [session['wybrany_oddzial_adres']])
+    if error:
+        flash('Wystąpił błąd podczas pobierania dostępnych biur')
+        return redirect(url_for('show_info.pokaz_pracownik_info', pesel=pesel))
+    if not offices:
+        flash('W oddziale nie znajdują się żadne biura')
+        return redirect(url_for('show_info.pokaz_pracownik_info', pesel=pesel))
+    offices_data = make_dictionaries_list(['numer', 'pietro', 'budynek_adres'], offices)
+
+    return render_template('add/dodaj_karte.html', pracownik=worker_data, biura=offices_data)
+
+
+@add.route('/wykonaj/dodaj/karta/pracownik/<pesel>', methods=['GET', 'POST'])
+def wykonaj_dodaj_karta(pesel):
+    if request.method == 'GET':
+        return redirect(url_for('dodaj_karta', pesel=pesel))
+    if request.method == 'POST':
+        selected_offices = request.form.getlist('selected_offices')
+        if not selected_offices:
+            flash('Proszę wybrać biuro')
+            return redirect(url_for('add.dodaj_karta', pesel=pesel))
+        selected_offices = [int(x) for x in selected_offices]
+        assignment_date = request.form.get('card_assignment_date')
+        expiration_date = request.form.get('access_expiration_date')
+
+        assignment_date = string_to_date(assignment_date)
+        if expiration_date and expiration_date != '':
+            expiration_date = string_to_date(expiration_date)
+        else:
+            expiration_date = None
+
+        if expiration_date and expiration_date < assignment_date:
+            flash('Data wygaśnięcia prawa nie może być wcześniejsza niż data przyznania karty')
+            return redirect(url_for('add.dodaj_karta', pesel=pesel))
+
+        # Create new card
+        card_id, error = DBC().get_instance().execute_query_add_edit_delete_with_fetch_last_id("""
+        INSERT INTO KartaDostepu
+        (data_przyznania, pracownik_pesel)
+        VALUES (%s, %s)""", [assignment_date, pesel])
+        if error or not card_id:
+            flash('Wystąpił błąd podczas dodawania nowej karty')
+            return redirect(url_for('add.dodaj_karta', pesel=pesel))
+        card_id = card_id[0][0]
+
+        if request.form.get('add_access'):
+            for office_number in selected_offices:
+                # Assign access to the card
+                error = DBC().get_instance().execute_query_add_edit_delete("""
+                INSERT INTO PrawoDostepu (data_przyznania, data_wygasniecia, kartadostepu_id_karty, biuro_numer)
+                VALUES (%s, %s, %s, %s)""", [assignment_date, expiration_date, card_id, office_number])
+                if error:
+                    flash('Wystąpił błąd podczas przypisywania do karty prawa dostępu')
+                    return redirect(url_for('show_info.pokaz_pracownik_info', pesel=pesel))
+        flash('Karta została pomyślnie dodana')
+        return redirect(url_for('show_info.pokaz_pracownik_info', pesel=pesel))

@@ -106,7 +106,6 @@ def sprzet_w_magazynach():
         WHERE (SELECT oddzial_adres FROM Magazyn M WHERE M.numer = S.magazyn_numer) = %s""",
         [session['wybrany_oddzial_adres']]
     )
-    print(hardware_in_magazines)
     if error is not None:
         print(error)
         flash('Wystąpił błąd!<br/>Nie można pobrać dostępnego sprzętu')

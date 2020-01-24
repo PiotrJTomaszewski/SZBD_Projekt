@@ -1,0 +1,113 @@
+{% extends "base.html" %}
+{% block title %}Przypisz nowe prawo dostępu do karty{% endblock %}
+{% block content %}
+<h1>Przypisz nowe prawo dostępu do karty</h1>
+
+<div id="worker_info">
+<h2>Informacje o pracowniku</h2>
+<table>
+    <thead>
+    <tr>
+        <td>PESEL</td>
+        <td>Imię</td>
+        <td>Nazwisko</td>
+        <td>Dział</td>
+        <td>Biuro</td>
+    </tr>
+    </thead>
+    <tr>
+        <td>{{ pracownik['pesel'] }}</td>
+        <td>{{ pracownik['imie'] }}</td>
+        <td>{{ pracownik['nazwisko'] }}</td>
+        <td>{{ pracownik['dzial_nazwa'] }}</td>
+        <td>{{ pracownik['biuro_numer'] }}</td>
+    </tr>
+</table>
+</div>
+
+<br/>
+<div id="card_info">
+<h2>Informacje o karcie</h2>
+<table>
+    <thead>
+    <tr>
+        <td>ID</td>
+        <td>Data przyznania</td>
+    </tr>
+    </thead>
+    <tr>
+        <td>{{ karta['id'] }}</td>
+        <td>{{ karta['data_przyznania'] }}</td>
+    </tr>
+</table>
+</div>
+
+<br/>
+<div id="current_access">
+<h2>Aktualne, niewygasłe prawa dostępu na karcie</h2>
+<table>
+    <thead>
+    <tr>
+        <td>Data przyznania</td>
+        <td>Data wygaśnięcia</td>
+        <td>Numer biura</td>
+        <td>Budynek</td>
+        <td>Piętro</td>
+    </tr>
+    </thead>
+    {% for biuro in obecne_biura %}
+    <tr>
+        <td>{{ biuro['dostep_data_przyznania'] }}</td>
+        <td>{{ biuro['dostep_data_wygasniecia'] }}</td>
+        <td>{{ biuro['numer'] }}</td>
+        <td>{{ biuro['budynek_adres'] }}</td>
+        <td>{{ biuro['pietro'] }}</td>
+    </tr>
+    {% endfor %}
+</table>
+</div>
+
+
+<form method="post" action="{{ url_for('assign.wykonaj_przypisz_prawo_dostepu_karta', pesel=pracownik['pesel'], id_karty=karta['id']) }}">
+<div id="new_access_div">
+    <h1>Przypisz nowe prawo dostępu</h1>
+    <label for="access_assign_date">Data przyznania prawa</label><br/>
+    <input type="date" id="access_assign_date" name="access_assign_date" required="required">
+    <script type="text/javascript">
+    document.getElementById('access_assign_date').valueAsDate = new Date();
+    </script>
+    <br/>
+    <br/>
+    <span title="Podaj datę wygaśnięcia prawa. Pozostaw te pole puste, jeśli chcesz, żeby prawo nigdy nie wygasło.">
+    <label for="access_expiration_date">Data wygaśnięcia prawa (opcjonalne)</label><br/>
+    <input type="date" id="access_expiration_date" name="access_expiration_date">
+    </span>
+    <div id="offices">
+    <span title="Wybierz biura, do których chcesz przyznać dostęp"><h2>Wybierz biura</h2></span>
+    <table>
+        <thead>
+        <tr>
+            <td>Numer</td>
+            <td>Budynek</td>
+            <td>Piętro</td>
+            <td><span title="Wybierz biura, do których chcesz przyznać dostęp.">Wybierz</span></td>
+        </tr>
+        </thead>
+
+        {% for biuro in dostepne_biura %}
+        <tr>
+            <td>{{ biuro['numer'] }}</td>
+            <td>{{ biuro['budynek_adres'] }}</td>
+            <td>{{ biuro['pietro'] }}</td>
+            <td><input type="checkbox" name="selected_offices" id="selected_offices" value="{{ biuro['numer'] }}"></td>
+        </tr>
+        {% endfor %}
+    </table>
+    </div>
+</div>
+
+<br/>
+<br/>
+<input type="submit" value="Zatwierdź">
+</form>
+{% endblock %}

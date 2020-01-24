@@ -5,7 +5,12 @@ Piotr: <br/>
   - [ ] Dodać wyszukiwanie sprzętu i oprogramowania
   - [ ] Sortowanie
   - [ ] Podpowiedzi po najechaniu myszą - \<span title="Podpowiedź">Element\</span>)
-  - [ ] Sprawdzanie czy ręcznie wpisany adres nie zmienia oddziału
+  - [ ] Sprawdzanie czy ręcznie wpisany adres strony nie zmienia oddziału
   - [ ] Sprawdzanie czy pracownik nadal pracuje
   - [ ] Potwiedzanie wykonania operacji
   - [ ] Zweryfikować typ joinów
+  - [ ] Dodać ostrzeżenie o braku posiadania karty na ekranie info o pracowniku
+  - [ ] Upewnić się, czy nigdzie nie wyświetlają się obiekty z innego oddziału
+  - [ ] Indeks na skrócie nazwy działu
+  - [ ] Używanie autogenerowanych id
+  - [ ] Wyłączyć cachowanie stron w przeglądarce :)

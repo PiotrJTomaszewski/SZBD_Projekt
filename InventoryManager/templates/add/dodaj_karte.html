@@ -1,17 +1,89 @@
 {% extends "base.html" %}
-{% from "macros.html" import render_field %}
-{% block title %}Dodaj kartę dostępu{% endblock %}
+{% block title %}Przyznaj pracownikowi kartę dostępu{% endblock %}
 {% block content %}
-    <h1>Dodaj kartę dostępu</h1>
-    <div id="data_input_form">
-        <form action="{{ url_for('add.dodaj_karte') }}" method=post>
-            <fieldset>
-                <legend>Dodaj kartę dostępu</legend>
-                {{ form.hidden_tag() }}
-                {{ render_field(form.worker_pesel) }}
-                {{ render_field(form.assign_date) }}
-                {{ render_field(form.submit) }}
-            </fieldset>
-        </form>
+<h1>Przyznaj kartę dostępu pracownikowi</h1>
+
+<div id="worker_info">
+<table>
+    <thead>
+    <tr>
+        <td>PESEL</td>
+        <td>Imię</td>
+        <td>Nazwisko</td>
+        <td>Dział</td>
+        <td>Biuro</td>
+    </tr>
+    </thead>
+    <tr>
+        <td>{{ pracownik['pesel'] }}</td>
+        <td>{{ pracownik['imie'] }}</td>
+        <td>{{ pracownik['nazwisko'] }}</td>
+        <td>{{ pracownik['dzial_nazwa'] }}</td>
+        <td>{{ pracownik['biuro_numer'] }}</td>
+    </tr>
+</table>
+</div>
+
+<br/>
+<form id="add_card_assign" name="add_card_assign" action="{{ url_for('add.wykonaj_dodaj_karta', pesel=pracownik['pesel']) }}" method="post">
+<div id="card_creation">
+<h2>Utwórz nową kartę</h2>
+<label for="card_assignment_date">Data przyznania karty</label><br/>
+<input type="date" name="card_assignment_date" id="card_assignment_date" required="required">
+<script type="text/javascript">
+document.getElementById('card_assignment_date').valueAsDate = new Date();
+</script>
+</div>
+<br/>
+
+<span title="Zaznacz, jeśli chcesz nadać karcie pierwsze prawo dostępu.">
+<label for="add_access">Dodaj do karty prawo dostępu</label>
+<input type="checkbox" id="add_access" name="add_access" checked="checked" onclick="show_hide(this.checked)">
+</span>
+<div id="new_access_div">
+    <h1>Przypisz pierwsze prawo dostępu</h1>
+    <span title="Podaj datę wygaśnięcia prawa, nie karty. Pozostaw te pole puste, jeśli chcesz, żeby prawo nigdy nie wygasło.">
+    <label for="access_expiration_date">Data wygaśnięcia prawa (opcjonalne)</label><br/>
+    <input type="date" id="access_expiration_date" name="access_expiration_date">
+    </span>
+    <div id="offices">
+    <span title="Wybierz biura, do których chcesz przyznać dostęp"><h2>Wybierz biura</h2></span>
+    <table>
+        <thead>
+        <tr>
+            <td>Numer</td>
+            <td>Budynek</td>
+            <td>Piętro</td>
+            <td><span title="Wybierz biura, do których chcesz przyznać dostęp.">Wybierz</span></td>
+        </tr>
+        </thead>
+
+        {% for biuro in biura %}
+        <tr>
+            <td>{{ biuro['numer'] }}</td>
+            <td>{{ biuro['budynek_adres'] }}</td>
+            <td>{{ biuro['pietro'] }}</td>
+            {% if biuro['numer'] == pracownik['biuro_numer'] %}
+            <td><input type="checkbox" name="selected_offices" id="selected_offices" value="{{ biuro['numer'] }}" checked="checked"></td>
+            {% else %}
+            <td><input type="checkbox" name="selected_offices" id="selected_offices" value="{{ biuro['numer'] }}"></td>
+            {% endif %}
+        </tr>
+        {% endfor %}
+    </table>
     </div>
+</div>
+<script type="text/javascript">
+function show_hide(is_checked) {
+    if (is_checked) {
+        document.getElementById('new_access_div').style.display = 'block';
+    } else {
+        document.getElementById('new_access_div').style.display = 'none';
+    }
+}
+</script>
+<br/>
+<br/>
+<input type="submit" value="Zatwierdź">
+</form>
 {% endblock %}
