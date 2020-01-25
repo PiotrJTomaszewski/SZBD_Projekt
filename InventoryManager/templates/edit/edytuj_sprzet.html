@@ -2,21 +2,46 @@
 {% from "macros.html" import render_field %}
 {% block title %}Edytuj sprzęt{% endblock %}
 {% block content %}
-    <h1>Edytuj sprzęt o numerze {{ numer_ewidencyjny }}</h1>
+    <h1>Edytuj sprzęt {{ sprzet['nazwa'] }}, numer {{ sprzet['numer_ewidencyjny'] }}</h1>
     <div id="data_input_form">
-        <form action="{{ url_for('edit.edytuj_sprzet', numer_ewidencyjny=numer_ewidencyjny) }}" method=post>
+        <form action="{{ url_for('edit.edytuj_sprzet', numer_ewidencyjny=sprzet['numer_ewidencyjny']) }}" method=post>
             <fieldset>
                 <legend>Dodaj sprzęt</legend>
                 {{ form.hidden_tag() }}
+                {{ render_field(form.number) }}
                 {{ render_field(form.purchase_date) }}
-                {{ render_field(form.existing_type) }}
-                {{ render_field(form.new_type) }}
+                {{ render_field(form.name) }}
+                <br/>
+                {{ render_field(form.new_or_existing_switch) }}
+                <div id="existing_type_div" style="display: block">
+                    {{ render_field(form.existing_type) }}
+                </div>
+                <div id="new_type_div" style="display: none">
+                    {{ render_field(form.new_type) }}
+                </div>
                 {{ render_field(form.brand) }}
+                {% if sprzet['magazyn_numer'] %}
                 {{ render_field(form.magazine_number) }}
+                {% else %}
+                <span>Magazyn<br/>Sprzęt nie znajduje się obecnie w żadnym magazynie.</span><br/><br/>
+                {% endif %}
                 {{ render_field(form.notes) }}
                 {{ render_field(form.submit) }}
             </fieldset>
         </form>
     </div>
-    {{ data_delete_form(url_for('delete.usun_sprzet', numer_ewidencyjny=numer_ewidencyjny), 'Usuń sprzęt') }}
+    <script type="text/javascript">
+        function show_hide() {
+            if (document.getElementById('new_or_existing_switch').checked === true) {
+                document.getElementById('existing_type_div').style.display = 'none';
+                document.getElementById('new_type_div').style.display = 'block';
+            }
+            else {
+                document.getElementById('existing_type_div').style.display = 'block';
+                document.getElementById('new_type_div').style.display = 'none';
+            }
+        }
+        document.getElementById("new_or_existing_switch").onclick = function () { show_hide() };
+        document.addEventListener("DOMContentLoaded", function(){ show_hide() });
+    </script>
 {% endblock %}

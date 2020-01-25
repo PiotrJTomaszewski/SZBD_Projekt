@@ -36,12 +36,7 @@ def dodaj_oddzial():
 
 @add.route('/dodaj/budynek', methods=['GET', 'POST'])
 def dodaj_budynek():
-    # branches, error = DBC().get_instance().execute_query_fetch("""SELECT adres, nazwa FROM Oddzial""")
-    # if error is not None:
-    #     flash('Wystąpił błąd podczas pobierania dostępnych oddziałów!<br/>{}'.format(error.msg))
-    # branches_choices = [(branch[0], ('{} ({})'.format(branch[1], branch[0]))) for branch in branches]
     form = AddEditBuildingForm(address=session['wybrany_oddzial_adres'] + ' ')
-    # form.branch_address.choices = branches_choices
 
     if request.method == 'POST':
         if form.validate():  # Input ok
@@ -122,12 +117,7 @@ def dodaj_biuro():
 @add.route('/dodaj/dzial', methods=['GET', 'POST'])
 def dodaj_dzial():
     goto = 'add/dodaj_dzial.html'
-    # branches, error = DBC().get_instance().execute_query_fetch("""SELECT adres, nazwa FROM Oddzial""")
-    # if error is not None:
-    #     flash('Wystąpił błąd podczas pobierania dostępnych oddziałów!<br/>{}'.format(error.msg))
-    # branches_choices = [(branch[0], ('{} ({})'.format(branch[1], branch[0]))) for branch in branches]
     form = AddEditDepForm()
-    # form.branch_address.choices = branches_choices
 
     if request.method == 'POST':
         if form.validate():  # Input ok
@@ -221,10 +211,6 @@ def dodaj_pracownika():
 @add.route('/dodaj/magazyn', methods=['GET', 'POST'])
 def dodaj_magazyn():
     goto = 'add/dodaj_magazyn.html'
-    # branches, error = DBC().get_instance().execute_query_fetch("""SELECT adres, nazwa FROM Oddzial""")
-    # if error is not None:
-    #     flash('Wystąpił błąd podczas pobierania dostępnych oddziałów!<br/>{}'.format(error.msg))
-    # branches_choices = [(branch[0], ('{} ({})'.format(branch[1], branch[0]))) for branch in branches]
 
     next_available_number, error = DBC().get_instance().execute_query_fetch("""SELECT MAX(numer)+1
     FROM Magazyn""")
@@ -235,12 +221,10 @@ def dodaj_magazyn():
     else:
         next_available_number = next_available_number[0][0]
     form = AddEditMagazineForm(number=next_available_number)
-    # form.branch_address.choices = branches_choices
 
     if request.method == 'POST':
         if form.validate():  # Input ok
             number = form.number.data
-            # branch_address = form.branch_address.data
             capacity = form.capacity.data
             error = DBC().get_instance().execute_query_add_edit_delete(
                 """INSERT INTO Magazyn (numer, pojemnosc, oddzial_adres)
@@ -266,7 +250,7 @@ def dodaj_magazyn():
 @add.route('/dodaj/sprzet', methods=['GET', 'POST'])
 def dodaj_sprzet():
     goto = 'add/dodaj_sprzet.html'
-    types, error = DBC().get_instance().execute_query_fetch("""SELECT DISTINCT typ FROM Sprzet""")
+    types, error = DBC().get_instance().execute_query_fetch("""SELECT DISTINCT typ FROM Sprzet ORDER BY typ""")
     if error is not None:
         flash('Wystąpił błąd podczas pobierania dostępnych typów sprzętu!<br/>{}'.format(error.msg))
 
@@ -280,8 +264,7 @@ def dodaj_sprzet():
         available_number = available_number[0][0][0]
 
     form = AddEditHardwareForm(number=available_number)
-    # types_choices = [('0', '0')]
-    # if types is not None and len(types) > 0:
+
     types_choices = [(t[0], t[0]) for t in types]
     form.existing_type.choices = types_choices
 
@@ -306,13 +289,6 @@ def dodaj_sprzet():
             manufacturer = form.brand.data
             notes = form.notes.data
             magazine_number = form.magazine_number.data
-            # if notes is None or notes == '':
-            #     error = DBC().get_instance().execute_query_add_edit_delete(
-            #         """INSERT INTO Sprzet (numer_ewidencyjny, data_zakupu, nazwa, typ, producent, magazyn_numer)
-            #         VALUES (%s, %s, %s, %s, %s, %s)""",
-            #         (number, purchase_date, name, hw_type, manufacturer, magazine_number)
-            #     )
-            # else:
             error = DBC().get_instance().execute_query_add_edit_delete(
                 """INSERT INTO Sprzet (numer_ewidencyjny, data_zakupu, nazwa, typ, producent, uwagi, magazyn_numer)
                 VALUES(%s, %s, %s, %s, %s, %s, %s)""",

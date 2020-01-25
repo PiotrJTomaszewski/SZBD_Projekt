@@ -10,7 +10,9 @@
                 {{ form.hidden_tag() }}
                 {{ render_field(form.address) }}
                 {{ render_field(form.name) }}
+                <span title="Parter jest piętrem 0, więc jeśli w budynku jest 10 pięter, to dostępne są piętra 0-9.">
                 {{ render_field(form.number_of_floors) }}
+                </span>
                 {#{{ render_field(form.branch_address) }}#}
                 {{ render_field(form.submit) }}
             </fieldset>

@@ -2,6 +2,7 @@ from flask import Flask, render_template, request, flash, redirect, url_for, Blu
 from forms import *
 from database_connector import DatabaseConnector as DBC
 from mysql.connector import errorcode
+from helpers import *
 
 edit = Blueprint('edit', __name__)
 
@@ -67,7 +68,16 @@ def edytuj_budynek(adres):
             new_address = form.address.data
             new_name = form.name.data
             new_number_of_floors = form.number_of_floors.data
-            # branch_address = form.branch_address.data
+            max_floor_office, _ = DBC().get_instance().execute_query_fetch("""
+            SELECT MAX(pietro)
+            FROM Biuro
+            WHERE budynek_adres = %s""", [adres])
+            if max_floor_office and max_floor_office[0][0] >= new_number_of_floors:
+                flash('Wystąpił błąd podczas edycji budynku!<br/>'
+                      'W budynku istnieje biuro na piętrze {}, więc liczba pięter w budynku musi być większa'.format(
+                    max_floor_office[0][0]))
+                return render_template(goto, form=form, adres=adres)
+
             error = DBC().get_instance().execute_query_add_edit_delete(
                 """UPDATE Budynek
                 SET adres=%s, nazwa=%s, ilosc_pieter=%s
@@ -75,7 +85,7 @@ def edytuj_budynek(adres):
             )
             if error is None:  # If there was no error
                 flash('Budynek został pomyślnie zedytowany')
-                return redirect(url_for('show_info.pokaz_budynek_info', adres=adres))
+                return redirect(url_for('show_info.pokaz_budynek_info', adres=new_address))
             else:
                 # Translate errors
                 if error.errno == errorcode.ER_DUP_ENTRY:  # Duplicate entry
@@ -96,15 +106,15 @@ def edytuj_budynek(adres):
 def edytuj_biuro(numer):
     goto = 'edit/edytuj_biuro.html'
     form = AddEditOfficeForm()
-    # TODO: Pobierać liczbę pięter w budynku
     buildings, error = DBC().get_instance().execute_query_fetch("""
-        SELECT adres, nazwa 
+        SELECT adres, nazwa, ilosc_pieter
         FROM Budynek 
         WHERE oddzial_adres = %s
         ORDER BY nazwa""", [session['wybrany_oddzial_adres']])
     if error is not None:
         flash('Wystąpił błąd podczas pobierania dostępnych budynków!<br/>{}'.format(error.msg))
-    buildings_choices = [(building[0], ('{} ({})'.format(building[1], building[0]))) for building in buildings]
+    buildings_choices = [(building[0], ('{} ({}) - {} pięter'.format(building[1], building[0], building[2]))) for
+                         building in buildings]
     form.building_address.choices = buildings_choices
 
     if request.method == 'GET':
@@ -128,7 +138,27 @@ def edytuj_biuro(numer):
             new_number_of_posts = form.number_of_posts.data
             new_floor = form.floor.data
             new_building_address = form.building_address.data
-            # TODO: Sprawdzanie poprawności
+
+            floors_in_building, _ = DBC().get_instance().execute_query_fetch("""
+            SELECT ilosc_pieter
+            FROM Budynek
+            WHERE adres = %s""", [new_building_address])
+            if floors_in_building and new_floor >= floors_in_building[0][0]:
+                flash(
+                    'Wystąpił błąd podczas edycji biura! <br/> Nieprawidłowe piętro, w budynku {} jest {} pięter'.format(
+                        new_building_address, floors_in_building[0][0]))
+                return render_template(goto, form=form, numer=numer)
+
+            workers_in_building, _ = DBC().get_instance().execute_query_fetch("""
+            SELECT COUNT(*)
+            FROM Pracownik
+            WHERE biuro_numer = %s
+            AND czy_nadal_pracuje = '1'""", [numer])
+            if workers_in_building and workers_in_building[0][0] > new_number_of_posts:
+                flash('Wystąpił błąd podczas edycji biura! <br/> '
+                      'Liczba stanowisk nie może być mniejsza, niż liczba osób pracujących w biurze ({})!'.format(
+                    workers_in_building[0][0]))
+                return render_template(goto, form=form, numer=numer)
 
             error = DBC().get_instance().execute_query_add_edit_delete(
                 """UPDATE Biuro
@@ -146,8 +176,7 @@ def edytuj_biuro(numer):
                     error.msg = 'Biuro o podanym numerze już istnieje!'
                 elif error.errno in (errorcode.ER_ROW_IS_REFERENCED, errorcode.ER_ROW_IS_REFERENCED_2):
                     error.msg = 'Nie można zmienić numeru biura jeśli istnieją podlegli pracownicy lub przypisany sprzęt'
-                else:
-                    flash('Wystąpił błąd podczas edycji biura!<br/>{}'.format(error.msg))
+                flash('Wystąpił błąd podczas edycji biura!<br/>{}'.format(error.msg))
                 return render_template(goto, form=form, numer=numer)
         else:
             flash('Proszę upewnić się czy wszystkie pola zostały poprawnie wypełnione!')
@@ -168,7 +197,7 @@ def edytuj_dzial(nazwa):
             WHERE nazwa = %s""", [nazwa])
         if error is None and current_data is not None and len(current_data) == 1:
             form = AddEditDepForm(name=current_data[0][0],
-                                  name_short=current_data[0][1])
+                                  short_name=current_data[0][1])
         else:
             flash('Wystąpił błąd!<br/>{}'.format(error.msg))
         return render_template(goto, form=form, nazwa=nazwa)
@@ -185,7 +214,7 @@ def edytuj_dzial(nazwa):
             )
             if error is None:  # If there was no error
                 flash('Dział został pomyślnie zedytowany')
-                return redirect(url_for('show_info.pokaz_dzial_info', nazwa=nazwa))
+                return redirect(url_for('show_info.pokaz_dzial_info', nazwa=new_name))
             else:
                 # Translate errors
                 if error.errno == errorcode.ER_DUP_ENTRY:  # Duplicate entry
@@ -250,7 +279,8 @@ def edytuj_pracownika(pesel):
             form.office_number.choices = offices_choices
             form.dept_name.choices = depts_choices
         else:
-            flash('Wystąpił błąd!<br/>{}'.format(error.msg))
+            flash('Wystąpił błąd!<br/>Nie znaleziono pracownika')
+            return redirect(url_for('show.pracownicy'))
         return render_template(goto, form=form, pesel=pesel)
 
     if request.method == 'POST':
@@ -277,7 +307,7 @@ def edytuj_pracownika(pesel):
             )
             if error is None:  # If there was no error
                 flash('Pracownik został pomyślnie zedytowany')
-                return redirect(url_for('show_info.pokaz_pracownik_info', pesel=pesel))
+                return redirect(url_for('show_info.pokaz_pracownik_info', pesel=new_pesel))
             else:
                 # Translate errors
                 if error.errno == errorcode.ER_DUP_ENTRY:  # Duplicate entry
@@ -296,32 +326,130 @@ def edytuj_pracownika(pesel):
 
 @edit.route('/edytuj/magazyn/<numer>', methods=['GET', 'POST'])
 def edytuj_magazyn(numer):
-    oddzialy = [(oddzial['adres'], '{} ({})'.format(oddzial['nazwa'], oddzial['adres'])) for oddzial in
-                dane['oddzialy']]
-    form = AddEditMagazineForm()
-    form.branch_address.choices = oddzialy
+    goto = 'edit/edytuj_magazyn.html'
+    current_capacity, error = DBC().get_instance().execute_query_fetch("""
+    SELECT pojemnosc
+    FROM Magazyn
+    WHERE numer = %s""", [numer])
+    if not current_capacity or error:
+        flash('Wystąpił błąd!<br/>Nie znaleziono magazynu')
+        return redirect(url_for('show.magazyny'))
+    form = AddEditMagazineForm(number=numer, capacity=current_capacity[0][0])
 
     if request.method == 'POST':
-        if form.validate():
-            return redirect(url_for('show_info.pokaz_magazyn_info', numer='TODO'))
+        if form.validate():  # Input ok
+            new_number = form.number.data
+            new_capacity = form.capacity.data
+            capacity_taken, error = DBC().get_instance().execute_query_fetch("""
+            SELECT COUNT(*)
+            FROM Sprzet
+            WHERE magazyn_numer = %s""", [numer])
+            if capacity_taken and not error:
+                if capacity_taken[0][0] > new_capacity:
+                    flash("""Nowa pojemność magazynu nie może być mniejsza od zajętej pojemności ({})""".format(
+                        capacity_taken[0][0]))
+                    return render_template(goto, form=form, numer=numer)
+
+            error = DBC().get_instance().execute_query_add_edit_delete("""
+            UPDATE Magazyn
+            SET numer=%s, pojemnosc=%s
+            WHERE numer=%s""", [new_number, new_capacity, numer])
+            if error is None:  # If there was no error
+                flash('Magazyn został pomyślnie zedytowany')
+                return redirect(url_for('show_info.pokaz_magazyn_info', numer=new_number))
+            else:
+                # Translate errors
+                if error.errno == errorcode.ER_DUP_ENTRY:  # Duplicate entry
+                    error.msg = 'Magazyn o podanym numerze już istnieje!'
+                elif error.errno in (errorcode.ER_ROW_IS_REFERENCED, errorcode.ER_ROW_IS_REFERENCED_2):
+                    error.msg = 'Nie można zmienić numeru jeśli w magazynie znajduje się sprzęt'
+                flash('Wystąpił błąd podczas edycji magazynu!<br/>{}'.format(error.msg))
+                return render_template(goto, form=form, numer=numer)
         else:
             flash('Proszę upewnić się czy wszystkie pola zostały poprawnie wypełnione!')
-            return render_template('add/dodaj_magazyn.html', form=form, numer=numer)
+            return render_template(goto, form=form, numer=numer)
     else:
-        return render_template('add/dodaj_magazyn.html', form=form, numer=numer)
+        return render_template(goto, form=form, numer=numer)
 
 
 @edit.route('/edytuj/sprzet/<numer_ewidencyjny>', methods=['GET', 'POST'])
 def edytuj_sprzet(numer_ewidencyjny):
-    typy = {['laptop', 'laptop'], ['telefon', 'telefon']}
-    form = AddEditHardwareForm()
-    form.existing_type.choices = typy
+    goto = 'edit/edytuj_sprzet.html'
+
+    current_data, error = DBC().get_instance().execute_query_fetch("""
+    SELECT numer_ewidencyjny, data_zakupu, nazwa, typ, producent, uwagi, magazyn_numer
+    FROM Sprzet
+    WHERE numer_ewidencyjny = %s""", [numer_ewidencyjny])
+    if error or not current_data:
+        flash('Nie udało się pobrać informacji o sprzęcie')
+        return redirect(url_for('show.sprzet_w_magazynach'))
+    current_data = make_dictionary(
+        ['numer_ewidencyjny', 'data_zakupu', 'nazwa', 'typ', 'producent', 'uwagi', 'magazyn_numer'], current_data[0])
+
+    types, error = DBC().get_instance().execute_query_fetch("""SELECT DISTINCT typ FROM Sprzet ORDER BY typ""")
+    if error is not None:
+        flash('Wystąpił błąd podczas pobierania dostępnych typów sprzętu!')
+
+    form = AddEditHardwareForm(number=current_data['numer_ewidencyjny'],
+                               purchase_date=current_data['data_zakupu'],
+                               name=current_data['nazwa'],
+                               existing_type=current_data['typ'],
+                               brand=current_data['producent'],
+                               magazine=current_data['magazyn_numer'],
+                               notes=current_data['uwagi']
+                               )
+
+    types_choices = [(t[0], t[0]) for t in types]
+    form.existing_type.choices = types_choices
+    magazines, error = DBC().get_instance().execute_query_fetch(
+        """SELECT DISTINCT numer, WolnaPojemnoscMagazynu(numer)
+        FROM Magazyn LEFT JOIN Sprzet S on Magazyn.numer = S.magazyn_numer
+        WHERE (WolnaPojemnoscMagazynu(numer) > 0
+         OR S.numer_ewidencyjny = %s)
+         AND oddzial_adres = %s
+        ORDER BY numer""", [numer_ewidencyjny, session['wybrany_oddzial_adres']])
+    magazines_choices = [(m[0], '{} - wolne miejsce {}'.format(m[0], m[1])) for m in magazines]
+    form.magazine_number.choices = magazines_choices
 
     if request.method == 'POST':
-        if form.validate():
-            return redirect(url_for('show_info.pokaz_sprzet_info', numer_ewidencyjny='TODO'))
+        if form.validate_on_submit():  # Input ok
+            new_number = form.number.data
+            new_purchase_date = form.purchase_date.data
+            new_name = form.name.data
+            new_define_new_type = form.new_or_existing_switch.data
+            if new_define_new_type is None or new_define_new_type == 0 or new_define_new_type == '0':
+                # Use existing type
+                new_hw_type = form.existing_type.data
+            else:
+                new_hw_type = form.new_type.data
+            new_manufacturer = form.brand.data
+            new_notes = form.notes.data
+            if current_data['magazyn_numer']:  # Only if already in any magazine
+                new_magazine_number = form.magazine_number.data
+            else:
+                new_magazine_number = None
+            error = DBC().get_instance().execute_query_add_edit_delete(
+                """UPDATE Sprzet
+                SET numer_ewidencyjny=%s, data_zakupu=%s, nazwa=%s, typ=%s, producent=%s, uwagi=%s, magazyn_numer=%s
+                WHERE numer_ewidencyjny = %s""",
+                [new_number, new_purchase_date, new_name, new_hw_type, new_manufacturer, new_notes, new_magazine_number,
+                 numer_ewidencyjny]
+            )
+            if error is None:  # If there was no error
+                flash('Sprzet został pomyślnie zedytowany')
+                return redirect(url_for('show_info.pokaz_sprzet_info', numer_ewidencyjny=new_number))
+            else:
+                # Translate errors
+                if error.errno == errorcode.ER_DUP_ENTRY:  # Duplicate entry
+                    error.msg = 'Sprzęt o podanym numerze ewidencyjnym już istnieje!'
+                elif error.errno in (errorcode.ER_ROW_IS_REFERENCED, errorcode.ER_ROW_IS_REFERENCED_2):
+                    error.msg = 'Nie można zmienić numeru ewidencyjnego, jeśli sprzęt znajduje się w jakimś przypisaniu!'
+            flash('Wystąpił błąd podczas dodawania sprzętu!<br/>{}'.format(error.msg))
+            return render_template(goto, form=form, sprzet=current_data)
         else:
             flash('Proszę upewnić się czy wszystkie pola zostały poprawnie wypełnione!')
-            return render_template('edit/edytuj_sprzet.html', form=form, numer_ewidencyjny=numer_ewidencyjny)
+            return render_template(goto, form=form, sprzet=current_data)
     else:
-        return render_template('edit/edytuj_sprzet.html', form=form, numer_ewidencyjny=numer_ewidencyjny)
+        return render_template(goto, form=form, sprzet=current_data)
+
+

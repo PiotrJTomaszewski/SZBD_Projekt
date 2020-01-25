@@ -122,7 +122,7 @@ CREATE FUNCTION IleWolnychMiejscBiuro(pNumerBiura INTEGER)
     DECLARE vIleZajetychMiejsc INTEGER;
     DECLARE vIleWolnychMiejsc INTEGER;
     SELECT liczba_stanowisk INTO vIleLacznieMiejsc FROM Biuro WHERE numer = pNumerBiura;
-    SELECT COUNT(*) INTO vIleZajetychMiejsc FROM Pracownik WHERE biuro_numer = pNumerBiura;
+    SELECT COUNT(*) INTO vIleZajetychMiejsc FROM Pracownik WHERE biuro_numer = pNumerBiura AND czy_nadal_pracuje = '1';
     SET vIleWolnychMiejsc = vIleLacznieMiejsc - vIleZajetychMiejsc;
     RETURN vIleWolnychMiejsc;
   END $$

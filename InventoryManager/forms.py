@@ -51,7 +51,8 @@ class AddEditOfficeForm(FlaskForm):
         validators.InputRequired('Proszę wybrać budynek')
     ])
     floor = IntegerField('Piętro, na którym znajduje się biuro', [
-        validators.InputRequired('Proszę podać piętro')
+        validators.InputRequired('Proszę podać piętro'),
+        validators.NumberRange(min=0, message='Numer piętra nie może być mniejszy od 0')
     ])
     submit = SubmitField('Zatwierdź')
 

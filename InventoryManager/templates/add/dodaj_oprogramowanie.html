@@ -12,6 +12,9 @@
                 {{ render_field(form.name) }}
                 {{ render_field(form.brand) }}
                 {{ render_field(form.purchase_date) }}
+                <script type="text/javascript">
+                    document.getElementById('purchase_date').valueAsDate = new Date();
+                </script>
                 {{ render_field(form.expiration_date) }}
                 {{ render_field(form.number_of_licences) }}
                 {{ render_field(form.notes) }}
