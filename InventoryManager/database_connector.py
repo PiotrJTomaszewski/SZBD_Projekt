@@ -1,6 +1,5 @@
 import mysql.connector as db
 from mysql.connector import pooling, errorcode
-from pprint import pprint
 
 
 class DatabaseConnector:

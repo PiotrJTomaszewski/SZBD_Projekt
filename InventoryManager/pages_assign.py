@@ -419,7 +419,7 @@ def wykonaj_przypisz_prawo_dostepu_karta(pesel, id_karty):
             flash('Wystąpił błąd podczas pobierania informacji o karcie')
             return redirect(url_for('show_info.pokaz_pracownicy_info', pesel=pesel))
         card_assign_date = card_assign_date[0][0]
-        if card_assign_date < assign_date:
+        if card_assign_date > assign_date:
             flash('Data przyznania prawa nie może być wcześniejsza niż data przyznania karty dostępu')
             return redirect(url_for('assign.przypisz_prawo_dostepu_karta', pesel=pesel, id_karty=id_karty))
 

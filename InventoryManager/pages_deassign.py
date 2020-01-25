@@ -177,3 +177,54 @@ def wykonaj_zwroc_oprogramowanie(numer_ewidencyjny):
         flash('Oprogramowanie zostało zwrócone pomyślnie')
     return redirect(url_for('show_info.pokaz_sprzet_info', numer_ewidencyjny=numer_ewidencyjny))
 
+
+@deassign.route('/odbierz/prawo_dostepu/pracownik/<pesel>/karta/<id_karty>')
+def odbierz_prawo_dostepu(pesel, id_karty):
+    worker, error = DBC().get_instance().execute_query_fetch("""
+    SELECT imie, nazwisko
+    FROM Pracownik
+    WHERE pesel = %s""", [pesel])
+    if error or not worker:
+        flash('Błąd! Nie znaleziono pracownika')
+        return redirect(url_for('show.pracownicy'))
+    worker_data = {'pesel': pesel, 'imie': worker[0][0], 'nazwisko': worker[0][1]}
+    card_data = {'id': id_karty}
+
+    current_offices, error = DBC().get_instance().execute_query_fetch("""
+    SELECT DATE_FORMAT(PD.data_przyznania, '%d.%m.%Y'), 
+    CASE WHEN PD.data_wygasniecia IS NULL THEN 'Nie wygasa' ELSE DATE_FORMAT(PD.data_wygasniecia, '%d.%m.%Y') END, B.numer, B.budynek_adres, B.pietro
+    FROM PrawoDostepu PD JOIN Biuro B on PD.biuro_numer = B.numer
+    JOIN KartaDostepu KD on PD.kartadostepu_id_karty = KD.id_karty
+    WHERE id_karty = %s
+    ORDER BY PD.data_przyznania, PD.data_wygasniecia DESC""", [id_karty])
+    if error:
+        print(error)
+    if not current_offices:
+        flash('Na karcie nie ma żadnych praw dostępu')
+        return redirect(url_for('show_info.pokaz_pracownik_info', pesel=pesel))
+    current_offices_data = make_dictionaries_list(['dostep_data_przyznania', 'dostep_data_wygasniecia',
+                                                   'numer', 'budynek_adres', 'pietro'], current_offices)
+    return render_template('deassign/odbierz_dostep_karta.html', karta=card_data,
+                           pracownik=worker_data, obecne_biura=current_offices_data)
+
+
+@deassign.route('/wykonaj/odbierz/prawo_dostepu/pracownik/<pesel>/karta/<id_karty>', methods=['GET', 'POST'])
+def wykonaj_odbierz_prawo_dostepu(pesel, id_karty):
+    if request.method == 'GET':
+        return redirect(url_for('deassign.odbierz_prawo_dostepu', id_karty=id_karty, pesel=pesel))
+    if request.method == 'POST':
+        chosen_offices = request.form.getlist('chosen_office_access')
+        if not chosen_offices:
+            flash('Proszę wybrać biura')
+            return redirect(url_for('deassign.odbierz_prawo_dostepu', pesel=pesel, id_karty=id_karty))
+        for office_number in chosen_offices:
+            error = DBC().get_instance().execute_query_add_edit_delete("""
+            DELETE FROM PrawoDostepu
+            WHERE biuro_numer=%s
+            AND kartadostepu_id_karty=%s""", [office_number, id_karty])
+            if error:
+                flash('Wystąpił błąd podczas odbierania dostępu')
+                print(error)
+                return redirect(url_for('deassign.odbierz_prawo_dostepu', pesel=pesel, id_karty=id_karty))
+        flash('Uprawnienia zostały pomyślnie odebrane')
+    return redirect(url_for('show_info.pokaz_pracownik_info', pesel=pesel))

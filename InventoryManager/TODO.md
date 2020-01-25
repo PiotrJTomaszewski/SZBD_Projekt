@@ -27,3 +27,5 @@ Piotr: <br/>
   - [ ] Poprawić zwracanie sprzętu
   - [ ] Potwierdzanie edycji
   - [ ] Przyjrzeć się czy gdzieś nie trzeba by użyć automatycznej numeracji
+  - [ ] Usuwanie wygasłego oprogramowania
+  - [ ] W widoku pracownika usuwanie wszystkich wygasłych praw z jego kart

@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+{% block title %}Odbierz prawo dostępu{% endblock %}
+{% block content %}
+<h1>Odbierz prawo dostępu z karty {{ karta['id'] }} należącej do pracownika {{ pracownik['imie'] }} {{ pracownik['nazwisko'] }}</h1>
+
+<form method="post" action="{{ url_for('deassign.wykonaj_odbierz_prawo_dostepu',
+    pesel=pracownik['pesel'], id_karty=karta['id']) }}">
+<div id="current_access">
+<h2>Prawa dostępu na karcie</h2>
+<table>
+    <thead>
+    <tr>
+        <td>Data przyznania</td>
+        <td>Data wygaśnięcia</td>
+        <td>Numer biura</td>
+        <td>Budynek</td>
+        <td>Piętro</td>
+        <td><span title="Wybierz prawa, które chcesz odebrać">Wybierz</span></td>
+    </tr>
+    </thead>
+    {% for biuro in obecne_biura %}
+    <tr>
+        <td>{{ biuro['dostep_data_przyznania'] }}</td>
+        <td>{{ biuro['dostep_data_wygasniecia'] }}</td>
+        <td>{{ biuro['numer'] }}</td>
+        <td>{{ biuro['budynek_adres'] }}</td>
+        <td>{{ biuro['pietro'] }}</td>
+        <td><input type="checkbox" id="chosen_office_access" name="chosen_office_access" value="{{ biuro['numer'] }}"> </td>
+    </tr>
+    {% endfor %}
+</table>
+</div>
+
+<br/>
+<br/>
+<input type="submit" value="Zatwierdź">
+</form>
+{% endblock %}
