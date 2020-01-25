@@ -164,10 +164,10 @@ class AddEditHardwareForm(FlaskForm):
         validators.InputRequired('Proszę podać nazwę producenta'),
         validators.Length(max=30, message='Nazwa producenta nie może być dłuższa niż 30 znaków')
     ])
-    # magazine_number = SelectField('Magazyn (opcjonalne)', [
+    # warehouse_number = SelectField('Magazyn (opcjonalne)', [
     #     validators.Optional()
     # ])
-    magazine_number = SelectField('Magazyn', [
+    warehouse_number = SelectField('Magazyn', [
         validators.InputRequired('Proszę wybrać magazyn')
     ], coerce=int)
     notes = TextField('Uwagi (opcjonalne)', [

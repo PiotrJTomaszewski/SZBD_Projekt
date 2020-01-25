@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% from "macros.html" import render_field %}
+{% from "macros.html" import render_field, delete_with_custom_text %}
 {% block title %}Edytuj sprzęt{% endblock %}
 {% block content %}
     <h1>Edytuj sprzęt {{ sprzet['nazwa'] }}, numer {{ sprzet['numer_ewidencyjny'] }}</h1>
@@ -21,7 +21,7 @@
                 </div>
                 {{ render_field(form.brand) }}
                 {% if sprzet['magazyn_numer'] %}
-                {{ render_field(form.magazine_number) }}
+                {{ render_field(form.warehouse_number) }}
                 {% else %}
                 <span>Magazyn<br/>Sprzęt nie znajduje się obecnie w żadnym magazynie.</span><br/><br/>
                 {% endif %}
@@ -30,6 +30,8 @@
             </fieldset>
         </form>
     </div>
+        {{ delete_with_custom_text(url_for('delete.usun_sprzet', numer_ewidencyjny=sprzet['numer_ewidencyjny']), 'Usuń sprzęt',
+        'Jesteś pewien? Usunięcie sprzętu spowoduje również usunięcie historii jego przypisań oraz zwolnienie przypisanego do niego oprogramowania.') }}
     <script type="text/javascript">
         function show_hide() {
             if (document.getElementById('new_or_existing_switch').checked === true) {

@@ -221,7 +221,7 @@ def wyszukaj():
                        'Nazwa działu', 'Numer biura']
             goto_type = 'pracownik'
 
-        elif selected_object == 'object_magazine':
+        elif selected_object == 'object_warehouse':
             # Create parts of the text to display
             text_object = 'Magazyny'
             if selected_field == 'numer':

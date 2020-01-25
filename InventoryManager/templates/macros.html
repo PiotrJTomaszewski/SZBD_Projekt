@@ -28,7 +28,14 @@
 
 {% macro data_delete_form(action, text) %}
     <script src="{{ url_for('static', filename='javascript/confirm.js') }}"></script>
-    <div id = "data_delete_form">
-       <button onclick="show_confirm('{{ action }}')">{{ text }}</button>
+    <div id="data_delete_form">
+       <button id="data_delete_button" onclick="show_confirm('{{ action }}')">{{ text }}</button>
+    </div>
+{% endmacro %}
+
+{% macro delete_with_custom_text(action, buttonText, confirmText) %}
+    <script src="{{ url_for('static', filename='javascript/confirm.js') }}"></script>
+    <div id="data_delete_form">
+       <button id="data_delete_button" onclick="show_confirm_custom_text('{{ action }}', '{{ confirmText }}')">{{ buttonText }}</button>
     </div>
 {% endmacro %}

@@ -3,19 +3,7 @@ import data_generators.create_workers as creator
 from database_connector import DatabaseConnector as DBC
 from helpers import make_dictionaries_list
 
-# TODO: Dodać wyświetlanie listy sprzętu i oprogramowania
-
 show = Blueprint('show', __name__)
-
-
-# @show.route('/pokaz/oddzialy')
-# def oddzialy():
-#     branches, error = DBC().get_instance().execute_query_fetch(
-#         """SELECT adres, nazwa FROM Oddzial ORDER BY adres""")
-#     if error is not None:
-#         flash('Wystąpił błąd!<br/>{}'.format(error.msg))
-#     branches_data = make_dictionaries_list(['adres', 'nazwa'], branches)
-#     return render_template('show/pokaz_oddzialy.html', oddzialy=branches_data)
 
 
 @show.route('/pokaz/budynki')
@@ -87,20 +75,20 @@ def pracownicy():
 
 @show.route('/pokaz/magazyny')
 def magazyny():
-    magazines, error = DBC().get_instance().execute_query_fetch(
+    warehouses, error = DBC().get_instance().execute_query_fetch(
         """SELECT numer, pojemnosc, oddzial_adres
         FROM Magazyn
         WHERE oddzial_adres = %s""", [session['wybrany_oddzial_adres']]
     )
     if error is not None:
         flash('Wystąpił błąd!<br/>{}'.format(error.msg))
-    magazines_data = make_dictionaries_list(['numer', 'pojemnosc', 'oddzial_adres'], magazines)
-    return render_template('show/pokaz_magazyny.html', magazyny=magazines_data)
+    warehouses_data = make_dictionaries_list(['numer', 'pojemnosc', 'oddzial_adres'], warehouses)
+    return render_template('show/pokaz_magazyny.html', magazyny=warehouses_data)
 
 
 @show.route('/pokaz/sprzet_w_magazynach')
 def sprzet_w_magazynach():
-    hardware_in_magazines, error = DBC().get_instance().execute_query_fetch(
+    hardware_in_warehouses, error = DBC().get_instance().execute_query_fetch(
         """SELECT S.numer_ewidencyjny, S.data_zakupu, S.nazwa, S.typ, S.producent, S.magazyn_numer
         FROM Sprzet S
         WHERE (SELECT oddzial_adres FROM Magazyn M WHERE M.numer = S.magazyn_numer) = %s""",
@@ -110,7 +98,7 @@ def sprzet_w_magazynach():
         print(error)
         flash('Wystąpił błąd!<br/>Nie można pobrać dostępnego sprzętu')
     hardware_data = make_dictionaries_list(
-        ['numer_ewidencyjny', 'data_zakupu', 'nazwa', 'typ', 'producent', 'numer_magazynu'], hardware_in_magazines)
+        ['numer_ewidencyjny', 'data_zakupu', 'nazwa', 'typ', 'producent', 'numer_magazynu'], hardware_in_warehouses)
 
     return render_template('show/pokaz_sprzet_w_magazynach.html', sprzety=hardware_data)
 
@@ -134,7 +122,7 @@ def historia_przypisan():
             (P.biuro_numer IS NOT NULL AND (
                 SELECT B2.oddzial_adres FROM Biuro B JOIN Budynek B2 on B.budynek_adres = B2.adres
                 WHERE P.biuro_numer = B.numer) = %s)
-        ORDER BY P.data_przydzialu DESC
+        ORDER BY P.data_przydzialu DESC, P.data_zwrotu DESC, P.id_przydzialu DESC
         """, [session['wybrany_oddzial_adres'], session['wybrany_oddzial_adres']])
     history_data = make_dictionaries_list(['id_przydzialu', 'data_przydzialu', 'data_zwrotu', 'pracownik_pesel',
                                            'biuro_numer', 'sprzet_numer_ewidencyjny', 'sprzet_typ', 'sprzet_nazwa'],

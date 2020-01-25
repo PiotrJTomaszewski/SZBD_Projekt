@@ -59,20 +59,20 @@ def zwroc_sprzet(id_przydzialu):
         flash('Wybrane przypisanie nie zawiera żadnego sprzętu')
     hardware_data = make_dictionaries_list(['numer', 'typ', 'nazwa', 'producent', 'data_zakupu'], hardware)
 
-    magazines, error = DBC().get_instance().execute_query_fetch("""
+    warehouses, error = DBC().get_instance().execute_query_fetch("""
     SELECT numer, pojemnosc, WolnaPojemnoscMagazynu(numer)
     FROM Magazyn
     WHERE oddzial_adres = %s
     AND WolnaPojemnoscMagazynu(numer) >= %s""", [session['wybrany_oddzial_adres'], len(hardware)])
     if error is not None:
         flash('Wystąpił błąd podczas pobierania listy magazynów')
-    if not magazines:
+    if not warehouses:
         flash('W oddziale nie ma wolnych magazynów')
         return redirect(url_for('show.historia_przypisan'))
-    magazines_data = make_dictionaries_list(['numer', 'pojemnosc', 'wolna_pojemnosc'], magazines)
+    warehouses_data = make_dictionaries_list(['numer', 'pojemnosc', 'wolna_pojemnosc'], warehouses)
 
     return render_template('deassign/zwroc_sprzet.html', przypisanie=assignment_data, wlasciciel=owner_data,
-                           sprzety=hardware_data, magazyny=magazines_data)
+                           sprzety=hardware_data, magazyny=warehouses_data)
 
 
 @deassign.route('/wykonaj/zwroc/sprzet/<id_przydzialu>', methods=['GET', 'POST'])
@@ -106,18 +106,20 @@ def wykonaj_zwroc_sprzet(id_przydzialu):
         if error:
             flash('Wystąpił błąd podczas pobierania listy sprzętu w przypisaniu')
             return redirect(url_for('show.historia_przypisan'))
-        selected_magazine = request.form.get('magazine_number')
+        selected_warehouse = request.form.get('warehouse_number')
+        print(selected_warehouse)
         for hardware_number in hardware_numbers:
             hardware_number = hardware_number[0]
             result, error = DBC().get_instance().execute_query_add_edit_delete_with_fetch("""
-            SELECT ZwrocSprzet(%s, %s, %s, %s) FROM dual""", [hardware_number, id_przydzialu, selected_magazine,
+            SELECT ZwrocSprzet(%s, %s, %s, %s) FROM dual""", [hardware_number, id_przydzialu, selected_warehouse,
                                                               return_date])
             if error:
                 flash('Wystąpił błąd podczas zwracania sprzętu')
                 return redirect(url_for('show.historia_przypisan'))
             if result[0][0] == 1:
                 print('Wybrany magazyn jest pełen!')
-                return redirect(url_for('show_historia_przypisania'))
+                flash('Wystąpił błąd podczas zwracania sprzętu! Wybrany magazyn jest pełen')
+                return redirect(url_for('show.historia_przypisan'))
         return redirect(url_for('show.historia_przypisan'))
 
 

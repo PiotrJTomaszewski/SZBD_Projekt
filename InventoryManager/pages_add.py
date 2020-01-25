@@ -220,7 +220,7 @@ def dodaj_magazyn():
         next_available_number = 0
     else:
         next_available_number = next_available_number[0][0]
-    form = AddEditMagazineForm(number=next_available_number)
+    form = AddEditwarehouseForm(number=next_available_number)
 
     if request.method == 'POST':
         if form.validate():  # Input ok
@@ -268,12 +268,12 @@ def dodaj_sprzet():
     types_choices = [(t[0], t[0]) for t in types]
     form.existing_type.choices = types_choices
 
-    magazines, error = DBC().get_instance().execute_query_fetch(
+    warehouses, error = DBC().get_instance().execute_query_fetch(
         """SELECT numer, WolnaPojemnoscMagazynu(numer) from Magazyn
         WHERE WolnaPojemnoscMagazynu(numer) > 0
          AND oddzial_adres = %s""", [session['wybrany_oddzial_adres']])
-    magazines_choices = [(m[0], '{} - wolne miejsce {}'.format(m[0], m[1])) for m in magazines]
-    form.magazine_number.choices = magazines_choices
+    warehouses_choices = [(m[0], '{} - wolne miejsce {}'.format(m[0], m[1])) for m in warehouses]
+    form.warehouse_number.choices = warehouses_choices
 
     if request.method == 'POST':
         if form.validate_on_submit():  # Input ok
@@ -288,11 +288,11 @@ def dodaj_sprzet():
                 hw_type = form.new_type.data
             manufacturer = form.brand.data
             notes = form.notes.data
-            magazine_number = form.magazine_number.data
+            warehouse_number = form.warehouse_number.data
             error = DBC().get_instance().execute_query_add_edit_delete(
                 """INSERT INTO Sprzet (numer_ewidencyjny, data_zakupu, nazwa, typ, producent, uwagi, magazyn_numer)
                 VALUES(%s, %s, %s, %s, %s, %s, %s)""",
-                (number, purchase_date, name, hw_type, manufacturer, notes, magazine_number)
+                (number, purchase_date, name, hw_type, manufacturer, notes, warehouse_number)
             )
             if error is None:  # If there was no error
                 flash('Sprzet został pomyślnie dodany')

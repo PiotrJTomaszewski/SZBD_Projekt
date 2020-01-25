@@ -49,14 +49,14 @@ def pokaz_oddzial_info(adres):
         flash('Wystąpił błąd<br/>{}'.format(error.msg))
     depts_data = make_dictionaries_list(['nazwa', 'skrot'], depts)
 
-    magazines, error = DBC().get_instance().execute_query_fetch(
+    warehouses, error = DBC().get_instance().execute_query_fetch(
         """SELECT numer, pojemnosc, WolnaPojemnoscMagazynu(numer)
         FROM Magazyn
         WHERE oddzial_adres = %s""", [adres]
     )
     if error is not None:
         flash('Wystąpił błąd!<br/>{}'.format(error.msg))
-    magazines_data = make_dictionaries_list(['numer', 'pojemnosc', 'wolna_przestrzen'], magazines)
+    warehouses_data = make_dictionaries_list(['numer', 'pojemnosc', 'wolna_przestrzen'], warehouses)
 
     buildings, error = DBC().get_instance().execute_query_fetch(
         """SELECT adres, nazwa, ilosc_pieter FROM Budynek
@@ -67,7 +67,7 @@ def pokaz_oddzial_info(adres):
     buildings_data = make_dictionaries_list(['adres', 'nazwa', 'liczba_pieter'], buildings)
 
     return render_template('show_info/pokaz_oddzial_info.html', oddzial=branch_data, dzialy=depts_data,
-                           magazyny=magazines_data, budynki=buildings_data)
+                           magazyny=warehouses_data, budynki=buildings_data)
 
 
 @show_info.route('/pokaz_info/budynek/<adres>')

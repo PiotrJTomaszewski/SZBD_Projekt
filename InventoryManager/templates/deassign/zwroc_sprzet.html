@@ -48,7 +48,7 @@
 <span title="Wyświetlone są tylko te magazyny, które posiadają wystarczającą ilość wolnego miejsca aby pomieścić cały sprzęt z przypisania">
 <h3>Wybierz magazyn</h3></span>
 <form method="post">
-<div id="magazines">
+<div id="warehouses">
     <table>
         <thead>
         <tr>
@@ -63,7 +63,7 @@
         <td>{{ magazyn['numer'] }}</td>
         <td>{{ magazyn['pojemnosc'] }}</td>
         <td>{{ magazyn['wolna_pojemnosc'] }}</td>
-        <td><input type="radio" name="magazine_number" value="{{ magazyn['numer'] }}" checked="checked"></td>
+        <td><input type="radio" name="warehouse_number" value="{{ magazyn['numer'] }}" checked="checked"></td>
     </tr>
     {% endfor %}
     </table>

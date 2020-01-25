@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% from "macros.html" import render_field, data_delete_form %}
+{% from "macros.html" import render_field, delete_with_custom_text %}
 {% block title %}Edytuj biuro{% endblock %}
 {% block content %}
     <h1>Edytuj biuro o numerze {{ numer }}</h1>
@@ -18,5 +18,6 @@
             </fieldset>
         </form>
     </div>
-    {{ data_delete_form(url_for('delete.usun_biuro', numer=numer), 'Usuń biuro') }}
+    {{ delete_with_custom_text(url_for('delete.usun_biuro', numer=numer), 'Usuń biuro',
+    'Jesteś pewien? Usunięcie biura spowoduje również usunięcie jego historii przypisań sprzętu oraz automatycznie odbierze pracownikom dostęp do niego.') }}
 {% endblock %}

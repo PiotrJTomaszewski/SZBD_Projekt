@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% from "macros.html" import render_field, data_delete_form %}
+{% from "macros.html" import render_field, delete_with_custom_text %}
 {% block title %}Edytuj pracownika{% endblock %}
 {% block content %}
     <h1>Edytuj pracownika o numerze PESEL {{ pesel }}</h1>
@@ -20,5 +20,6 @@
             </fieldset>
         </form>
     </div>
-    {{ data_delete_form(url_for('delete.usun_pracownika', pesel=pesel), 'Usuń pracownika') }}
+    {{ delete_with_custom_text(url_for('delete.usun_pracownika', pesel=pesel), 'Usuń pracownika',
+        'Jesteś pewien? Usunięcie pracownika spowoduje również usunięcie jego kart dostępu oraz jego historii przypisań sprzętu.') }}
 {% endblock %}

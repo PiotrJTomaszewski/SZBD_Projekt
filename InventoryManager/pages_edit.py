@@ -16,7 +16,8 @@ def edytuj_oddzial(adres):
         if error is None and current_data is not None and len(current_data) == 1:
             form = AddEditBranchForm(address=current_data[0][0], name=current_data[0][1])
         else:
-            flash('Wystąpił błąd!<br/>{}'.format(error.msg))
+            flash('Wystąpił błąd podczas pobierania informacji o oddziale')
+            return redirect(url_for('strona_glowna'))
         return render_template('edit/edytuj_oddzial.html', form=form, adres=adres)
     if request.method == 'POST':
         if form.validate():
@@ -334,7 +335,7 @@ def edytuj_magazyn(numer):
     if not current_capacity or error:
         flash('Wystąpił błąd!<br/>Nie znaleziono magazynu')
         return redirect(url_for('show.magazyny'))
-    form = AddEditMagazineForm(number=numer, capacity=current_capacity[0][0])
+    form = AddEditwarehouseForm(number=numer, capacity=current_capacity[0][0])
 
     if request.method == 'POST':
         if form.validate():  # Input ok
@@ -395,23 +396,31 @@ def edytuj_sprzet(numer_ewidencyjny):
                                name=current_data['nazwa'],
                                existing_type=current_data['typ'],
                                brand=current_data['producent'],
-                               magazine=current_data['magazyn_numer'],
+                               warehouse=current_data['magazyn_numer'],
                                notes=current_data['uwagi']
                                )
 
     types_choices = [(t[0], t[0]) for t in types]
     form.existing_type.choices = types_choices
-    magazines, error = DBC().get_instance().execute_query_fetch(
+    warehouses, error = DBC().get_instance().execute_query_fetch(
         """SELECT DISTINCT numer, WolnaPojemnoscMagazynu(numer)
         FROM Magazyn LEFT JOIN Sprzet S on Magazyn.numer = S.magazyn_numer
         WHERE (WolnaPojemnoscMagazynu(numer) > 0
          OR S.numer_ewidencyjny = %s)
          AND oddzial_adres = %s
         ORDER BY numer""", [numer_ewidencyjny, session['wybrany_oddzial_adres']])
-    magazines_choices = [(m[0], '{} - wolne miejsce {}'.format(m[0], m[1])) for m in magazines]
-    form.magazine_number.choices = magazines_choices
+    warehouses_choices = []
+    for m in warehouses:
+        if m[0] == current_data['magazyn_numer']:
+            warehouses_choices.append([m[0], '{} - obecny magazyn'.format(m[0])])
+        else:
+            warehouses_choices.append([m[0], '{} - wolne miejsce {}'.format(m[0], m[1])])
+    form.warehouse_number.choices = warehouses_choices
 
     if request.method == 'POST':
+        if not current_data['magazyn_numer']:  # If the hardware is not in a warehouse ignore this field
+            form.warehouse_number.validators.clear()
+            form.warehouse_number.validators.append(validators.Optional())
         if form.validate_on_submit():  # Input ok
             new_number = form.number.data
             new_purchase_date = form.purchase_date.data
@@ -424,15 +433,15 @@ def edytuj_sprzet(numer_ewidencyjny):
                 new_hw_type = form.new_type.data
             new_manufacturer = form.brand.data
             new_notes = form.notes.data
-            if current_data['magazyn_numer']:  # Only if already in any magazine
-                new_magazine_number = form.magazine_number.data
+            if current_data['magazyn_numer']:  # Only if already in any warehouse
+                new_warehouse_number = form.warehouse_number.data
             else:
-                new_magazine_number = None
+                new_warehouse_number = None
             error = DBC().get_instance().execute_query_add_edit_delete(
                 """UPDATE Sprzet
                 SET numer_ewidencyjny=%s, data_zakupu=%s, nazwa=%s, typ=%s, producent=%s, uwagi=%s, magazyn_numer=%s
                 WHERE numer_ewidencyjny = %s""",
-                [new_number, new_purchase_date, new_name, new_hw_type, new_manufacturer, new_notes, new_magazine_number,
+                [new_number, new_purchase_date, new_name, new_hw_type, new_manufacturer, new_notes, new_warehouse_number,
                  numer_ewidencyjny]
             )
             if error is None:  # If there was no error

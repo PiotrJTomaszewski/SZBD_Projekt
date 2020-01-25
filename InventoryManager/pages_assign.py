@@ -215,7 +215,7 @@ def _przypisz_sprzet_biuro_post(numer_biura):
                 else:
                     flash('Wystąpił błąd podczas przypisywania sprzętu ' + error.msg)
                 return redirect(url_for('assign.przypisz_sprzet_biuro', numer_biura=numer_biura))
-        flash('Sprzęt został przypisany pomyślnie')
+        flash('Sprzęt został pomyślnie przypisany')
     return redirect(url_for('show_info.pokaz_biuro_info', numer_biura=numer_biura))
 
 
@@ -280,14 +280,14 @@ def wykonaj_przypisz_oprogramowanie(numer_ewidencyjny):
             result, error = DBC().get_instance().execute_query_add_edit_delete_with_fetch("""
             SELECT ZainstalujOprogramowanie(%s, %s) FROM dual""", [numer_ewidencyjny, software])
             if error:
-                flash('Wystąpił błąd podczas przypisywania opgoramowania do sprzętu')
+                flash('Wystąpił błąd podczas przypisywania oprogramowania do sprzętu')
                 return redirect(url_for('show_info.pokaz_sprzet_info', numer_ewidencyjny=numer_ewidencyjny))
             if result[0][0] == 1:
                 flash('Wystąpił błąd, oprogramowanie {} nie posiada wystarczającej liczby licencji'.format(software))
                 return redirect(url_for('assign.przypisz_oprogramowanie', numer_ewidencyjny=numer_ewidencyjny))
             if result[0][0] == 2:
                 flash(
-                    'Wystąpił błąd, upewnij się czy oprogramowanie {} nie było już zainstalowane na wybranym sprzęcie'.format(
+                    'Wystąpił błąd, upewnij się czy oprogramowanie {} nie było już zainstalowane na tym sprzęcie'.format(
                         software))
                 return redirect(url_for('assign.przypisz_oprogramowanie', numer_ewidencyjny=numer_ewidencyjny))
         flash('Oprogramowanie zostało przypisane pomyślnie')

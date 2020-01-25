@@ -20,3 +20,9 @@ Piotr: <br/>
   - [ ] Forsowanie przy usuwaniu obiektów z historią (pracownik, biuro, sprzęt itd.) (Triggery)
   - [ ] Poprawić funcję zwracania sprzętu
   - [ ] Edycja karty
+  - [ ] Sprawdzać przy edycji oprogramowania czy nie ustawiliśmy za mało kopii liczencji
+  - [ ] Przy przypisywaniu oprogramowania do sprzętu pokazywać liczbę pozostałych kopii oprogramowania
+  - [ ] Zadecydować, dokąd ma przenosić usuwanie / edycja sprzętu
+  - [ ] Domyślna wartość dla numeru biura
+  - [ ] Poprawić zwracanie sprzętu
+  - [ ] Potwierdzanie edycji

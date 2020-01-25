@@ -19,7 +19,7 @@
                 <option value="object_office">Biuro</option>
                 <option value="object_dept">Dział</option>
                 <option value="object_worker">Pracownik</option>
-                <option value="object_magazine">Magazyn</option>
+                <option value="object_warehouse">Magazyn</option>
                 <option value="object_hardware">Sprzęt</option>
                 <option value="object_software">Oprogramowanie</option>
 
@@ -127,7 +127,7 @@
             field_select.options[field_select.options.length] = new Option('Numer biura', 'biuro_numer', false, false);
             document.getElementById('search_only_here_div').style.display = 'block';
         }
-        else if (object_value === 'object_magazine') {
+        else if (object_value === 'object_warehouse') {
             field_select.options[field_select.options.length] = new Option('Numer', 'numer', false, false);
             field_select.options[field_select.options.length] = new Option('Pojemność', 'pojemnosc', false, false);
             field_select.options[field_select.options.length] = new Option('Adres oddziału', 'oddzial_adres', false, false);
