@@ -453,3 +453,69 @@ def edytuj_sprzet(numer_ewidencyjny):
         return render_template(goto, form=form, sprzet=current_data)
 
 
+@edit.route('/edytuj/oprogramowanie/<numer_ewidencyjny>', methods=['GET', 'POST'])
+def edytuj_oprogramowanie(numer_ewidencyjny):
+    goto = 'edit/edytuj_oprogramowanie.html'
+    # Get current data
+    current_data, error = DBC().get_instance().execute_query_fetch("""
+    SELECT numer_ewidencyjny, nazwa, producent, data_zakupu, data_wygasniecia, ilosc_licencji, uwagi
+    FROM Oprogramowanie
+    WHERE numer_ewidencyjny = %s""", [numer_ewidencyjny])
+    if error or not current_data:
+        print(error)
+        flash('Nie znaleziono oprogramowania')
+        return redirect(url_for('show.oprogramowanie'))
+    current_data = make_dictionary(
+        ['numer_ewidencyjny', 'nazwa', 'producent', 'data_zakupu', 'data_wygasniecia', 'liczba_licencji', 'uwagi'],
+        current_data[0])
+
+    form = AddEditSoftware(number=current_data['numer_ewidencyjny'],
+                           name=current_data['nazwa'],
+                           brand=current_data['producent'],
+                           purchase_date=current_data['data_zakupu'],
+                           expiration_date=current_data['data_wygasniecia'],
+                           number_of_licences=current_data['liczba_licencji'],
+                           notes=current_data['uwagi']
+                           )
+
+    if request.method == 'POST':
+        if form.validate_on_submit():  # Input ok
+            new_number = form.number.data
+            new_name = form.name.data
+            new_manufacturer = form.brand.data
+            new_purchase_date = form.purchase_date.data
+            new_expiration_date = form.expiration_date.data
+            new_licence_count = form.number_of_licences.data
+            new_notes = form.notes.data
+
+            if new_expiration_date and new_expiration_date < new_purchase_date:
+                flash('Błąd. Licencja nie może wygasać przed zakupem')
+                return render_template(goto, form=form, numer_ewidencyjny=numer_ewidencyjny)
+
+            error = DBC().get_instance().execute_query_add_edit_delete(
+                """UPDATE Oprogramowanie
+                 SET numer_ewidencyjny=%s, nazwa=%s, producent=%s, data_zakupu=%s,
+                 data_wygasniecia=%s, ilosc_licencji=%s, uwagi=%s
+                 WHERE numer_ewidencyjny=%s""",
+                [new_number, new_name, new_manufacturer, new_purchase_date, new_expiration_date, new_licence_count,
+                 new_notes, numer_ewidencyjny]
+            )
+
+            if error is None:  # If there was no error
+                flash('Oprogramowanie zostało pomyślnie zedytowane')
+                return redirect(url_for('show_info.pokaz_oprogramowanie_info', numer_ewidencyjny=new_number))
+            else:
+                # Translate errors
+                if error.errno == errorcode.ER_DUP_ENTRY:  # Duplicate entry
+                    error.msg = 'Oprogramowanie o podanym numerze ewidencyjnym już istnieje!'
+                elif error.errno == 4025:  # Constraint CHK_data failed
+                    error.msg = 'Licencja nie może wygasać przed zakupem!'
+                elif error.errno in (errorcode.ER_ROW_IS_REFERENCED, errorcode.ER_ROW_IS_REFERENCED_2):
+                    error.msg = 'Nie można zmienić numeru ewidencyjnego, jeśli oprogramowanie jest zainstalowane na jakimś sprzęcie!'
+            flash('Wystąpił błąd podczas dodawania oprogramowania!<br/>{}'.format(error.msg))
+            return render_template(goto, form=form, numer_ewidencyjny=numer_ewidencyjny)
+        else:
+            flash('Proszę upewnić się czy wszystkie pola zostały poprawnie wypełnione!')
+            return render_template(goto, form=form, numer_ewidencyjny=numer_ewidencyjny)
+    else:
+        return render_template(goto, form=form, numer_ewidencyjny=numer_ewidencyjny)

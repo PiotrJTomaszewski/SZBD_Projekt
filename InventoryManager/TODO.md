@@ -19,3 +19,4 @@ Piotr: <br/>
   - [ ] Sprawdzanie czy pracownik nadal pracuje przed przypisaniem mu czegoś
   - [ ] Forsowanie przy usuwaniu obiektów z historią (pracownik, biuro, sprzęt itd.) (Triggery)
   - [ ] Poprawić funcję zwracania sprzętu
+  - [ ] Edycja karty

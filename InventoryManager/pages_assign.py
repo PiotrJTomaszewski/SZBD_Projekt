@@ -19,8 +19,8 @@ def przypisz_sprzet_pracownik(pesel):
     worker = make_dictionary(['pesel', 'imie', 'nazwisko', 'dzial_skrot', 'oddzial_adres', 'biuro_numer'],
                              worker_data[0])
 
-    title = 'Przypisz sprzęt do pracownika {imie} {nazwisko}, numer PESEL {pesel}, dział {dzial}, biuro {biuro}'.format(
-        imie=worker['imie'], nazwisko=worker['nazwisko'], pesel=worker['pesel'], dzial=worker['dzial_skrot'],
+    title = 'Przypisz sprzęt do pracownika {imie} {nazwisko}, dział {dzial}, biuro {biuro}'.format(
+        imie=worker['imie'], nazwisko=worker['nazwisko'], dzial=worker['dzial_skrot'],
         biuro=worker['biuro_numer']
     )
     post_address = url_for('assign._przypisz_sprzet_pracownik_post', pesel=pesel)

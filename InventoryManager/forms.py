@@ -194,7 +194,6 @@ class AddEditSoftware(FlaskForm):
     ])
     expiration_date = DateField('Data wygaśnięcia (opcjonalne)', [
         validators.Optional(),
-        # TODO: Check if expire date > purchase date
     ])
     number_of_licences = IntegerField('Liczba licencji (opcjonalne)', [
         validators.Optional(),

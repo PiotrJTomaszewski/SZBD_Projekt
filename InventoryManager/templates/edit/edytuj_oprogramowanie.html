@@ -8,11 +8,16 @@
             <fieldset>
                 <legend>Edytuj oprogramowanie</legend>
                 {{ form.hidden_tag() }}
+                {{ render_field(form.number) }}
                 {{ render_field(form.name) }}
                 {{ render_field(form.brand) }}
                 {{ render_field(form.purchase_date) }}
+                <span title="Pozostaw to pole pustym, jeśli chcesz, żeby licencja nigdy nie wygasła.">
                 {{ render_field(form.expiration_date) }}
+                </span>
+                <span title="Pozostaw to pole pustym, jeśli liczba licencji ma być nieograniczona.">
                 {{ render_field(form.number_of_licences) }}
+                </span>
                 {{ render_field(form.notes) }}
                 {{ render_field(form.submit) }}
             </fieldset>

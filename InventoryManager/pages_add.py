@@ -337,6 +337,10 @@ def dodaj_oprogramowanie():
             licence_count = form.number_of_licences.data
             notes = form.notes.data
 
+            if expiration_date and expiration_date < purchase_date:
+                flash('Błąd. Licencja nie może wygasać przed zakupem')
+                return render_template(goto, form=form)
+
             error = DBC().get_instance().execute_query_add_edit_delete(
                 """INSERT INTO Oprogramowanie (numer_ewidencyjny, nazwa, producent, data_zakupu,
                  data_wygasniecia, ilosc_licencji, uwagi)
