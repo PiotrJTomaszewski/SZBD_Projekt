@@ -182,5 +182,9 @@ def pokaz_dowolne_info(typ, klucz):
         return redirect(url_for('show_info.pokaz_pracownik_info', pesel=klucz))
     elif typ == 'magazyn':
         return redirect(url_for('show_info.pokaz_magazyn_info', numer=klucz))
+    elif typ == 'sprzet':
+        return redirect(url_for('show_info.pokaz_sprzet_info', numer_ewidencyjny=klucz))
+    elif typ == 'oprogramowanie':
+        return redirect(url_for('show_info.pokaz_oprogramowanie_info', numer_ewidencyjny=klucz))
     else:
         return redirect(url_for('niew_znaleziono'))

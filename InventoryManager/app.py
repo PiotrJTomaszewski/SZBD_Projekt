@@ -54,19 +54,34 @@ def wyszukaj():
     if request.method == 'POST':
         selected_object = request.form['object_select']
         selected_field = request.form['field_select']
-        if request.form.get('search_only_here'):
+        if request.form.get('search_only_here') and not selected_object == 'object_software':
             only_in_current_branch = True
         else:
             only_in_current_branch = False
         search_value = request.form['search_value']
+        selected_operand = request.form['value_is']
+
+        # Translate to null
+        if selected_operand == 'value_is_equal':
+            if selected_object == 'object_hardware':
+                if selected_field in ['magazyn_numer', 'pracownik_pesel', 'biuro_numer']:
+                    if search_value.lower() in ['nie', 'brak', 'nie ma']:
+                        selected_operand = 'value_is_null'
+            elif selected_object == 'object_software':
+                if selected_field in ['data_wygasniecia', 'ilosc_licencji']:
+                    if search_value.lower() in ['nie', 'brak', 'nie ma', 'nie wygasa', 'nieograniczone',
+                                                'nieograniczona', 'nieskończone', 'nieskończona']:
+                        selected_operand = 'value_is_null'
 
         # Translate selected operand
-        selected_operand = request.form['value_is']
         operand = ''
         text_operand = ''
         if selected_operand == 'value_is_equal':
             operand = '='
             text_operand = '='
+        elif selected_operand == 'value_is_not_equal':
+            operand = '!='
+            text_operand = 'jest różne od'
         elif selected_operand == 'value_is_less':
             operand = '<'
             text_operand = '<'
@@ -82,6 +97,15 @@ def wyszukaj():
         elif selected_operand == 'value_use_pattern':
             operand = 'LIKE'
             text_operand = 'pasuje do wzorca'
+        elif selected_operand == 'value_is_null':
+            operand = 'IS NULL'
+            text_operand = 'jest puste'
+        elif selected_operand == 'value_is_not_null':
+            operand = 'IS NOT NULL'
+            text_operand = 'nie jest puste'
+        elif selected_operand == 'value_is_any':
+            operand = "LIKE '%'"
+            text_operand = 'ma dowolną wartość'
 
         if selected_object == 'object_building':
             # Create parts of the text to display
@@ -100,7 +124,9 @@ def wyszukaj():
             query = """
             SELECT adres, nazwa, ilosc_pieter, oddzial_adres
             FROM Budynek
-            WHERE {field} {operand} %s""".format(field=selected_field, operand=operand)
+            WHERE {field} {operand} """.format(field=selected_field, operand=operand)
+            if selected_operand not in ['value_is_null', 'value_is_not_null', 'value_is_any']:
+                query += """ %s""".format(operand=operand)
             if only_in_current_branch:
                 query += " AND oddzial_adres = '{}'".format(session['wybrany_oddzial_adres'])
             headers = ['Adres', 'Nazwa', 'Liczba pięter', 'Adres oddziału']
@@ -123,7 +149,9 @@ def wyszukaj():
             query = """
             SELECT numer, liczba_stanowisk, pietro, budynek_adres
             FROM Biuro
-            WHERE {field} {operand} %s""".format(field=selected_field, operand=operand)
+            WHERE {field} {operand} """.format(field=selected_field, operand=operand)
+            if selected_operand not in ['value_is_null', 'value_is_not_null', 'value_is_any']:
+                query += """ %s""".format(operand=operand)
             if only_in_current_branch:
                 query += " AND (SELECT oddzial_adres FROM Budynek WHERE adres=budynek_adres) = '{}'".format(
                     session['wybrany_oddzial_adres'])
@@ -143,9 +171,11 @@ def wyszukaj():
                 text_field = ''
 
             query = """
-                        SELECT nazwa, skrot, oddzial_adres
-                        FROM Dzial
-                        WHERE {field} {operand} %s""".format(field=selected_field, operand=operand)
+            SELECT nazwa, skrot, oddzial_adres
+            FROM Dzial
+            WHERE {field} {operand} """.format(field=selected_field, operand=operand)
+            if selected_operand not in ['value_is_null', 'value_is_not_null', 'value_is_any']:
+                query += """ %s""".format(operand=operand)
             if only_in_current_branch:
                 query += " AND oddzial_adres = '{}'".format(session['wybrany_oddzial_adres'])
             headers = ['Nazwa działu', 'Skrót nazwy', 'Adres oddziału']
@@ -179,9 +209,11 @@ def wyszukaj():
                 text_field = ''
 
             query = """
-                        SELECT pesel, imie, nazwisko, numer_telefonu, czy_nadal_pracuje, adres_email, dzial_nazwa, biuro_numer
-                        FROM Pracownik
-                        WHERE {field} {operand} %s""".format(field=selected_field, operand=operand)
+            SELECT pesel, imie, nazwisko, numer_telefonu, CASE WHEN czy_nadal_pracuje = '1' THEN 'Tak' ELSE 'Nie' END, adres_email, dzial_nazwa, biuro_numer
+            FROM Pracownik
+            WHERE {field} {operand} """.format(field=selected_field, operand=operand)
+            if selected_operand not in ['value_is_null', 'value_is_not_null', 'value_is_any']:
+                query += """ %s""".format(operand=operand)
             if only_in_current_branch:
                 query += " AND (SELECT oddzial_adres FROM Dzial WHERE nazwa=dzial_nazwa) = '{}'".format(
                     session['wybrany_oddzial_adres'])
@@ -202,12 +234,71 @@ def wyszukaj():
                 text_field = ''
 
             query = """
-                SELECT numer, pojemnosc, oddzial_adres
-                FROM Magazyn
-                WHERE {field} {operand} %s""".format(field=selected_field, operand=operand)
+            SELECT numer, pojemnosc, oddzial_adres
+            FROM Magazyn
+            WHERE {field} {operand} """.format(field=selected_field, operand=operand)
+            if selected_operand not in ['value_is_null', 'value_is_not_null', 'value_is_any']:
+                query += """ %s""".format(operand=operand)
             if only_in_current_branch:
                 query += " AND oddzial_adres = '{}'".format(session['wybrany_oddzial_adres'])
             headers = ['Numer magazynu', 'Pojemność', 'Adres oddziału']
+            goto_type = 'magazyn'
+
+        elif selected_object == 'object_hardware':
+            # Create parts of the text to display
+            text_object = 'Sprzęt'
+            text_field = selected_field
+            if selected_field == 'numer_ewidencyjny':
+                text_field = 'numer ewidencyjny'
+            elif selected_field == 'data_zakupu':
+                text_field = 'data zakupu'
+            elif selected_field == 'magazyn_numer':
+                text_field = 'numer magazynu'
+            elif selected_field == 'pracownik_pesel':
+                text_field = 'PESEL pracownika'
+            elif selected_field == 'biuro_numer':
+                text_field = 'Numer biura'
+            query = """
+                SELECT numer_ewidencyjny, data_zakupu, COALESCE(magazyn_numer, 'Brak'), 
+                COALESCE(P.pracownik_pesel, 'Brak'), COALESCE(P.biuro_numer, 'Brak')
+                FROM Sprzet S LEFT JOIN SprzetWPrzypisaniu SWP on S.numer_ewidencyjny = SWP.sprzet_numer_ewidencyjny
+                LEFT JOIN Przypisanie P on SWP.przypisanie_id_przydzialu = P.id_przydzialu
+                WHERE data_zwrotu IS NULL
+                AND {field} {operand} """.format(field=selected_field, operand=operand)
+            if selected_operand not in ['value_is_null', 'value_is_not_null', 'value_is_any']:
+                query += """ %s""".format(operand=operand)
+            if only_in_current_branch:
+                query += """ AND ((SELECT oddzial_adres FROM Magazyn WHERE numer = S.magazyn_numer) = '{}'
+                 OR (SELECT oddzial_adres FROM Pracownik JOIN Dzial 
+                 ON Pracownik.dzial_nazwa = Dzial.nazwa WHERE Pracownik.pesel = P.pracownik_pesel) = '{}'
+                 OR (SELECT oddzial_adres FROM Biuro JOIN Budynek ON Biuro.budynek_adres = Budynek.adres
+                 WHERE Biuro.numer = P.biuro_numer) = '{}')
+                 """.format(session['wybrany_oddzial_adres'], session['wybrany_oddzial_adres'],
+                            session['wybrany_oddzial_adres'])
+            headers = ['Numer ewidencyjny', 'Data zakupu', 'Numer magazynu', 'PESEL pracownika', 'Numer biura']
+            goto_type = 'sprzet'
+
+        elif selected_object == 'object_software':
+            # Create parts of the text to display
+            text_object = 'Oprogramowanie'
+            text_field = selected_field
+            if selected_field == 'numer_ewidencyjny':
+                text_field = 'Numer ewidencyjny'
+            elif selected_field == 'data_zakupu':
+                text_field = 'Data zakupu'
+            elif selected_field == 'data_wygasniecia':
+                text_field = 'Data wygaśnięcia'
+            elif selected_field == 'ilosc_licencji':
+                text_field = 'Liczba licencji'
+
+            query = """
+                        SELECT numer_ewidencyjny, nazwa, producent, data_zakupu, COALESCE(data_wygasniecia, 'Brak'), 
+                        COALESCE(ilosc_licencji, 'Nieograniczona')
+                        FROM Oprogramowanie
+                        WHERE {field} {operand}""".format(field=selected_field, operand=operand)
+            if selected_operand not in ['value_is_null', 'value_is_not_null', 'value_is_any']:
+                query += """ %s""".format(operand=operand)
+            headers = ['Numer ewidencyjny', 'Nazwa', 'Producent', 'Data zakupu', 'Data wygaśnięcia', '']
             goto_type = 'magazyn'
 
         else:
@@ -217,7 +308,11 @@ def wyszukaj():
             text_field = ''
             goto_type = ''
             flash('Wystąpił błąd!')
-        result_rows, error = DBC().get_instance().execute_query_fetch(query, [search_value])
+        if selected_operand in ['value_is_null', 'value_is_not_null', 'value_is_any']:
+            result_rows, error = DBC().get_instance().execute_query_fetch(query)
+            search_value = ''
+        else:
+            result_rows, error = DBC().get_instance().execute_query_fetch(query, [search_value])
         if error is not None:
             flash('Wstąpił błąd podczas wyszukiwania!')
             print(error)
@@ -231,19 +326,11 @@ def wyszukaj():
                 search_value = 'Nie'
 
         if only_in_current_branch:
-            result['text'] = '{object} w bieżącym oddziale gdzie {field} {operand} {value}'.format(
+            result['text'] = '{object} w bieżącym oddziale gdzie pole {field} {operand} {value}'.format(
                 object=text_object, field=text_field, operand=text_operand, value=search_value)
         else:
             result['text'] = '{object} gdzie {field} {operand} {value}'.format(
                 object=text_object, field=text_field, operand=text_operand, value=search_value)
-        # Replace 0 and 1 in is still working if workers were selected
-        if selected_object == 'object_worker':
-            for i in range(len(result['rows'])):
-                result['rows'][i] = list(result['rows'][i])
-                if result['rows'][i][4] == '1':
-                    result['rows'][i][4] = 'Tak'
-                else:
-                    result['rows'][i][4] = 'Nie'
 
         # If the lookup took place in the current branch show go to info buttons
         if only_in_current_branch:

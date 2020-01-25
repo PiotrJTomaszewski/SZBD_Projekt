@@ -8,9 +8,10 @@
             <fieldset>
                 <legend>Wyszukiwarka</legend>
 
+                <div id="search_only_here_div">
                 <dt>Szukaj tylko w tym oddziale</dt>
                 <dd><input type="checkbox" name="search_only_here" value="1" checked="checked"></dd>
-
+                </div>
 
                 <dt>Wyszukaj</dt>
                 <dd><select id="object_select" name="object_select" onchange="set_field(this.value)">
@@ -19,8 +20,9 @@
                 <option value="object_dept">Dział</option>
                 <option value="object_worker">Pracownik</option>
                 <option value="object_magazine">Magazyn</option>
-                {#<option value="object_hardware">Sprzęt</option>
-                <option value="object_software">Oprogramowanie</option>#}
+                <option value="object_hardware">Sprzęt</option>
+                <option value="object_software">Oprogramowanie</option>
+
                 </select></dd>
 
                 <dt>Gdzie</dt>
@@ -33,19 +35,24 @@
 
                 <dt>Jest</dt>
                 <dd>
-                    <input type="radio" name="value_is" value="value_is_equal" checked="checked" onclick="show_additional_info(this)">Równe<br/>
-                    <input type="radio" name="value_is" value="value_is_less" onclick="show_additional_info(this)">Mniejsze<br/>
-                    <input type="radio" name="value_is" value="value_is_less_equal" onclick="show_additional_info(this)">Mniejsze lub równe<br/>
-                    <input type="radio" name="value_is" value="value_is_greater" onclick="show_additional_info(this)">Większe<br/>
-                    <input type="radio" name="value_is" value="value_is_greater_equal" onclick="show_additional_info(this)">Większe lub równe<br/>
-                    <input type="radio" name="value_is" value="value_use_pattern" onclick="show_additional_info(this)">Pasujące do wzorca<br/>
+                    <input type="radio" name="value_is" value="value_is_equal" checked="checked" onclick="on_radio_button_select(this)">Równe<br/>
+                    <input type="radio" name="value_is" value="value_is_not_equal" checked="checked" onclick="on_radio_button_select(this)">Różne<br/>
+                    <input type="radio" name="value_is" value="value_is_less" onclick="on_radio_button_select(this)">Mniejsze<br/>
+                    <input type="radio" name="value_is" value="value_is_less_equal" onclick="on_radio_button_select(this)">Mniejsze lub równe<br/>
+                    <input type="radio" name="value_is" value="value_is_greater" onclick="on_radio_button_select(this)">Większe<br/>
+                    <input type="radio" name="value_is" value="value_is_greater_equal" onclick="on_radio_button_select(this)">Większe lub równe<br/>
+                    <input type="radio" name="value_is" value="value_use_pattern" onclick="on_radio_button_select(this)">Pasujące do wzorca<br/>
+                    <input type="radio" name="value_is" value="value_is_null" onclick="on_radio_button_select(this)">Puste<br/>
+                    <input type="radio" name="value_is" value="value_is_not_null" onclick="on_radio_button_select(this)">Niepuste<br/>
+                    <input type="radio" name="value_is" value="value_is_any" onclick="on_radio_button_select(this)">Dowolne<br/>
                 </dd>
                 <div id="additional_info"></div>
+                <div id="search_value_div">
                 <dt>Wartość</dt>
                 <dd>
                     <input type="text" name="search_value"/>
                 </dd>
-
+                </div>
                 <dt>Zatwierdź</dt>
                 <dd>
                     <input type="submit" name="submit" value="Szukaj">
@@ -84,6 +91,7 @@
         </div>
     {% endif %}
     <script type="text/javascript">
+    document.addEventListener("DOMContentLoaded", function(){ set_field(document.getElementById('object_select').value) });
     function set_field(object_value) {
         console.log(object_value);
         let field_select = document.getElementById('field_select');
@@ -93,17 +101,20 @@
             field_select.options[field_select.options.length] = new Option('Nazwa', 'nazwa', false, false);
             field_select.options[field_select.options.length] = new Option('Liczba pięter', 'ilosc_pieter', false, false);
             field_select.options[field_select.options.length] = new Option('Adres oddziału', 'oddzial_adres', false, false);
+            document.getElementById('search_only_here_div').style.display = 'block';
         }
         else if (object_value === 'object_office') {
             field_select.options[field_select.options.length] = new Option('Numer', 'numer', false, false);
             field_select.options[field_select.options.length] = new Option('Liczba stanowisk', 'liczba_stanowisk', false, false);
             field_select.options[field_select.options.length] = new Option('Numer piętra', 'pietro', false, false);
             field_select.options[field_select.options.length] = new Option('Adres budynku', 'budynek_adres', false, false);
+            document.getElementById('search_only_here_div').style.display = 'block';
         }
         else if (object_value === 'object_dept') {
             field_select.options[field_select.options.length] = new Option('Nazwa', 'nazwa', false, false);
             field_select.options[field_select.options.length] = new Option('Skrót nazwy', 'skrot', false, false);
             field_select.options[field_select.options.length] = new Option('Adres oddziału', 'oddzial_adres', false, false);
+            document.getElementById('search_only_here_div').style.display = 'block';
         }
         else if (object_value === 'object_worker') {
             field_select.options[field_select.options.length] = new Option('PESEL', 'pesel', false, false);
@@ -114,28 +125,34 @@
             field_select.options[field_select.options.length] = new Option('Adres email', 'adres_email', false, false);
             field_select.options[field_select.options.length] = new Option('Nazwa działu', 'dzial_nazwa', false, false);
             field_select.options[field_select.options.length] = new Option('Numer biura', 'biuro_numer', false, false);
+            document.getElementById('search_only_here_div').style.display = 'block';
         }
         else if (object_value === 'object_magazine') {
             field_select.options[field_select.options.length] = new Option('Numer', 'numer', false, false);
             field_select.options[field_select.options.length] = new Option('Pojemność', 'pojemnosc', false, false);
             field_select.options[field_select.options.length] = new Option('Adres oddziału', 'oddzial_adres', false, false);
+            document.getElementById('search_only_here_div').style.display = 'block';
         }
-        // else if (object_value === 'object_hardware') {
-        //     field_select.options[field_select.options.length] = new Option('Numer ewidencyjny', 'numer_ewidencyjny', false, false);
-        //     field_select.options[field_select.options.length] = new Option('Data zakupu', 'data_zakupu', false, false);
-        //     field_select.options[field_select.options.length] = new Option('Nazwa', 'nazwa', false, false);
-        //     field_select.options[field_select.options.length] = new Option('Typ', 'typ', false, false);
-        //     field_select.options[field_select.options.length] = new Option('Producent', 'producent', false, false);
-        //     field_select.options[field_select.options.length] = new Option('Numer magazynu', 'magazyn_numer', false, false);
-        // }
-        // else if (object_value === 'object_software') {
-        //     field_select.options[field_select.options.length] = new Option('Numer ewidencyjny', 'numer_ewidencyjny', false, false);
-        //     field_select.options[field_select.options.length] = new Option('Nazwa', 'nazwa', false, false);
-        //     field_select.options[field_select.options.length] = new Option('Producent', 'producent', false, false);
-        //     field_select.options[field_select.options.length] = new Option('Data zakupu', 'data_zakupu', false, false);
-        //     field_select.options[field_select.options.length] = new Option('Data wygaśnięcia', 'data_wygasniecia', false, false);
-        //     field_select.options[field_select.options.length] = new Option('Liczba licencji', 'ilosc_licencji', false, false);
-        // }
+        else if (object_value === 'object_hardware') {
+            field_select.options[field_select.options.length] = new Option('Numer ewidencyjny', 'numer_ewidencyjny', false, false);
+            field_select.options[field_select.options.length] = new Option('Data zakupu', 'data_zakupu', false, false);
+            field_select.options[field_select.options.length] = new Option('Nazwa', 'nazwa', false, false);
+            field_select.options[field_select.options.length] = new Option('Typ', 'typ', false, false);
+            field_select.options[field_select.options.length] = new Option('Producent', 'producent', false, false);
+            field_select.options[field_select.options.length] = new Option('Numer magazynu', 'magazyn_numer', false, false);
+            field_select.options[field_select.options.length] = new Option('PESEL pracownika', 'pracownik_pesel', false, false);
+            field_select.options[field_select.options.length] = new Option('Numer biura', 'biuro_numer', false, false);
+            document.getElementById('search_only_here_div').style.display = 'block';
+        }
+        else if (object_value === 'object_software') {
+            field_select.options[field_select.options.length] = new Option('Numer ewidencyjny', 'numer_ewidencyjny', false, false);
+            field_select.options[field_select.options.length] = new Option('Nazwa', 'nazwa', false, false);
+            field_select.options[field_select.options.length] = new Option('Producent', 'producent', false, false);
+            field_select.options[field_select.options.length] = new Option('Data zakupu', 'data_zakupu', false, false);
+            field_select.options[field_select.options.length] = new Option('Data wygaśnięcia', 'data_wygasniecia', false, false);
+            field_select.options[field_select.options.length] = new Option('Liczba licencji', 'ilosc_licencji', false, false);
+            document.getElementById('search_only_here_div').style.display = 'none';
+        }
     }
 
     function show_additional_info(radio) {
@@ -147,6 +164,19 @@
         else {
             info_box.innerText = '';
         }
+    }
+
+    function show_hide(radio) {
+        if (radio.value === 'value_is_null' || radio.value === 'value_is_not_null' || radio.value === 'value_is_any') {
+            document.getElementById('search_value_div').style.display = 'none';
+        } else {
+            document.getElementById('search_value_div').style.display = 'block';
+        }
+    }
+
+    function on_radio_button_select(radio) {
+        show_additional_info(radio);
+        show_hide(radio);
     }
     </script>
 {% endblock %}
