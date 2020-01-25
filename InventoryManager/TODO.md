@@ -14,3 +14,8 @@ Piotr: <br/>
   - [ ] Indeks na skrócie nazwy działu
   - [ ] Używanie autogenerowanych id
   - [ ] Wyłączyć cachowanie stron w przeglądarce :)
+  - [ ] Sprawdzić czy w każdej pozytywnej wiodomości jest "pomyślnie"
+  - [ ] Dodać document.addEventListener("DOMContentLoaded", function(){ }); zawsze jak jest ukrywanie javascriptem
+  - [ ] Sprawdzanie czy pracownik nadal pracuje przed przypisaniem mu czegoś
+  - [ ] Forsowanie przy usuwaniu obiektów z historią (pracownik, biuro, sprzęt itd.) (Triggery)
+  - [ ] Poprawić funcję zwracania sprzętu

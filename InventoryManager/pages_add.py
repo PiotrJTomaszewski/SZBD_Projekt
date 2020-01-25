@@ -72,15 +72,14 @@ def dodaj_budynek():
 
 @add.route('/dodaj/biuro', methods=['GET', 'POST'])
 def dodaj_biuro():
-    # TODO: Pobierać liczbę pięter w budynku
     buildings, error = DBC().get_instance().execute_query_fetch("""
-    SELECT adres, nazwa 
+    SELECT adres, nazwa, ilosc_pieter 
     FROM Budynek 
     WHERE oddzial_adres = %s
     ORDER BY nazwa""", [session['wybrany_oddzial_adres']])
     if error is not None:
         flash('Wystąpił błąd podczas pobierania dostępnych budynków!<br/>{}'.format(error.msg))
-    buildings_choices = [(building[0], ('{} ({})'.format(building[1], building[0]))) for building in buildings]
+    buildings_choices = [(building[0], ('{} ({}) - {} pięter'.format(building[1], building[0], building[2]))) for building in buildings]
     form = AddEditOfficeForm()
     form.building_address.choices = buildings_choices
 

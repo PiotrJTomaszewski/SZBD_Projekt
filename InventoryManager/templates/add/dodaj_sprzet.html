@@ -26,7 +26,7 @@
         </form>
     </div>
     <script type="text/javascript">
-        document.getElementById("new_or_existing_switch").onclick = function () {
+        function show_hide() {
             if (document.getElementById('new_or_existing_switch').checked === true) {
                 document.getElementById('existing_type_div').style.display = 'none';
                 document.getElementById('new_type_div').style.display = 'block';
@@ -35,6 +35,8 @@
                 document.getElementById('existing_type_div').style.display = 'block';
                 document.getElementById('new_type_div').style.display = 'none';
             }
-        };
+        }
+        document.getElementById("new_or_existing_switch").onclick = function () { show_hide() };
+        document.addEventListener("DOMContentLoaded", function(){ show_hide() });
     </script>
 {% endblock %}

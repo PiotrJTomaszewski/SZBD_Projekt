@@ -358,7 +358,7 @@ def przypisz_prawo_dostepu_karta(pesel, id_karty):
     # Exclude those offices that worker already has access to
     current_assignments_office_numbers = [x['numer'] for x in current_assignments_data]
     available_offices_data = [x for x in available_offices_data if x['numer'] not in current_assignments_office_numbers]
-    if not available_offices_data:  # Check once again
+    if not available_offices_data:  # Check once again3
         flash('W oddziale nie ma żadnych biur, do których można by przyznać dostęp')
         return redirect(url_for('show_info.pokaz_pracownik_info', pesel=pesel))
     return render_template('assign/przypisz_dostep_karta.html', karta=card_data, pracownik=worker_data,

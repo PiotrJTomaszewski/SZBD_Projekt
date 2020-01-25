@@ -3,12 +3,14 @@
 {% block content %}
     <h1>{{ tytul }}</h1>
     <div>
-        <form action="{{ post_adres }}" autocomplete="off" method="post">
+        <form action="{{ post_adres }}" method="post">
             <input type="checkbox" name="new_assignment_checkbox" checked="checked" style="display: none"> {# Hidden checkbox #}
             <div>
                 <label for="assignment_date">Data przypisania</label>
-                <input type="date" id="assignment_date" name="assignment_date_box"/><br/>
+                <input type="date" id="assignment_date" name="assignment_date_box" required="required"/><br/>
             </div>
+
+            <br/>
 
             <table>
                 <thead>
@@ -34,6 +36,7 @@
                     </tr>
                 {% endfor %}
             </table>
+            <br/>
             <input type="submit" value="Potwierdź"/>
         </form>
     </div>
