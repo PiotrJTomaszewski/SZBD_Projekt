@@ -23,29 +23,15 @@ def zwroc_sprzet(id_przydzialu):
 
     if assignment_data.get('pracownik_pesel'):
         owner, error = DBC().get_instance().execute_query_fetch("""
-        SELECT P.pesel, P.imie, P.nazwisko, P.czy_nadal_pracuje, D.skrot, P.biuro_numer
-        FROM Pracownik P
-        JOIN Dzial D on P.dzial_nazwa = D.nazwa
-        WHERE P.pesel = %s""", [assignment_data['pracownik_pesel']])
+        SELECT imie, nazwisko
+        FROM Pracownik
+        WHERE pesel = %s""", [assignment_data['pracownik_pesel']])
         if error or not owner:
             flash('Wystąpił błąd podczas pobierania informacji o właścicielu')
             return redirect(url_for('show.historia_przypisan'))
-        owner = list(owner[0])
-        if owner[3] == '1':
-            owner[3] = 'Tak'
-        else:
-            owner[3] = 'Nie'
-        owner_data = {'naglowki': ['PESEL', 'Imię', 'Nazwisko', 'Czy nadal pracuje', 'Dział', 'Numer biura'],
-                      'dane': owner, 'typ': 'Pracownik'}
+        owner = 'pracownikowi {} {}'.format(owner[0][0], owner[0][1])
     else:
-        owner, error = DBC().get_instance().execute_query_fetch("""
-        SELECT numer, budynek_adres, pietro
-        FROM Biuro
-        WHERE numer = %s""", [assignment_data['biuro_numer']])
-        if error or not owner:
-            flash('Wystąpił błąd podczas pobierania informacji o właścicielu')
-            return redirect(url_for('show.historia_przypisan'))
-        owner_data = {'naglowki': ['Numer', 'Adres budynku', 'Piętro'], 'dane': owner[0], 'typ': 'Biuro'}
+        owner = 'biuru numer {}'.format(assignment_data['biuro_numer'])
 
     hardware, error = DBC().get_instance().execute_query_fetch("""
     SELECT S.numer_ewidencyjny, S.typ, S.nazwa, S.producent, DATE_FORMAT(S.data_zakupu, '%d.%m.%Y')
@@ -71,7 +57,7 @@ def zwroc_sprzet(id_przydzialu):
         return redirect(url_for('show.historia_przypisan'))
     warehouses_data = make_dictionaries_list(['numer', 'pojemnosc', 'wolna_pojemnosc'], warehouses)
 
-    return render_template('deassign/zwroc_sprzet.html', przypisanie=assignment_data, wlasciciel=owner_data,
+    return render_template('deassign/zwroc_sprzet.html', przypisanie=assignment_data, wlasciciel=owner,
                            sprzety=hardware_data, magazyny=warehouses_data)
 
 
@@ -188,5 +174,6 @@ def wykonaj_zwroc_oprogramowanie(numer_ewidencyjny):
             if error:
                 flash('Wystąpił błąd podczas przypisywania opgoramowania do sprzętu')
                 return redirect(url_for('show_info.pokaz_sprzet_info', numer_ewidencyjny=numer_ewidencyjny))
-        flash('Oprogramowanie zostało przypisane pomyślnie')
+        flash('Oprogramowanie zostało zwrócone pomyślnie')
     return redirect(url_for('show_info.pokaz_sprzet_info', numer_ewidencyjny=numer_ewidencyjny))
+

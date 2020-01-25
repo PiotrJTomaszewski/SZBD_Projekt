@@ -1,25 +1,7 @@
 {% extends "base.html" %}
-{% block titile %}Zwróć sprzęt{% endblock %}
+{% block title %}Zwróć sprzęt{% endblock %}
 {% block content %}
-<h1>Zwróć sprzęt z przypisania numer {{ przypisanie['id'] }} przyznanego w dniu {{ przypisanie['data_przyznania'] }}</h1>
-<div id="owner">
-    <h1>Właściciel: {{ wlasciciel['typ'] }}</h1>
-    <h3>Dane właściciela</h3>
-    <table>
-        <thead>
-            <tr>
-                {% for naglowek in wlasciciel['naglowki'] %}
-                <td>{{ naglowek }}</td>
-                {% endfor %}
-            </tr>
-        </thead>
-        <tr>
-            {% for informacja in wlasciciel['dane'] %}
-            <td>{{ informacja }}</td>
-            {% endfor %}
-        </tr>
-    </table>
-</div>
+<h1>Zwróć sprzęt z przypisania numer {{ przypisanie['id'] }} przyznanego {{ wlasciciel }} dnia {{ przypisanie['data_przyznania'] }}</h1>
 
 <h3>Sprzęt w przypisaniu</h3>
 <div id="assignment_hardware">

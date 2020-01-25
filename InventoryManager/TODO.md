@@ -26,3 +26,4 @@ Piotr: <br/>
   - [ ] Domyślna wartość dla numeru biura
   - [ ] Poprawić zwracanie sprzętu
   - [ ] Potwierdzanie edycji
+  - [ ] Przyjrzeć się czy gdzieś nie trzeba by użyć automatycznej numeracji

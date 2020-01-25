@@ -80,7 +80,20 @@ def _przypisz_sprzet_pracownik_post(pesel):
             return redirect(url_for('assign.przypisz_sprzet_pracownik', pesel=pesel))
 
         assignment_date = request.form.get('assignment_date_box')
-        if request.form.get('assignment_date_box') != '':
+        assignment_date = string_to_date(assignment_date)
+        # Check if the hardware is not assigned before purchase
+        for hardware in list_of_hardware:
+            purchase_date, error = DBC().get_instance().execute_query_fetch("""
+            SELECT data_zakupu
+            FROM Sprzet
+            WHERE numer_ewidencyjny = %s""", [hardware])
+            if error:
+                print(error)
+            if assignment_date < purchase_date[0][0]:
+                flash('Błąd. Sprzęt nie może być przypisany przed zakupem')
+                return redirect(url_for('assign.przypisz_sprzet_pracownik', pesel=pesel))
+
+        if assignment_date and assignment_date != '':
             assignment_id, error = DBC().get_instance().execute_query_add_edit_delete_with_fetch_last_id("""
             INSERT INTO Przypisanie
             (data_przydzialu, pracownik_pesel)
@@ -186,7 +199,20 @@ def _przypisz_sprzet_biuro_post(numer_biura):
             return redirect(url_for('assign.przypisz_sprzet_biuro', numer_biura=numer_biura))
 
         assignment_date = request.form.get('assignment_date_box')
-        if request.form.get('assignment_date_box') != '':
+        assignment_date = string_to_date(assignment_date)
+        # Check if the hardware is not assigned before purchase
+        for hardware in list_of_hardware:
+            purchase_date, error = DBC().get_instance().execute_query_fetch("""
+            SELECT data_zakupu
+            FROM Sprzet
+            WHERE numer_ewidencyjny = %s""", [hardware])
+            if error:
+                print(error)
+            if assignment_date < purchase_date[0][0]:
+                flash('Błąd. Sprzęt nie może być przypisany przed zakupem')
+                return redirect(url_for('assign.przypisz_sprzet_biuro', numer_biura=numer_biura))
+
+        if assignment_date and assignment_date != '':
             assignment_id, error = DBC().get_instance().execute_query_add_edit_delete_with_fetch_last_id("""
             INSERT INTO Przypisanie
             (data_przydzialu, biuro_numer)
@@ -229,7 +255,7 @@ def przypisz_oprogramowanie(numer_ewidencyjny):
      WHERE S.numer_ewidencyjny = %s""", [numer_ewidencyjny])
     if error or not hardware:
         flash('Wystąpił błąd! Nie znaleziono sprzętu')
-        return redirect(url_for('show_info.pokaz_sprzet_info', numer_ewidencyjny=numer_ewidencyjny))
+        return redirect(url_for('show.sprzet_w_magazynach'))
     hardware_data = make_dictionary(
         ['numer', 'typ', 'nazwa', 'producent', 'data_zakupu', 'magazyn_numer', 'pracownik_pesel', 'biuro_numer'],
         hardware[0])
@@ -382,7 +408,7 @@ def wykonaj_przypisz_prawo_dostepu_karta(pesel, id_karty):
         assign_date = request.form.get('access_assign_date')
         assign_date = string_to_date(assign_date)
         if expiration_date and expiration_date < assign_date:
-            flash('Data wygasnięcia prawa nie może być wcześniejsza niż data wygaśnięcia')
+            flash('Data wygasnięcia prawa nie może być wcześniejsza niż data przypisania')
             return redirect(url_for('assign.przypisz_prawo_dostepu_karta', pesel=pesel, id_karty=id_karty))
         # Get card assign date
         card_assign_date, error = DBC().get_instance().execute_query_fetch("""

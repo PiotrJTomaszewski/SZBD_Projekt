@@ -220,7 +220,7 @@ def dodaj_magazyn():
         next_available_number = 0
     else:
         next_available_number = next_available_number[0][0]
-    form = AddEditwarehouseForm(number=next_available_number)
+    form = AddEditWarehouseForm(number=next_available_number)
 
     if request.method == 'POST':
         if form.validate():  # Input ok

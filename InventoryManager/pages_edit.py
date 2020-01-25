@@ -335,7 +335,7 @@ def edytuj_magazyn(numer):
     if not current_capacity or error:
         flash('Wystąpił błąd!<br/>Nie znaleziono magazynu')
         return redirect(url_for('show.magazyny'))
-    form = AddEditwarehouseForm(number=numer, capacity=current_capacity[0][0])
+    form = AddEditWarehouseForm(number=numer, capacity=current_capacity[0][0])
 
     if request.method == 'POST':
         if form.validate():  # Input ok
@@ -441,7 +441,8 @@ def edytuj_sprzet(numer_ewidencyjny):
                 """UPDATE Sprzet
                 SET numer_ewidencyjny=%s, data_zakupu=%s, nazwa=%s, typ=%s, producent=%s, uwagi=%s, magazyn_numer=%s
                 WHERE numer_ewidencyjny = %s""",
-                [new_number, new_purchase_date, new_name, new_hw_type, new_manufacturer, new_notes, new_warehouse_number,
+                [new_number, new_purchase_date, new_name, new_hw_type, new_manufacturer, new_notes,
+                 new_warehouse_number,
                  numer_ewidencyjny]
             )
             if error is None:  # If there was no error
@@ -498,8 +499,20 @@ def edytuj_oprogramowanie(numer_ewidencyjny):
             new_notes = form.notes.data
 
             if new_expiration_date and new_expiration_date < new_purchase_date:
-                flash('Błąd. Licencja nie może wygasać przed zakupem')
+                flash('Wystąpił błąd. Licencja nie może wygasać przed zakupem')
                 return render_template(goto, form=form, numer_ewidencyjny=numer_ewidencyjny)
+
+            # Check if used licence count doesn't exceed new total licence count
+            if new_licence_count:  # Only if there are finite licence copies
+                used_licences, error = DBC().get_instance().execute_query_fetch("""
+                SELECT COUNT(*) FROM OprogramowanieNaSprzecie
+                WHERE oprogramowanie_numer=%s""", [numer_ewidencyjny])
+                if error:
+                    print(error)
+                if used_licences and new_licence_count < used_licences[0][0]:
+                    flash("""Wystąpił błąd. Liczba używanych obecnie kopii tego oprogramowania ({}) 
+                    nie może przewyższać liczby dostępnych licencji.""".format(used_licences[0][0]))
+                    return render_template(goto, form=form, numer_ewidencyjny=numer_ewidencyjny)
 
             error = DBC().get_instance().execute_query_add_edit_delete(
                 """UPDATE Oprogramowanie

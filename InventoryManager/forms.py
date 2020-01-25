@@ -114,7 +114,7 @@ class AddEditAccessCardForm(FlaskForm):
     submit = SubmitField('Zatwierdź')
 
 
-class AddEditMagazineForm(FlaskForm):
+class AddEditWarehouseForm(FlaskForm):
     number = IntegerField('Numer magazynu', [
         validators.InputRequired('Proszę podać numer magazynu'),
         validators.NumberRange(min=0, message='Numer magazynu nie może być mniejszy od 0')

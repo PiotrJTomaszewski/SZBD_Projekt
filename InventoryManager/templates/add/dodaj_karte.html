@@ -1,8 +1,9 @@
 {% extends "base.html" %}
 {% block title %}Przyznaj pracownikowi kartę dostępu{% endblock %}
 {% block content %}
-<h1>Przyznaj kartę dostępu pracownikowi</h1>
+<h1>Przyznaj kartę dostępu pracownikowi {{ pracownik['imie'] }} {{ pracownik['nazwisko'] }}</h1>
 
+{#
 <div id="worker_info">
 <table>
     <thead>
@@ -24,7 +25,7 @@
 </table>
 </div>
 
-<br/>
+<br/>#}
 <form id="add_card_assign" name="add_card_assign" action="{{ url_for('add.wykonaj_dodaj_karta', pesel=pracownik['pesel']) }}" method="post">
 <div id="card_creation">
 <h2>Utwórz nową kartę</h2>

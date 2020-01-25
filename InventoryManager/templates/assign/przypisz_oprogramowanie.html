@@ -1,7 +1,8 @@
 {% extends "base.html" %}
 {% block title %}Przypisz oprogramowanie{% endblock %}
 {% block content %}
-<h1>Przypisz oprogramowanie do sprzętu</h1>
+<h1>Przypisz oprogramowanie do sprzętu {{ sprzet['nazwa'] }} o numerze {{ sprzet['numer'] }}</h1>
+{#
 <div id="hardware_info">
 <table>
     <thead>
@@ -23,7 +24,7 @@
         <td>{{ sprzet['stan'] }}</td>
     </tr>
 </table>
-</div>
+</div>#}
 
 <span title="Lista zawiera tylko oprogramowanie, które posiada wolne licenjce oraz jescze nie wygasło">
 <h3>Dostępne oprogramowanie</h3></span>

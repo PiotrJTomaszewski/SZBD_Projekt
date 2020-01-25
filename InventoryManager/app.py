@@ -135,8 +135,8 @@ def wyszukaj():
         elif selected_object == 'object_office':
             # Create parts of the text to display
             text_object = 'Biura'
-            if selected_field == 'adres':
-                text_field = 'adres biura'
+            if selected_field == 'numer':
+                text_field = 'numer biura'
             elif selected_field == 'liczba_stanowisk':
                 text_field = 'liczba stanowisk'
             elif selected_field == 'pietro':
@@ -326,10 +326,10 @@ def wyszukaj():
                 search_value = 'Nie'
 
         if only_in_current_branch:
-            result['text'] = '{object} w bieżącym oddziale gdzie pole {field} {operand} {value}'.format(
+            result['text'] = '{object} w bieżącym oddziale gdzie pole "{field}" {operand} "{value}"'.format(
                 object=text_object, field=text_field, operand=text_operand, value=search_value)
         else:
-            result['text'] = '{object} gdzie {field} {operand} {value}'.format(
+            result['text'] = '{object} gdzie pole "{field}" {operand} "{value}"'.format(
                 object=text_object, field=text_field, operand=text_operand, value=search_value)
 
         # If the lookup took place in the current branch show go to info buttons
