@@ -8,7 +8,7 @@ assign = Blueprint('assign', __name__)
 @assign.route('/przypisz/sprzet/pracownik/<pesel>')
 def przypisz_sprzet_pracownik(pesel):
     worker_data, error = DBC().get_instance().execute_query_fetch("""
-    SELECT pesel, imie, nazwisko, skrot, oddzial_adres, biuro_numer
+    SELECT pesel, imie, nazwisko, skrot, oddzial_adres, biuro_numer, czy_nadal_pracuje
     FROM Pracownik P
     JOIN Dzial D on P.dzial_nazwa = D.nazwa
     WHERE pesel = %s""", [pesel])
@@ -16,8 +16,12 @@ def przypisz_sprzet_pracownik(pesel):
         print(error)
         flash('Nie udało się pobrać danych pracownika')
         return redirect(url_for("show.pracownicy"))
-    worker = make_dictionary(['pesel', 'imie', 'nazwisko', 'dzial_skrot', 'oddzial_adres', 'biuro_numer'],
+    worker = make_dictionary(['pesel', 'imie', 'nazwisko', 'dzial_skrot', 'oddzial_adres', 'biuro_numer', 'czy_nadal_pracuje'],
                              worker_data[0])
+
+    if worker['czy_nadal_pracuje'] == '0':
+        flash('Nie można przypisać sprzętu do pracownika, który już nie pracuje')
+        return redirect(url_for('show_info.pokaz_pracownik_info', pesel=pesel))
 
     title = 'Przypisz sprzęt do pracownika {imie} {nazwisko}, dział {dzial}, biuro {biuro}'.format(
         imie=worker['imie'], nazwisko=worker['nazwisko'], dzial=worker['dzial_skrot'],
@@ -336,7 +340,7 @@ def wykonaj_przypisz_oprogramowanie(numer_ewidencyjny):
 @assign.route('/przypisz/prawo_dostepu/pracownik/<pesel>/karta/<id_karty>')
 def przypisz_prawo_dostepu_karta(pesel, id_karty):
     worker, error = DBC().get_instance().execute_query_fetch("""
-    SELECT pesel, imie, nazwisko, dzial_nazwa, biuro_numer
+    SELECT pesel, imie, nazwisko, dzial_nazwa, biuro_numer, czy_nadal_pracuje
     FROM Pracownik
     WHERE pesel = %s""", [pesel])
     if error:
@@ -345,7 +349,11 @@ def przypisz_prawo_dostepu_karta(pesel, id_karty):
     if not worker:
         flash('Nie znaleziono pracownika')
         return redirect(url_for('show.pracownicy'))
-    worker_data = make_dictionary(['pesel', 'imie', 'nazwisko', 'dzial_nazwa', 'biuro_numer'], worker[0])
+    worker_data = make_dictionary(['pesel', 'imie', 'nazwisko', 'dzial_nazwa', 'biuro_numer', 'czy_nadal_pracuje'], worker[0])
+
+    if worker_data['czy_nadal_pracuje'] == '0':
+        flash('Nie można nadać prawa dostępu pracownikowi, który już nie pracuje')
+        return redirect(url_for('show_info.pokaz_pracownik_info', pesel=pesel))
 
     card, error = DBC().get_instance().execute_query_fetch("""
     SELECT id_karty, data_przyznania, pracownik_pesel

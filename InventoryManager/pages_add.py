@@ -370,13 +370,17 @@ def dodaj_oprogramowanie():
 @add.route('/dodaj/karta/pracownik/<pesel>')
 def dodaj_karta(pesel):
     worker, error = DBC().get_instance().execute_query_fetch("""
-    SELECT pesel, imie, nazwisko, biuro_numer, dzial_nazwa
+    SELECT pesel, imie, nazwisko, biuro_numer, dzial_nazwa, czy_nadal_pracuje
     FROM Pracownik
     WHERE pesel = %s""", [pesel])
     if error or not worker:
         flash('Wystąpił błąd podczas pobierania informacji o pracowniku')
         return redirect(url_for('show.pracownicy'))
-    worker_data = make_dictionary(['pesel', 'imie', 'nazwisko', 'biuro_numer', 'dzial_nazwa'], worker[0])
+    worker_data = make_dictionary(['pesel', 'imie', 'nazwisko', 'biuro_numer', 'dzial_nazwa', 'czy_nadal_pracuje'], worker[0])
+
+    if worker_data['czy_nadal_pracuje'] == '0':
+        flash('Nie można nadać karty dostępu pracownikowi, który już nie pracuje')
+        return redirect(url_for('show_info.pokaz_pracownik_info', pesel=pesel))
 
     offices, error = DBC().get_instance().execute_query_fetch("""
     SELECT BI.numer, BI.pietro, BI.budynek_adres
