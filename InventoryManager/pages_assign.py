@@ -270,7 +270,7 @@ def przypisz_oprogramowanie(numer_ewidencyjny):
 
     available_software, error = DBC().get_instance().execute_query_fetch("""
     SELECT numer_ewidencyjny, nazwa, producent, DATE_FORMAT(data_zakupu, '%d.%m.%Y'), 
-    DATE_FORMAT(data_wygasniecia, '%d.%m.%Y'), ilosc_licencji
+    COALESCE(DATE_FORMAT(data_wygasniecia, '%d.%m.%Y'), 'Nie wygasa'), COALESCE(ilosc_licencji, 'Nieograniczona')
     FROM Oprogramowanie
     WHERE (ilosc_licencji IS NULL
     OR IleWolnychLicencji(numer_ewidencyjny) > 0)
@@ -285,7 +285,17 @@ def przypisz_oprogramowanie(numer_ewidencyjny):
         return redirect(url_for('show_info.pokaz_sprzet_info', numer_ewidencyjny=numer_ewidencyjny))
     available_software_data = make_dictionaries_list(
         ['numer', 'nazwa', 'producent', 'data_zakupu', 'data_wygasniecia', 'liczba_licencji'], available_software)
-
+    # Exclude already installed software
+    current_software, error = DBC().get_instance().execute_query_fetch("""
+    SELECT oprogramowanie_numer
+    FROM OprogramowanieNaSprzecie
+    WHERE sprzet_numer = %s""", [numer_ewidencyjny])
+    if current_software:
+        current_software_id = [x[0] for x in current_software]
+        available_software_data = [x for x in available_software_data if x['numer'] not in current_software_id]
+    if not available_software_data:
+        flash('Nie znaleziono żadnej dostępnej kopii oprogramowania')
+        return redirect(url_for('show_info.pokaz_sprzet_info', numer_ewidencyjny=numer_ewidencyjny))
     for i in range(len(available_software_data)):
         if not available_software_data[i].get('data_wygasniecia'):
             available_software_data[i]['data_wygasniecia'] = 'Nie wygasa'

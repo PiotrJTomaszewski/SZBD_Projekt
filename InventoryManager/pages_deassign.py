@@ -229,3 +229,14 @@ def wykonaj_odbierz_prawo_dostepu(pesel, id_karty):
                 return redirect(url_for('deassign.odbierz_prawo_dostepu', pesel=pesel, id_karty=id_karty))
         flash('Uprawnienia zostały pomyślnie odebrane')
     return redirect(url_for('show_info.pokaz_pracownik_info', pesel=pesel))
+
+
+@deassign.route('/odinstaluj/wygasle_oprogramowanie')
+def odinstaluj_wygasle_oprogramowanie():
+    error = DBC().get_instance().execute_query_add_edit_delete("""CALL OdinstalujWygasleOprogramowanie()""")
+    if error:
+        print(error)
+        flash('Wystąpił błąd')
+    else:
+        flash('Pomyślnie oznaczono wygasłe oprogramowanie jako odinstalowane')
+    return redirect(url_for('show.oprogramowania'))
