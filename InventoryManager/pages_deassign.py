@@ -272,4 +272,3 @@ def wykonaj_odbierz_wygasle_prawa_karta(id_karty):
         print(error)
     else:
         flash('Wygasłe prawa zostały pomyślnie usunięte')
-

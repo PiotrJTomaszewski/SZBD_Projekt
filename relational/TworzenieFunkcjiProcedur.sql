@@ -6,7 +6,7 @@
 -- 1 - Sprzęt nie jest na magazynie.
 -- 2 - Wyjątek podczas wstawiania rekordu.
 DELIMITER $$
-CREATE FUNCTION PrzypiszSprzet(pNumerEwidencyjny INTEGER, pPrzypisanieId INTEGER)
+CREATE OR REPLACE FUNCTION PrzypiszSprzet(pNumerEwidencyjny INTEGER, pPrzypisanieId INTEGER)
   RETURNS INTEGER
   BEGIN
     DECLARE vKodBledu INTEGER DEFAULT 0;
@@ -30,7 +30,7 @@ DELIMITER ;
 -- 0 - brak błędu.
 -- 1 - Brak miejsca na magazynie.
 DELIMITER $$
-CREATE FUNCTION ZwrocSprzet(pNumerEwidencyjny INTEGER, pPrzypisanieId INTEGER, pMagazynId INTEGER, pDataZwrotu DATE)
+CREATE OR REPLACE FUNCTION ZwrocSprzet(pNumerEwidencyjny INTEGER, pPrzypisanieId INTEGER, pMagazynId INTEGER, pDataZwrotu DATE)
   RETURNS INTEGER
   DETERMINISTIC
   BEGIN
@@ -50,7 +50,7 @@ DELIMITER ;
 -- Zwraca liczbę wolnych (obecnie nie używanych) kopii licencji danego oprogramowania.
 -- Wartość NULL oznacza, że liczba kopii jest nieograniczona.
 DELIMITER $$
-CREATE FUNCTION IleWolnychLicencji(pIdOprogramowania INTEGER)
+CREATE OR REPLACE FUNCTION IleWolnychLicencji(pIdOprogramowania INTEGER)
   RETURNS INTEGER
   DETERMINISTIC
   BEGIN
@@ -74,7 +74,7 @@ DELIMITER ;
 -- 1 - Brak wystarczającej liczby kopii oprogramowania.
 -- 2 - Wyjątek podczas dodawania rekordu. Prawdopodobnie dane oprogramowanie było już zainstalowane na danym sprzęcie.
 DELIMITER $$
-CREATE FUNCTION ZainstalujOprogramowanie(pIdSprzetu INTEGER, pIdOprogramowania INTEGER)
+CREATE OR REPLACE FUNCTION ZainstalujOprogramowanie(pIdSprzetu INTEGER, pIdOprogramowania INTEGER)
   RETURNS INTEGER
   DETERMINISTIC
   BEGIN
@@ -114,7 +114,7 @@ DELIMITER ;
 
 -- Zwraca ilość wolnych miejsc w biurze
 DELIMITER $$
-CREATE FUNCTION IleWolnychMiejscBiuro(pNumerBiura INTEGER)
+CREATE OR REPLACE FUNCTION IleWolnychMiejscBiuro(pNumerBiura INTEGER)
   RETURNS INTEGER
   DETERMINISTIC
   BEGIN
@@ -155,7 +155,7 @@ DELIMITER ;
 
 -- Zwraca wolną pojemność danego magazynu.
 DELIMITER $$
-CREATE FUNCTION WolnaPojemnoscMagazynu(pNumerMagazynu INTEGER)
+CREATE OR REPLACE FUNCTION WolnaPojemnoscMagazynu(pNumerMagazynu INTEGER)
   RETURNS INTEGER
   DETERMINISTIC
   BEGIN

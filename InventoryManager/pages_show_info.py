@@ -267,7 +267,7 @@ def pokaz_biuro_info(numer_biura):
                                            'adres_email', 'dzial_nazwa', 'biuro_numer'], workers)
 
     assignments, error = DBC().get_instance().execute_query_fetch(
-        """SELECT id_przydzialu, data_przydzialu FROM Przypisanie 
+        """SELECT id_przydzialu, DATE_FORMAT(data_przydzialu, '%d.%m.%Y') FROM Przypisanie 
         where biuro_numer = %s
         AND data_zwrotu IS NULL""", [numer_biura]
     )
@@ -287,7 +287,8 @@ def pokaz_biuro_info(numer_biura):
         assignment['hardware'] = hardware_data
 
     cards, error = DBC().get_instance().execute_query_fetch(
-        """SELECT kd.id_karty, p.pesel, p.nazwisko, p.imie, p2.data_wygasniecia, p2.data_przyznania 
+        """SELECT kd.id_karty, p.pesel, p.nazwisko, p.imie, COALESCE(DATE_FORMAT(p2.data_wygasniecia, '%d.%m.%Y'), 'Nie wygasa'),
+         DATE_FORMAT(p2.data_przyznania, '%d.%m.%Y') 
         from KartaDostepu kd join Pracownik p 
         on kd.pracownik_pesel = p.pesel join PrawoDostepu p2 on kd.id_karty = p2.kartadostepu_id_karty
         where kd.id_karty in (select pd.kartadostepu_id_karty from PrawoDostepu pd
