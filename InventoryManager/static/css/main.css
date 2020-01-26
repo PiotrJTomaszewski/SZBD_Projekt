@@ -17,6 +17,7 @@ body {
 
 table {
     border: 5px solid black;
+    margin-bottom: 10px;
 }
 
 td {
@@ -91,4 +92,14 @@ button {
 
 h4 {
     color: saddlebrown;
+}
+
+.assignment {
+    font-size: 15px;
+    font-weight: 600;
+    border: 5px solid black;
+    width: fit-content;
+    border-bottom: 0;
+    padding: 8px;
+    background: darkgrey;
 }

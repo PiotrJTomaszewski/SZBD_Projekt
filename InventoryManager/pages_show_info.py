@@ -107,16 +107,24 @@ def pokaz_pracownik_info(pesel):
         flash('Wystąpił błąd!<br/>{}'.format(error.msg))
     branch_data = make_dictionary(['adres', 'nazwa'], branch[0])
 
-    hardware, error = DBC().get_instance().execute_query_fetch(
-        """SELECT s.numer_ewidencyjny, s.nazwa, s.producent, s.typ FROM Sprzet s 
-        where s.numer_ewidencyjny in (select swp.sprzet_numer_ewidencyjny from SprzetWPrzypisaniu swp
-        where swp.przypisanie_id_przydzialu in (select p.id_przydzialu from Przypisanie p 
-        where p.pracownik_pesel = %s and p.data_zwrotu is null))
-        order by s.nazwa""", [pesel]
+    assignments, error = DBC().get_instance().execute_query_fetch(
+        """SELECT id_przydzialu, data_przydzialu FROM przypisanie 
+        where pracownik_pesel = %s""", [pesel]
     )
     if error is not None:
         flash('Wystąpił błąd<br/>{}'.format(error.msg))
-    hardware_data = make_dictionaries_list(['numer_ewidencyjny', 'nazwa', 'producent', 'typ'], hardware)
+    assignments_data = make_dictionaries_list(['id_przydzialu', 'data_przydzialu'], assignments)
+
+    for assignment in assignments_data:
+        hardware, error = DBC().get_instance().execute_query_fetch(
+            """SELECT s.numer_ewidencyjny, s.nazwa, s.typ, s.producent FROM Sprzet s
+            where s.numer_ewidencyjny in (select swp.sprzet_numer_ewidencyjny from sprzetwprzypisaniu swp
+            where swp.przypisanie_id_przydzialu = %s)""", [assignment['id_przydzialu']]
+        )
+        if error is not None:
+            flash('Wystąpił błąd<br/>{}'.format(error.msg))
+        hardware_data = make_dictionaries_list(['numer_ewidencyjny', 'nazwa', 'typ', 'producent'], hardware)
+        assignment['hardware'] = hardware_data
 
     permissions, error = DBC().get_instance().execute_query_fetch(
         """SELECT b.budynek_adres, b.pietro, b.numer
@@ -152,7 +160,7 @@ def pokaz_pracownik_info(pesel):
 
     return render_template('show_info/pokaz_pracownik_info.html', pracownik=basic_data, oddzial=branch_data,
                            karty=cards_data, dostepne_biura=permissions_data, oprogramowania=software_data,
-                           sprzety=hardware_data)
+                           przypisania=assignments_data)
 
 
 @show_info.route('/pokaz_info/sprzet/<numer_ewidencyjny>')
@@ -250,16 +258,24 @@ def pokaz_biuro_info(numer_biura):
     workers_data = make_dictionaries_list(['pesel', 'imie', 'nazwisko', 'numer_telefonu', 'czy_nadal_pracuje',
                                            'adres_email', 'dzial_nazwa', 'biuro_numer'], workers)
 
-    hardware, error = DBC().get_instance().execute_query_fetch(
-        """SELECT s.numer_ewidencyjny, s.nazwa, s.producent, s.typ FROM Sprzet s 
-        where s.numer_ewidencyjny in (select swp.sprzet_numer_ewidencyjny from SprzetWPrzypisaniu swp
-        where swp.przypisanie_id_przydzialu in (select p.id_przydzialu from Przypisanie p 
-        where p.biuro_numer = %s and p.data_zwrotu is null))
-        order by s.nazwa""", [numer_biura]
+    assignments, error = DBC().get_instance().execute_query_fetch(
+        """SELECT id_przydzialu, data_przydzialu FROM przypisanie 
+        where biuro_numer = %s""", [numer_biura]
     )
     if error is not None:
         flash('Wystąpił błąd<br/>{}'.format(error.msg))
-    hardware_data = make_dictionaries_list(['numer_ewidencyjny', 'nazwa', 'producent', 'typ'], hardware)
+    assignments_data = make_dictionaries_list(['id_przydzialu', 'data_przydzialu'], assignments)
+
+    for assignment in assignments_data:
+        hardware, error = DBC().get_instance().execute_query_fetch(
+            """SELECT s.numer_ewidencyjny, s.nazwa, s.typ, s.producent FROM Sprzet s
+            where s.numer_ewidencyjny in (select swp.sprzet_numer_ewidencyjny from sprzetwprzypisaniu swp
+            where swp.przypisanie_id_przydzialu = %s)""", [assignment['id_przydzialu']]
+        )
+        if error is not None:
+            flash('Wystąpił błąd<br/>{}'.format(error.msg))
+        hardware_data = make_dictionaries_list(['numer_ewidencyjny', 'nazwa', 'typ', 'producent'], hardware)
+        assignment['hardware'] = hardware_data
 
     cards, error = DBC().get_instance().execute_query_fetch(
         """SELECT kd.id_karty, kd.data_przyznania, p.pesel, p.nazwisko, p.imie from KartaDostepu kd join Pracownik p 
@@ -273,7 +289,7 @@ def pokaz_biuro_info(numer_biura):
     cards_data = make_dictionaries_list(['id_karty', 'data_przyznania', 'pracownik_pesel', 'pracownik_nazwisko', 'pracownik_imie'], cards)
 
     return render_template('show_info/pokaz_biuro_info.html', biuro=basic_data, budynek=building_data,
-                           pracownicy=workers_data, sprzety=hardware_data, karty=cards_data)
+                           pracownicy=workers_data, przypisania=assignments_data, karty=cards_data)
 
 
 @show_info.route('/pokaz_info/dzial/<nazwa>')

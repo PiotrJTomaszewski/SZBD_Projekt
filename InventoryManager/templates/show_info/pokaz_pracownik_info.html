@@ -107,37 +107,44 @@
         </table>
     </div>
     <div>
-        <h3>Przydzielony sprzęt</h3>
+        <h3>Przypisania</h3>
         <form class="edit_mode_element" action="{{ url_for('assign.przypisz_sprzet_pracownik', pesel=pracownik['pesel']) }}">
             <input type="submit" value="Przydziel sprzęt"></form>
-        <table>
-            <thead>
-                <tr>
-                    <td>Nazwa</td>
-                    <td>Producent</td>
-                    <td>Typ</td>
-                    <td>Numer ewidencyjny</td>
-                </tr>
-            </thead>
-            {% for sprzet in sprzety %}
-            <tr>
-                <td>{{sprzet['nazwa']}}</td>
-                <td>{{sprzet['producent']}}</td>
-                <td>{{sprzet['typ']}}</td>
-                <td>{{sprzet['numer_ewidencyjny']}}</td>
-                <td>
-                    <form action="{{ url_for('show_info.pokaz_sprzet_info', numer_ewidencyjny=sprzet['numer_ewidencyjny']) }}"><input
-                            type="submit" value="Przejdź">
-                    </form>
-                </td>
-                <td class="edit_mode_element">
-                <form action="{{ url_for('edit.edytuj_sprzet', numer_ewidencyjny=sprzet['numer_ewidencyjny']) }}">
-                    <input type="submit" value="Edytuj">
-                </form>
-                </td>
-            </tr>
-            {% endfor %}
-        </table>
+        {% for przypisanie in przypisania %}
+            <div class="assignment">
+                Przypisanie nr {{ przypisanie['id_przydzialu'] }} przydzielone: {{ przypisanie['data_przydzialu'] }}
+            </div>
+            <table>
+                <thead>
+                    <tr>
+                        <td>Nazwa</td>
+                        <td>Producent</td>
+                        <td>Typ</td>
+                        <td>Numer ewidencyjny</td>
+                    </tr>
+                </thead>
+                {% for sprzet in przypisanie['hardware'] %}
+                    <tr>
+                        <td>{{sprzet['nazwa']}}</td>
+                        <td>{{sprzet['producent']}}</td>
+                        <td>{{sprzet['typ']}}</td>
+                        <td>{{sprzet['numer_ewidencyjny']}}</td>
+                        <td>
+                            <form action="{{ url_for('show_info.pokaz_sprzet_info',
+                            numer_ewidencyjny=sprzet['numer_ewidencyjny']) }}"><input
+                                    type="submit" value="Przejdź">
+                            </form>
+                        </td>
+                        <td class="edit_mode_element">
+                        <form action="{{ url_for('edit.edytuj_sprzet',
+                        numer_ewidencyjny=sprzet['numer_ewidencyjny']) }}">
+                            <input type="submit" value="Edytuj">
+                        </form>
+                        </td>
+                    </tr>
+                {% endfor %}
+            </table>
+        {% endfor %}
     </div>
     <div>
         <h3>Przydzielone oprogramowania</h3>
