@@ -1,58 +1,62 @@
 {% extends "base.html" %}
-{% block title %}Informacje na temat magazynu{% endblock %}
+{% block title %}Informacje na temat karty{% endblock %}
 {% block content %}
-    <h1>Informacje na temat magazynu</h1>
+    <h1>Informacje na temat karty</h1>
     <label for="edit_mode_box">Włącz tryb edycji</label><input type="checkbox" id="edit_mode_box" value="false"/>
-    <h1>Magazyn numer {{ magazyn['numer'] }}</h1>
+    <h1>Karta {{ karta['id_karty'] }}</h1>
     <div>
         <h3>Informacje</h3>
         <table>
             <thead>
             <tr>
-                <td>Numer</td>
-                <td>Pojemność</td>
-                <td>Wolne miejsce</td>
+                <td>Id karty</td>
+                <td>Data przyzania</td>
+                <td>Właściciel</td>
             </tr>
             </thead>
             <tr>
-                <td>{{ magazyn['numer'] }}</td>
-                <td>{{ magazyn['pojemnosc'] }}</td>
-                <td>{{ magazyn['wolne_miejsce'] }}</td>
+                <td>{{ karta['id_karty'] }}</td>
+                <td>{{ karta['data_przyznania'] }}</td>
+                <td>
+                    <a href="{{ url_for('show_info.pokaz_pracownik_info', pesel=karta['pracownik_pesel']) }}">
+                        {{ karta['pracownik_pesel'] }}
+                    </a>
+                </td>
                 <td class="edit_mode_element">
                     <input type="submit" value="Edytuj">
                 </td>
             </tr>
         </table>
     </div>
-
     <div>
-        <h3>Sprzęt na magazynie</h3>
+        <h3>Biura do których umożliwia wejście</h3>
 {#        <form class="edit_mode_element" action="{{ url_for("przypisz_sprzet", pesel=pracownik['pesel']) }}">#}
 {#            <input type="submit" value="Przypisz nowy sprzęt">#}
 {#        </form>#}
         <table>
             <thead>
             <tr>
-                <td>Nazwa</td>
-                <td>Producent</td>
-                <td>Typ</td>
-                <td>Numer ewidencyjny</td>
+                <td>Budynek</td>
+                <td>Piętro</td>
+                <td>Numer</td>
             </tr>
             </thead>
-            {% for sprzet in sprzety %}
+            {% for biuro in biura %}
                 <tr>
-                    <td>{{ sprzet['nazwa'] }}</td>
-                    <td>{{ sprzet['producent'] }}</td>
-                    <td>{{ sprzet['typ'] }}</td>
-                    <td>{{ sprzet['numer_ewidencyjny'] }}</td>
                     <td>
-                        <form action="{{ url_for('show_info.pokaz_sprzet_info', numer_ewidencyjny=sprzet['numer_ewidencyjny']) }}"><input
+                    <a href="{{ url_for('show_info.pokaz_budynek_info', adres=biuro['budynek_adres']) }}">
+                        {{ biuro['budynek_adres'] }}
+                    </a>
+                </td>
+                    <td>{{ biuro['pietro'] }}</td>
+                    <td>{{ biuro['numer'] }}</td>
+                    <td>
+                        <form action="{{ url_for('show_info.pokaz_biuro_info', numer_biura=biuro['numer']) }}"><input
                                 type="submit" value="Przejdź">
                         </form>
                     </td>
                     <td class="edit_mode_element">
                         <input type="submit" value="Edytuj">
-                        <input type="submit" value="Przypisz sprzęt">
                     </td>
                 </tr>
             {% endfor %}

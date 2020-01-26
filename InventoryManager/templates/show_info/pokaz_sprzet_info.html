@@ -3,7 +3,7 @@
 {% block content %}
     <h1>Informacje na temat sprzętu</h1>
     <label for="edit_mode_box">Włącz tryb edycji</label><input type="checkbox" id="edit_mode_box" value="false"/>
-    <h1>Sprzęt typu {{ sprzet['typ'] }} o numerze {{ sprzet['numer'] }}</h1>
+    <h1>Sprzęt typu {{ sprzet['typ'] }} o numerze {{ sprzet['numer_ewidencyjny'] }}</h1>
     <div>
         <h3>Dane</h3>
         <table>
@@ -14,35 +14,30 @@
                 <td>Nazwa</td>
                 <td>Producent</td>
                 <td>Data zakupu</td>
-                <td>Stan/Położenie</td>
-                <td>Uwagi</td>
             </tr>
             </thead>
             <tr>
-                <td>{{ sprzet['numer'] }}</td>
+                <td>{{ sprzet['numer_ewidencyjny'] }}</td>
                 <td>{{ sprzet['typ'] }}</td>
                 <td>{{ sprzet['nazwa'] }}</td>
                 <td>{{ sprzet['producent'] }}</td>
                 <td>{{ sprzet['data_zakupu'] }}</td>
-                <td>
-                    {% if sprzet['stan']['gdzie'] == 'pracownik' %}
-                        Przpisany do pracownika
-                        <a href="{{ url_for('show_info.pokaz_pracownik_info', pesel=sprzet['stan']['id']) }}">{{ sprzet['stan']['text'] }}</a>
-                    {% elif sprzet['stan']['gdzie'] == 'biuro' %}
-                        {#                        TODO: biuro#}
-                    {% else %}
-                        {#                    TODO: magazyn#}
-                    {% endif %}
-                </td>
-                <td>{{ sprzet['uwagi'] }}</td>
                 <td class="edit_mode_element">
                     <input type="submit" value="Edytuj">
                 </td>
             </tr>
         </table>
+        <div>
+            {% if sprzet['uwagi'] %}
+                <h4>
+                    Uwagi odnośnie sprzętu:<br/>
+                    {{ sprzet['uwagi'] }}
+                </h4>
+            {% endif %}
+        </div>
     </div>
     <div>
-        <h3>Zainstalowane oprogramowanie</h3>
+        <h3>Zainstalowane oprogramowania</h3>
         <form class="edit_mode_element" action="/">
             <input type="submit" value="Przypisz nowe oprogramowanie"></form>
         <table>
@@ -51,19 +46,16 @@
                 <td>Numer ewidencyjny</td>
                 <td>Nazwa</td>
                 <td>Produdent</td>
-                <td>Data zakupu</td>
-                <td>Data wygaśnięcia licencji</td>
             </tr>
             </thead>
             {% for oprogramowanie in oprogramowania %}
                 <tr>
-                    <td>{{ oprogramowanie['numer'] }}</td>
+                    <td>{{ oprogramowanie['numer_ewidencyjny'] }}</td>
                     <td>{{ oprogramowanie['nazwa'] }}</td>
                     <td>{{ oprogramowanie['producent'] }}</td>
-                    <td>{{ oprogramowanie['data_zakupu'] }}</td>
-                    <td>{{ oprogramowanie['data_wygasniecia'] }}</td>
                     <td>
-                        <form action="{{ url_for('show_info.pokaz_oprogramowanie_info', numer_ewidencyjny=oprogramowanie['numer'])}}">
+                        <form action="{{ url_for('show_info.pokaz_oprogramowanie_info',
+                        numer_ewidencyjny=oprogramowanie['numer_ewidencyjny'])}}">
                             <input type="submit" value="Przejdź">
                         </form>
                     </td>
@@ -76,7 +68,43 @@
         </table>
     </div>
     <div>
-{#    TODO: Historia przypisań#}
+        <h3>Historia przypisań</h3>
+        <form class="edit_mode_element" action="/">
+            <input type="submit" value="Przypisz nowe oprogramowanie"></form>
+        {% if sprzet['magazyn_numer'] %}
+            <h4>
+                Aktualnie przechowywany w magazynie nr {{ sprzet['magazyn_numer'] }}
+            </h4>
+        {% endif %}
+        <table>
+            <thead>
+            <tr>
+                <td>Id przydziału</td>
+                <td>Data przydziału</td>
+                <td>Data zwrotu</td>
+                <td>Właściciel</td>
+            </tr>
+            </thead>
+            {% for przypisanie in przypisania %}
+                <tr>
+                    <td>{{ przypisanie['id_przydzialu'] }}</td>
+                    <td>{{ przypisanie['data_przydzialu'] }}</td>
+                    <td>{{ przypisanie['data_zwrotu'] }}</td>
+                    <td>
+                        {% if przypisanie['pracownik_pesel'] %}
+                            <a href="{{ url_for('show_info.pokaz_pracownik_info', pesel=przypisanie['pracownik_pesel']) }}">
+                                {{ przypisanie['pracownik_nazwisko'] }} {{ przypisanie['pracownik_imie'] }}
+                            </a>
+                        {% elif przypisanie['biuro_numer'] %}
+                            <a href="{{ url_for('show_info.pokaz_biuro_info', numer_biura=przypisanie['biuro_numer']) }}">
+                                {{ przypisanie['biuro_numer'] }}
+                            </a>
+                        {% endif %}
+                    </td>
+                </tr>
+            {% endfor %}
+        </table>
+    </div>
     </div>
     <script src="{{ url_for('static', filename='javascript/enter_edit_mode.js') }}"></script>
 {% endblock %}

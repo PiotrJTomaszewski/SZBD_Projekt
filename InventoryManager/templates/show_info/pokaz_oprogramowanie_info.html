@@ -1,9 +1,10 @@
 {% extends "base.html" %}
 {% block title %}Informacje na temat sprzętu{% endblock %}
 {% block content %}
-    <h1>Informacje na temat sprzętu</h1>
+    {% block header %}{% endblock %}
+    <h1>Informacje na temat Oprogramowania</h1>
     <label for="edit_mode_box">Włącz tryb edycji</label><input type="checkbox" id="edit_mode_box" value="false"/>
-    <h1>Oprogramowanie  {{ oprogramowanie['nazwa'] }} o numerze {{ oprogramowanie['numer'] }}</h1>
+    <h1>Oprogramowanie  {{ oprogramowanie['nazwa'] }} o numerze {{ oprogramowanie['numer_ewidencyjny'] }}</h1>
     <div>
         <h3>Dane</h3>
         <table>
@@ -15,22 +16,28 @@
                 <td>Data zakupu</td>
                 <td>Data wygaśnięcia licencji</td>
                 <td>Liczba licencji</td>
-                <td>Uwagi</td>
             </tr>
             </thead>
             <tr>
-                <td>{{ oprogramowanie['numer'] }}</td>
+                <td>{{ oprogramowanie['numer_ewidencyjny'] }}</td>
                 <td>{{ oprogramowanie['nazwa'] }}</td>
                 <td>{{ oprogramowanie['producent'] }}</td>
                 <td>{{ oprogramowanie['data_zakupu'] }}</td>
                 <td>{{ oprogramowanie['data_wygasniecia'] }}</td>
-                <td>{{ oprogramowanie['liczba_licencji'] }}</td>
-                <td>{{ oprogramowanie['uwagi'] }}</td>
+                <td>{{ oprogramowanie['ilosc_licencji'] }}</td>
                 <td class="edit_mode_element">
                     <input type="submit" value="Edytuj">
                 </td>
             </tr>
         </table>
+        <div>
+            {% if oprogramowanie['uwagi'] %}
+                <h4>
+                    Uwagi odnośnie oprogramowania:<br/>
+                    {{ oprogramowanie['uwagi'] }}
+                </h4>
+            {% endif %}
+        </div>
     </div>
     <div>
         <h3>Sprzęt, na którym oprogramowanie jest zainstalowane</h3>
@@ -39,20 +46,20 @@
         <table>
             <thead>
             <tr>
-                <td>Numer ewidencyjny</td>
-                <td>Typ</td>
                 <td>Nazwa</td>
                 <td>Producent</td>
+                <td>Typ</td>
+                <td>Numer ewidencyjny</td>
             </tr>
             </thead>
             {% for sprzet in sprzety %}
                 <tr>
-                    <td>{{ sprzet['numer'] }}</td>
-                    <td>{{ sprzet['typ'] }}</td>
                     <td>{{ sprzet['nazwa'] }}</td>
                     <td>{{ sprzet['producent'] }}</td>
+                    <td>{{ sprzet['typ'] }}</td>
+                    <td>{{ sprzet['numer_ewidencyjny'] }}</td>
                     <td>
-                        <form action="{{ url_for('show_info.pokaz_sprzet_info', numer_ewidencyjny=sprzet['numer']) }}"><input
+                        <form action="{{ url_for('show_info.pokaz_sprzet_info', numer_ewidencyjny=sprzet['numer_ewidencyjny']) }}"><input
                                 type="submit" value="Przejdź">
                         </form>
                     </td>
@@ -63,9 +70,6 @@
                 </tr>
             {% endfor %}
         </table>
-    </div>
-    <div>
-{#    TODO: Historia instalacji#}
     </div>
     <script src="{{ url_for('static', filename='javascript/enter_edit_mode.js') }}"></script>
 {% endblock %}

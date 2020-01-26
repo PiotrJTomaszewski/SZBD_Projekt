@@ -26,9 +26,15 @@
                 <td>{{ pracownik['numer_telefonu'] }}</td>
                 <td>{{ pracownik['czy_nadal_pracuje'] }}</td>
                 <td>{{ pracownik['adres_email'] }}</td>
-                <td><a href="{{ url_for('show_info.pokaz_dzial_info', nazwa=pracownik['dzial']['nazwa']) }}">{{ pracownik['dzial']['skrot'] }}</a></td>
                 <td>
-                    <a href="{{ url_for('show_info.pokaz_biuro_info', numer_biura=pracownik['biuro']['numer']) }}">{{ pracownik['biuro']['numer'] }}</a>
+                    <a href="{{ url_for('show_info.pokaz_dzial_info', nazwa=pracownik['dzial_nazwa']) }}">
+                        {{ pracownik['dzial_nazwa'] }}
+                    </a>
+                </td>
+                <td>
+                    <a href="{{ url_for('show_info.pokaz_biuro_info', numer_biura=pracownik['biuro_numer']) }}">
+                        {{ pracownik['biuro_numer'] }}
+                    </a>
                 </td>
                 <td class="edit_mode_element">
                     <form><input type="submit" value="Edytuj" formaction="{{ url_for('edit.edytuj_pracownika', pesel=pracownik['pesel']) }}"></form>
@@ -37,71 +43,136 @@
         </table>
     </div>
     <div>
-        <h3>Przyznany sprzęt</h3>
-        <form class="edit_mode_element" action="{{ url_for('assign.przypisz_sprzet', pesel=pracownik['pesel']) }}">
-            <input type="submit" value="Przypisz nowy sprzęt">
+        <h3>Karty dostępu</h3>
+        <form class="edit_mode_element" action="/">
+            <input type="submit" value="Przyznaj nową kartę"></form>
+        <form class="edit_mode_element" action="/">
+            <input type="submit" value="Dodaj nowe prawo dostępu">
         </form>
         <table>
             <thead>
-            <tr>
-                <td>Numer ewidencyjny</td>
-                <td>Typ</td>
-                <td>Nazwa</td>
-                <td>Producent</td>
-                <td>Data przyznania</td>
-            </tr>
-            </thead>
-            {% for sprzet in sprzety %}
                 <tr>
-                    <td>{{ sprzet['numer'] }}</td>
-                    <td>{{ sprzet['typ'] }}</td>
-                    <td>{{ sprzet['nazwa'] }}</td>
-                    <td>{{ sprzet['producent'] }}</td>
-                    <td>{{ sprzet['data_przyznania'] }}</td>
-                    <td>
-                        <form action="{{ url_for('show_info.pokaz_sprzet_info', numer_ewidencyjny=sprzet['numer']) }}"><input
-                                type="submit" value="Przejdź">
-                        </form>
-                    </td>
-                    <td class="edit_mode_element">
+                    <td>Id karty</td>
+                    <td>Data przyznania</td>
+                </tr>
+            </thead>
+            {% for karta in karty %}
+            <tr>
+                <td>{{karta['id_karty']}}</td>
+                <td>{{karta['data_przyznania']}}</td>
+                <td>
+                    <form action="{{ url_for('show_info.pokaz_karta_dostepu_info', id_karty=karta['id_karty']) }}"><input
+                            type="submit" value="Przejdź">
+                    </form>
+                </td>
+                <td class="edit_mode_element">
                         <input type="submit" value="Edytuj">
                         <input type="submit" value="Zwróć sprzęt">
                     </td>
-                </tr>
+            </tr>
             {% endfor %}
         </table>
     </div>
     <div>
-        <h3>Karty dostępu</h3>
+        <h3>Biura do których ma dostęp</h3>
         <form class="edit_mode_element" action="/">
             <input type="submit" value="Przyznaj nową kartę"></form>
-        {% for karta in karty_dostepu %}
-            <form class="edit_mode_element" action="/">
-                <input type="submit" value="Dodaj nowe prawo dostępu">
-            </form>
-            Karta o numerze {{ karta['id'] }} przyznana w dniu {{ karta['data_przyznania'] }}. <br/>
-            <table>
-                <thead>
+        <form class="edit_mode_element" action="/">
+            <input type="submit" value="Dodaj nowe prawo dostępu">
+        </form>
+        <table>
+            <thead>
                 <tr>
-                    <td>Data przyznania</td>
-                    <td>Data wygaśnięcia</td>
+                    <td>Adres budynku</td>
+                    <td>Piętro</td>
                     <td>Numer biura</td>
-                    <td>Budynek</td>
                 </tr>
-                </thead>
-                {% for prawo in karta['prawa_dostepu'] %}
-                    <tr>
-                        <td>{{ prawo['data_przyznania'] }}</td>
-                        <td>{{ prawo['data_wygasniecia'] }}</td>
-                        <td>
-                            <a href="{{ url_for('show_info.pokaz_biuro_info', numer_biura=prawo['biuro']['numer']) }}">{{ prawo['biuro']['numer'] }}</a>
-                        </td>
-                        <td><a href="{{ url_for('show_info.pokaz_budynek_info', adres=prawo['budynek']['adres']) }}">{{ prawo['budynek']['adres'] }}</a></td>
-                        <td class="edit_mode_element"><input type="submit" value="Edytuj"></td>
-                    </tr>
-                {% endfor %}
-            </table>
-        {% endfor %}
+            </thead>
+            {% for biuro in dostepne_biura %}
+            <tr>
+                <td>
+                    <a href="{{ url_for('show_info.pokaz_budynek_info', adres=biuro['budynek_adres']) }}">
+                        {{ biuro['budynek_adres'] }}
+                    </a>
+                </td>
+                <td>{{biuro['pietro']}}</td>
+                <td>{{biuro['numer']}}</td>
+                <td>
+                    <form action="{{ url_for('show_info.pokaz_biuro_info', numer_biura=biuro['numer']) }}"><input
+                            type="submit" value="Przejdź">
+                    </form>
+                </td>
+                <td class="edit_mode_element">
+                        <input type="submit" value="Edytuj">
+                </td>
+            </tr>
+            {% endfor %}
+        </table>
+    </div>
+    <div>
+        <h3>Przydzielony sprzęt</h3>
+        <form class="edit_mode_element" action="/">
+            <input type="submit" value="Przyznaj nową kartę"></form>
+        <form class="edit_mode_element" action="/">
+            <input type="submit" value="Dodaj nowe prawo dostępu">
+        </form>
+        <table>
+            <thead>
+                <tr>
+                    <td>Nazwa</td>
+                    <td>Producent</td>
+                    <td>Typ</td>
+                    <td>Numer ewidencyjny</td>
+                </tr>
+            </thead>
+            {% for sprzet in sprzety %}
+            <tr>
+                <td>{{sprzet['nazwa']}}</td>
+                <td>{{sprzet['producent']}}</td>
+                <td>{{sprzet['typ']}}</td>
+                <td>{{sprzet['numer_ewidencyjny']}}</td>
+                <td>
+                    <form action="{{ url_for('show_info.pokaz_sprzet_info', numer_ewidencyjny=sprzet['numer_ewidencyjny']) }}"><input
+                            type="submit" value="Przejdź">
+                    </form>
+                </td>
+                <td class="edit_mode_element">
+                        <input type="submit" value="Edytuj">
+                </td>
+            </tr>
+            {% endfor %}
+        </table>
+    </div>
+    <div>
+        <h3>Przydzielone oprogramowania</h3>
+        <form class="edit_mode_element" action="/">
+            <input type="submit" value="Przyznaj nową kartę"></form>
+        <form class="edit_mode_element" action="/">
+            <input type="submit" value="Dodaj nowe prawo dostępu">
+        </form>
+        <table>
+            <thead>
+                <tr>
+                    <td>Nazwa</td>
+                    <td>Producent</td>
+                </tr>
+            </thead>
+            {% for oprogramowanie in oprogramowania %}
+            <tr>
+                <td>{{oprogramowanie['nazwa']}}</td>
+                <td>{{oprogramowanie['producent']}}</td>
+                <td>
+                    <form action="{{ url_for('show_info.pokaz_oprogramowanie_info',
+                    numer_ewidencyjny=oprogramowanie['numer_ewidencyjny']) }}"><input
+                            type="submit" value="Przejdź">
+                    </form>
+                </td>
+                <td class="edit_mode_element">
+                        <input type="submit" value="Edytuj">
+                </td>
+            </tr>
+            {% endfor %}
+        </table>
     </div>
     <script src="{{ url_for('static', filename='javascript/enter_edit_mode.js') }}"></script>
 {% endblock %}
