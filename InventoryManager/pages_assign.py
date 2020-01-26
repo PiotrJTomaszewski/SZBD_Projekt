@@ -16,8 +16,9 @@ def przypisz_sprzet_pracownik(pesel):
         print(error)
         flash('Nie udało się pobrać danych pracownika')
         return redirect(url_for("show.pracownicy"))
-    worker = make_dictionary(['pesel', 'imie', 'nazwisko', 'dzial_skrot', 'oddzial_adres', 'biuro_numer', 'czy_nadal_pracuje'],
-                             worker_data[0])
+    worker = make_dictionary(
+        ['pesel', 'imie', 'nazwisko', 'dzial_skrot', 'oddzial_adres', 'biuro_numer', 'czy_nadal_pracuje'],
+        worker_data[0])
 
     if worker['czy_nadal_pracuje'] == '0':
         flash('Nie można przypisać sprzętu do pracownika, który już nie pracuje')
@@ -288,7 +289,8 @@ def przypisz_oprogramowanie(numer_ewidencyjny):
         flash('Nie znaleziono żadnej dostępnej kopii oprogramowania')
         return redirect(url_for('show_info.pokaz_sprzet_info', numer_ewidencyjny=numer_ewidencyjny))
     available_software_data = make_dictionaries_list(
-        ['numer', 'nazwa', 'producent', 'data_zakupu', 'data_wygasniecia', 'liczba_licencji', 'liczba_wolnych_licencji'], available_software)
+        ['numer', 'nazwa', 'producent', 'data_zakupu', 'data_wygasniecia', 'liczba_licencji',
+         'liczba_wolnych_licencji'], available_software)
     # Exclude already installed software
     current_software, error = DBC().get_instance().execute_query_fetch("""
     SELECT oprogramowanie_numer
@@ -349,14 +351,15 @@ def przypisz_prawo_dostepu_karta(pesel, id_karty):
     if not worker:
         flash('Nie znaleziono pracownika')
         return redirect(url_for('show.pracownicy'))
-    worker_data = make_dictionary(['pesel', 'imie', 'nazwisko', 'dzial_nazwa', 'biuro_numer', 'czy_nadal_pracuje'], worker[0])
+    worker_data = make_dictionary(['pesel', 'imie', 'nazwisko', 'dzial_nazwa', 'biuro_numer', 'czy_nadal_pracuje'],
+                                  worker[0])
 
     if worker_data['czy_nadal_pracuje'] == '0':
         flash('Nie można nadać prawa dostępu pracownikowi, który już nie pracuje')
         return redirect(url_for('show_info.pokaz_pracownik_info', pesel=pesel))
 
     card, error = DBC().get_instance().execute_query_fetch("""
-    SELECT id_karty, data_przyznania, pracownik_pesel
+    SELECT id_karty, DATE_FORMAT(data_przyznania, '%d.%m.%Y'), pracownik_pesel
     FROM KartaDostepu
     WHERE id_karty = %s""", [id_karty])
     if error:
@@ -373,11 +376,10 @@ def przypisz_prawo_dostepu_karta(pesel, id_karty):
         return redirect(url_for('show_info.pokaz_pracownik_info', pesel=pesel))
 
     current_assignments, error = DBC().get_instance().execute_query_fetch("""
-    SELECT PD.data_przyznania, PD.data_wygasniecia, PD.biuro_numer, B.budynek_adres, B.pietro
+    SELECT DATE_FORMAT(PD.data_przyznania, '%d.%m.%Y'), DATE_FORMAT(PD.data_wygasniecia, '%d.%m.%Y'), PD.biuro_numer, B.budynek_adres, B.pietro
     FROM PrawoDostepu PD
     JOIN Biuro B on PD.biuro_numer = B.numer
     WHERE PD.kartadostepu_id_karty = %s
-    AND (PD.data_wygasniecia IS NULL OR PD.data_wygasniecia >= CURRENT_DATE)
     ORDER BY PD.data_przyznania DESC, PD.data_wygasniecia DESC, B.numer ASC""", [id_karty])
     if error:
         flash('Wystąpił błąd podczas pobierania listy obecnych praw dostępu')

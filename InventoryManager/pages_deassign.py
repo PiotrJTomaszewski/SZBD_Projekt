@@ -106,6 +106,7 @@ def wykonaj_zwroc_sprzet(id_przydzialu):
                 print('Wybrany magazyn jest pełen!')
                 flash('Wystąpił błąd podczas zwracania sprzętu! Wybrany magazyn jest pełen')
                 return redirect(url_for('show.historia_przypisan'))
+        flash('Sprzęt został pomyślnie zwrócony')
         return redirect(url_for('show.historia_przypisan'))
 
 
@@ -240,3 +241,35 @@ def odinstaluj_wygasle_oprogramowanie():
     else:
         flash('Pomyślnie oznaczono wygasłe oprogramowanie jako odinstalowane')
     return redirect(url_for('show.oprogramowania'))
+
+
+@deassign.route('/odbierz/wygaske_prawa_dostepu/pracownik/<pesel>')
+def odierz_wygasle_prawa_pracownik(pesel):
+    cards, error = DBC().get_instance().execute_query_fetch("""
+    SELECT id_karty FROM KartaDostepu WHERE pracownik_pesel = %s""", [pesel])
+    if error:
+        print(error)
+    for card in cards:
+        card = card[0]
+        wykonaj_odbierz_wygasle_prawa_karta(card)
+    return redirect(url_for('show_info.pokaz_pracownik_info', pesel=pesel))
+
+
+@deassign.route('/odbierz/wygasle_prawa_dostepu/karta/<id_karty>')
+def odbierz_wygasle_prawa_karta(id_karty):
+    wykonaj_odbierz_wygasle_prawa_karta(id_karty)
+    return redirect(url_for('show_info.pokaz_karta_dostepu_info', id_karty=id_karty))
+
+
+def wykonaj_odbierz_wygasle_prawa_karta(id_karty):
+    error = DBC().get_instance().execute_query_add_edit_delete("""
+        DELETE FROM PrawoDostepu
+        WHERE data_wygasniecia IS NOT NULL 
+        AND data_wygasniecia < CURRENT_DATE
+        AND kartadostepu_id_karty = %s""", [id_karty])
+    if error:
+        flash('Wystąpił błąd podczas odbierania wygasłych praw dostępu')
+        print(error)
+    else:
+        flash('Wygasłe prawa zostały pomyślnie usunięte')
+

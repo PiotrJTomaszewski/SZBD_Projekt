@@ -71,6 +71,11 @@
                 </form>
                 </td>
                 <td class="edit_mode_element">
+                <form class="edit_mode_element" action="{{ url_for('deassign.odbierz_prawo_dostepu', pesel=pracownik['pesel'], id_karty=karta['id_karty']) }}">
+                    <input type="submit" value="Odbierz istniejące prawo">
+                </form>
+                 </td>
+                <td class="edit_mode_element">
                     {{ data_delete_form(url_for('delete.usun_karte_dostepu', pesel=pracownik['pesel'], id_karty=karta['id_karty']), 'Usuń kartę') }}
                 </td>
             </tr>
@@ -79,6 +84,11 @@
     </div>
     <div>
         <h3>Biura do których ma dostęp</h3>
+        <script src="{{ url_for('static', filename='javascript/confirm.js')  }}"></script>
+        <div class="edit_mode_element">
+            <input type="button" value="Odbierz wszystkie wygasłe prawa dostępu" onclick="show_confirm('{{ url_for('deassign.odierz_wygasle_prawa_pracownik', pesel=pracownik['pesel']) }}')">
+        </div>
+
         <table>
             <thead>
                 <tr>
@@ -119,6 +129,9 @@
         <form class="edit_mode_element" action="{{ url_for('assign.przypisz_sprzet_pracownik', pesel=pracownik['pesel']) }}">
             <input type="submit" value="Przydziel sprzęt"></form>
         {% for przypisanie in przypisania %}
+            <form class="edit_mode_element" action="{{ url_for('deassign.zwroc_sprzet', id_przydzialu=przypisanie['id_przydzialu']) }}">
+                <input type="submit" value="Zwróć sprzęt">
+            </form>
             <div class="assignment">
                 Przypisanie nr {{ przypisanie['id_przydzialu'] }} przydzielone: {{ przypisanie['data_przydzialu'] }}
             </div>

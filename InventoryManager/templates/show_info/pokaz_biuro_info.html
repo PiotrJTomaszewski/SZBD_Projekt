@@ -72,6 +72,9 @@
             <input type="submit" value="Przypisz nowy sprzęt">
         </form>
         {% for przypisanie in przypisania %}
+            <form class="edit_mode_element" action="{{ url_for('deassign.zwroc_sprzet', id_przydzialu=przypisanie['id_przydzialu']) }}">
+                <input type="submit" value="Zwróć sprzęt">
+            </form>
             <div class="assignment">
                 Przypisanie nr {{ przypisanie['id_przydzialu'] }} przydzielone: {{ przypisanie['data_przydzialu'] }}
             </div>

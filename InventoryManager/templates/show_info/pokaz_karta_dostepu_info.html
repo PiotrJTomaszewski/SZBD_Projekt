@@ -29,6 +29,17 @@
         </table>
     </div>
         <h3>Biura do których umożliwia wejście</h3>
+        <form class="edit_mode_element" action="{{ url_for('assign.przypisz_prawo_dostepu_karta', pesel=karta['pracownik_pesel'], id_karty=karta['id_karty']) }}">
+            <input type="submit" value="Dodaj nowe prawo">
+        </form>
+        <form class="edit_mode_element" action="{{ url_for('deassign.odbierz_prawo_dostepu', pesel=karta['pracownik_pesel'], id_karty=karta['id_karty']) }}">
+            <input type="submit" value="Odbierz prawo dostępu">
+        </form>
+        <script src="{{ url_for('static', filename='javascript/confirm.js')  }}"></script>
+        <div class="edit_mode_element">
+            <input type="button" value="Odbierz wszystkie wygasłe prawa dostępu" onclick="show_confirm('{{ url_for('deassign.odbierz_wygasle_prawa_karta', id_karty=karta['id_karty']) }}')">
+        </div>
+
         <table>
             <thead>
                 <tr>

@@ -109,8 +109,9 @@ def pokaz_pracownik_info(pesel):
     branch_data = make_dictionary(['adres', 'nazwa'], branch[0])
 
     assignments, error = DBC().get_instance().execute_query_fetch(
-        """SELECT id_przydzialu, data_przydzialu FROM przypisanie 
-        where pracownik_pesel = %s""", [pesel]
+        """SELECT id_przydzialu, DATE_FORMAT(data_przydzialu, '%d.%m.%Y') FROM Przypisanie 
+        where pracownik_pesel = %s
+        AND data_zwrotu IS NULL""", [pesel]
     )
     if error is not None:
         flash('Wystąpił błąd<br/>{}'.format(error.msg))
@@ -119,7 +120,7 @@ def pokaz_pracownik_info(pesel):
     for assignment in assignments_data:
         hardware, error = DBC().get_instance().execute_query_fetch(
             """SELECT s.numer_ewidencyjny, s.nazwa, s.typ, s.producent FROM Sprzet s
-            where s.numer_ewidencyjny in (select swp.sprzet_numer_ewidencyjny from sprzetwprzypisaniu swp
+            where s.numer_ewidencyjny in (select swp.sprzet_numer_ewidencyjny from SprzetWPrzypisaniu swp
             where swp.przypisanie_id_przydzialu = %s)
             order by s.nazwa, s.numer_ewidencyjny""", [assignment['id_przydzialu']]
         )
@@ -129,11 +130,12 @@ def pokaz_pracownik_info(pesel):
         assignment['hardware'] = hardware_data
 
     permissions, error = DBC().get_instance().execute_query_fetch(
-        """SELECT b.budynek_adres, b.pietro, b.numer, pd.data_przyznania, pd.data_wygasniecia
-        FROM Biuro b join prawodostepu pd on b.numer = pd.biuro_numer
+        """SELECT b.budynek_adres, b.pietro, b.numer, DATE_FORMAT(pd.data_przyznania, '%d.%m.%Y'), 
+        COALESCE(DATE_FORMAT(pd.data_wygasniecia, '%d.%m.%Y'), 'Nie wygasa')
+        FROM Biuro b join PrawoDostepu pd on b.numer = pd.biuro_numer
         where pd.kartadostepu_id_karty in (select kd.id_karty from KartaDostepu kd
         where kd.pracownik_pesel = %s)
-        order by b.budynek_adres, b.pietro""", [pesel]
+        order by b.budynek_adres, b.pietro, b.numer""", [pesel]
     )
     if error is not None:
         flash('Wystąpił błąd!<br/>{}'.format(error.msg))
@@ -265,8 +267,9 @@ def pokaz_biuro_info(numer_biura):
                                            'adres_email', 'dzial_nazwa', 'biuro_numer'], workers)
 
     assignments, error = DBC().get_instance().execute_query_fetch(
-        """SELECT id_przydzialu, data_przydzialu FROM przypisanie 
-        where biuro_numer = %s""", [numer_biura]
+        """SELECT id_przydzialu, data_przydzialu FROM Przypisanie 
+        where biuro_numer = %s
+        AND data_zwrotu IS NULL""", [numer_biura]
     )
     if error is not None:
         flash('Wystąpił błąd<br/>{}'.format(error.msg))
@@ -275,7 +278,7 @@ def pokaz_biuro_info(numer_biura):
     for assignment in assignments_data:
         hardware, error = DBC().get_instance().execute_query_fetch(
             """SELECT s.numer_ewidencyjny, s.nazwa, s.typ, s.producent FROM Sprzet s
-            where s.numer_ewidencyjny in (select swp.sprzet_numer_ewidencyjny from sprzetwprzypisaniu swp
+            where s.numer_ewidencyjny in (select swp.sprzet_numer_ewidencyjny from SprzetWPrzypisaniu swp
             where swp.przypisanie_id_przydzialu = %s)""", [assignment['id_przydzialu']]
         )
         if error is not None:
@@ -286,7 +289,7 @@ def pokaz_biuro_info(numer_biura):
     cards, error = DBC().get_instance().execute_query_fetch(
         """SELECT kd.id_karty, p.pesel, p.nazwisko, p.imie, p2.data_wygasniecia, p2.data_przyznania 
         from KartaDostepu kd join Pracownik p 
-        on kd.pracownik_pesel = p.pesel join prawodostepu p2 on kd.id_karty = p2.kartadostepu_id_karty
+        on kd.pracownik_pesel = p.pesel join PrawoDostepu p2 on kd.id_karty = p2.kartadostepu_id_karty
         where kd.id_karty in (select pd.kartadostepu_id_karty from PrawoDostepu pd
         where pd.biuro_numer = %s)
         order by kd.id_karty""", [numer_biura]
@@ -360,7 +363,7 @@ def pokaz_magazyn_info(numer):
 @show_info.route('/pokaz_info/karta_dostepu/<id_karty>')
 def pokaz_karta_dostepu_info(id_karty):
     basic, error = DBC().get_instance().execute_query_fetch(
-        """SELECT id_karty, data_przyznania, pracownik_pesel from KartaDostepu
+        """SELECT id_karty, DATE_FORMAT(data_przyznania, '%d.%m.%Y'), pracownik_pesel from KartaDostepu
         WHERE id_karty = %s""", [id_karty]
     )
     if error is not None:
@@ -368,10 +371,11 @@ def pokaz_karta_dostepu_info(id_karty):
     basic_data = make_dictionary(['id_karty', 'data_przyznania', 'pracownik_pesel'], basic[0])
 
     permissions, error = DBC().get_instance().execute_query_fetch(
-        """SELECT b.budynek_adres, b.pietro, b.numer, pd.data_przyznania, pd.data_wygasniecia
-        FROM Biuro b join prawodostepu pd on b.numer = pd.biuro_numer
+        """SELECT b.budynek_adres, b.pietro, b.numer, DATE_FORMAT(pd.data_przyznania, '%d.%m.%Y'), 
+        COALESCE(DATE_FORMAT(pd.data_wygasniecia, '%d.%m.%Y'), 'Nie wygasa')
+        FROM Biuro b join PrawoDostepu pd on b.numer = pd.biuro_numer
         where pd.kartadostepu_id_karty = %s
-        order by b.budynek_adres, b.pietro""", [id_karty]
+        order by b.budynek_adres, b.pietro, b.numer""", [id_karty]
     )
     if error is not None:
         flash('Wystąpił błąd!<br/>')
