@@ -107,10 +107,10 @@ def sprzet_w_magazynach():
 def oprogramowania():
     software, error = DBC().get_instance().execute_query_fetch(
         """SELECT numer_ewidencyjny, nazwa, producent, data_zakupu, data_wygasniecia, 
-        coalesce(ilosc_licencji, 'Nielimitowane') FROM oprogramowanie""")
+        coalesce(ilosc_licencji, 'Nielimitowane') FROM Oprogramowanie""")
     if error is not None:
         print(error)
-        flash('Wystąpił błąd!<br/>Nie można pobrać dostępnego sprzętu')
+        flash('Wystąpił błąd!<br/>Nie można pobrać dostępnego oprogramowania')
     software_data = make_dictionaries_list(
         ['numer_ewidencyjny', 'nazwa', 'producent', 'data_zakupu', 'data_wygasniecia', 'ilosc_licencji'], software)
 

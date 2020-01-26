@@ -57,7 +57,7 @@ def pokaz_budynek_info(adres):
 
     branch, error = DBC().get_instance().execute_query_fetch(
         """SELECT o.adres, o.nazwa from Oddzial o
-        WHERE o.adres = (select b.oddzial_adres from budynek b where b.adres = %s)""", [adres]
+        WHERE o.adres = (select b.oddzial_adres from Budynek b where b.adres = %s)""", [adres]
     )
     if error is not None:
         flash('Wystąpił błąd!<br/>{}'.format(error.msg))
@@ -97,17 +97,17 @@ def pokaz_pracownik_info(pesel):
 
     branch, error = DBC().get_instance().execute_query_fetch(
         """SELECT o.adres, o.nazwa from Oddzial o
-        WHERE o.adres = (select d.oddzial_adres from dzial d where 
-        d.nazwa = (select p.dzial_nazwa from  pracownik p where pesel = %s))""", [pesel]
+        WHERE o.adres = (select d.oddzial_adres from Dzial d where 
+        d.nazwa = (select p.dzial_nazwa from  Pracownik p where pesel = %s))""", [pesel]
     )
     if error is not None:
         flash('Wystąpił błąd!<br/>{}'.format(error.msg))
     branch_data = make_dictionary(['adres', 'nazwa'], branch[0])
 
     hardware, error = DBC().get_instance().execute_query_fetch(
-        """SELECT s.numer_ewidencyjny, s.nazwa, s.producent, s.typ FROM sprzet s 
-        where s.numer_ewidencyjny in (select swp.sprzet_numer_ewidencyjny from sprzetwprzypisaniu swp
-        where swp.przypisanie_id_przydzialu in (select p.id_przydzialu from przypisanie p 
+        """SELECT s.numer_ewidencyjny, s.nazwa, s.producent, s.typ FROM Sprzet s 
+        where s.numer_ewidencyjny in (select swp.sprzet_numer_ewidencyjny from SprzetWPrzypisaniu swp
+        where swp.przypisanie_id_przydzialu in (select p.id_przydzialu from Przypisanie p 
         where p.pracownik_pesel = %s and p.data_zwrotu is null)) """, [pesel]
     )
     if error is not None:
@@ -117,8 +117,8 @@ def pokaz_pracownik_info(pesel):
     permissions, error = DBC().get_instance().execute_query_fetch(
         """SELECT b.budynek_adres, b.pietro, b.numer
         FROM Biuro b
-        WHERE b.numer in (select pd.biuro_numer from prawodostepu pd
-        where pd.kartadostepu_id_karty in (select kd.id_karty from kartadostepu kd
+        WHERE b.numer in (select pd.biuro_numer from PrawoDostepu pd
+        where pd.kartadostepu_id_karty in (select kd.id_karty from KartaDostepu kd
         where kd.pracownik_pesel = %s))""", [pesel]
     )
     if error is not None:
@@ -126,7 +126,7 @@ def pokaz_pracownik_info(pesel):
     permissions_data = make_dictionaries_list(['budynek_adres', 'pietro', 'numer'], permissions)
 
     cards, error = DBC().get_instance().execute_query_fetch(
-        """SELECT id_karty, data_przyznania from kartadostepu 
+        """SELECT id_karty, data_przyznania from KartaDostepu 
         where pracownik_pesel = %s""", [pesel]
     )
     if error is not None:
@@ -134,11 +134,11 @@ def pokaz_pracownik_info(pesel):
     cards_data = make_dictionaries_list(['id_karty', 'data_przyznania'], cards)
 
     software, error = DBC().get_instance().execute_query_fetch(
-        """SELECT o.numer_ewidencyjny, o.nazwa, o.producent from oprogramowanie o
-         where o.numer_ewidencyjny in (select onp.oprogramowanie_numer from oprogramowanienasprzecie onp 
+        """SELECT o.numer_ewidencyjny, o.nazwa, o.producent from Oprogramowanie o
+         where o.numer_ewidencyjny in (select onp.oprogramowanie_numer from OprogramowanieNaSprzecie onp 
          where onp.sprzet_numer in (SELECT s.numer_ewidencyjny FROM sprzet s 
-        where s.numer_ewidencyjny in (select swp.sprzet_numer_ewidencyjny from sprzetwprzypisaniu swp
-        where swp.przypisanie_id_przydzialu in (select p.id_przydzialu from przypisanie p 
+        where s.numer_ewidencyjny in (select swp.sprzet_numer_ewidencyjny from SprzetWPrzypisaniu swp
+        where swp.przypisanie_id_przydzialu in (select p.id_przydzialu from Przypisanie p 
         where p.pracownik_pesel = %s and p.data_zwrotu is null))))""", [pesel]
     )
     if error is not None:
@@ -153,7 +153,7 @@ def pokaz_pracownik_info(pesel):
 @show_info.route('/pokaz_info/sprzet/<numer_ewidencyjny>')
 def pokaz_sprzet_info(numer_ewidencyjny):
     basic, error = DBC().get_instance().execute_query_fetch(
-        """SELECT numer_ewidencyjny, data_zakupu, nazwa, typ, producent, uwagi, magazyn_numer from sprzet
+        """SELECT numer_ewidencyjny, data_zakupu, nazwa, typ, producent, uwagi, magazyn_numer from Sprzet
         WHERE numer_ewidencyjny = %s""", [numer_ewidencyjny]
     )
     if error is not None:
@@ -163,13 +163,13 @@ def pokaz_sprzet_info(numer_ewidencyjny):
     history, error = DBC().get_instance().execute_query_fetch(
         """SELECT p.id_przydzialu, p.data_przydzialu, coalesce(p.data_zwrotu, 'Nie zwrócono'), p2.pesel, p2.nazwisko,
          p2.imie, p.biuro_numer 
-        from przypisanie p join pracownik p2 on p.pracownik_pesel = p2.pesel
-        where p.id_przydzialu in (select swp.przypisanie_id_przydzialu from sprzetwprzypisaniu swp
+        from Przypisanie p join Pracownik p2 on p.pracownik_pesel = p2.pesel
+        where p.id_przydzialu in (select swp.przypisanie_id_przydzialu from SprzetWPrzypisaniu swp
         where swp.sprzet_numer_ewidencyjny = %s)
         UNION ALL
         SELECT p.id_przydzialu, p.data_przydzialu, coalesce(p.data_zwrotu, 'Nie zwrócono'), null, null, null, b.numer 
-        from przypisanie p join biuro b on p.biuro_numer = b.numer
-        where p.id_przydzialu in (select swp.przypisanie_id_przydzialu from sprzetwprzypisaniu swp
+        from Przypisanie p join Biuro b on p.biuro_numer = b.numer
+        where p.id_przydzialu in (select swp.przypisanie_id_przydzialu from SprzetWPrzypisaniu swp
         where swp.sprzet_numer_ewidencyjny = %s) order by data_przydzialu desc""", [numer_ewidencyjny, numer_ewidencyjny]
     )
     if error is not None:
@@ -178,8 +178,8 @@ def pokaz_sprzet_info(numer_ewidencyjny):
                                     'pracownik_nazwisko', 'pracownik_imie', 'biuro_numer'], history)
 
     software, error = DBC().get_instance().execute_query_fetch(
-        """SELECT o.numer_ewidencyjny, o.nazwa, o.producent from oprogramowanie o
-         where o.numer_ewidencyjny in (select onp.oprogramowanie_numer from oprogramowanienasprzecie onp 
+        """SELECT o.numer_ewidencyjny, o.nazwa, o.producent from Oprogramowanie o
+         where o.numer_ewidencyjny in (select onp.oprogramowanie_numer from OprogramowanieNaSprzecie onp 
          where onp.sprzet_numer = %s)""", [numer_ewidencyjny]
     )
     if error is not None:
@@ -193,7 +193,7 @@ def pokaz_sprzet_info(numer_ewidencyjny):
 @show_info.route('/pokaz_info/oprogramowanie/<numer_ewidencyjny>')
 def pokaz_oprogramowanie_info(numer_ewidencyjny):
     basic, error = DBC().get_instance().execute_query_fetch(
-        """SELECT numer_ewidencyjny, nazwa, producent, data_zakupu, data_wygasniecia, ilosc_licencji, uwagi from oprogramowanie
+        """SELECT numer_ewidencyjny, nazwa, producent, data_zakupu, data_wygasniecia, ilosc_licencji, uwagi from Oprogramowanie
         WHERE numer_ewidencyjny = %s""", [numer_ewidencyjny]
     )
     if error is not None:
@@ -202,8 +202,8 @@ def pokaz_oprogramowanie_info(numer_ewidencyjny):
                                   'ilosc_licencji', 'uwagi'], basic[0])
 
     hardware, error = DBC().get_instance().execute_query_fetch(
-        """SELECT s.nazwa, s.producent, s.typ, s.numer_ewidencyjny from sprzet s
-        WHERE s.numer_ewidencyjny in (select ons.sprzet_numer from oprogramowanienasprzecie ons
+        """SELECT s.nazwa, s.producent, s.typ, s.numer_ewidencyjny from Sprzet s
+        WHERE s.numer_ewidencyjny in (select ons.sprzet_numer from OprogramowanieNaSprzecie ons
         where ons.oprogramowanie_numer = %s)""", [numer_ewidencyjny]
     )
     if error is not None:
@@ -225,8 +225,8 @@ def pokaz_biuro_info(numer_biura):
     basic_data = make_dictionary(['numer', 'liczba_stanowisk', 'pietro', 'budynek_adres'], basic[0])
 
     building, error = DBC().get_instance().execute_query_fetch(
-        """SELECT b.adres from budynek b
-        WHERE b.adres = (select budynek_adres from biuro where numer = %s)""", [numer_biura]
+        """SELECT b.adres from Budynek b
+        WHERE b.adres = (select budynek_adres from Biuro where numer = %s)""", [numer_biura]
     )
     if error is not None:
         flash('Wystąpił błąd!<br/>{}'.format(error.msg))
@@ -234,7 +234,7 @@ def pokaz_biuro_info(numer_biura):
 
     workers, error = DBC().get_instance().execute_query_fetch(
         """SELECT pesel, imie, nazwisko, numer_telefonu, czy_nadal_pracuje, adres_email, dzial_nazwa, biuro_numer
-        FROM pracownik 
+        FROM Pracownik 
         WHERE biuro_numer = %s""", [numer_biura]
     )
     if error is not None:
@@ -243,9 +243,9 @@ def pokaz_biuro_info(numer_biura):
                                            'adres_email', 'dzial_nazwa', 'biuro_numer'], workers)
 
     hardware, error = DBC().get_instance().execute_query_fetch(
-        """SELECT s.numer_ewidencyjny, s.nazwa, s.producent, s.typ FROM sprzet s 
-        where s.numer_ewidencyjny in (select swp.sprzet_numer_ewidencyjny from sprzetwprzypisaniu swp
-        where swp.przypisanie_id_przydzialu in (select p.id_przydzialu from przypisanie p 
+        """SELECT s.numer_ewidencyjny, s.nazwa, s.producent, s.typ FROM Sprzet s 
+        where s.numer_ewidencyjny in (select swp.sprzet_numer_ewidencyjny from SprzetWPrzypisaniu swp
+        where swp.przypisanie_id_przydzialu in (select p.id_przydzialu from Przypisanie p 
         where p.biuro_numer = %s and p.data_zwrotu is null)) """, [numer_biura]
     )
     if error is not None:
@@ -253,9 +253,9 @@ def pokaz_biuro_info(numer_biura):
     hardware_data = make_dictionaries_list(['numer_ewidencyjny', 'nazwa', 'producent', 'typ'], hardware)
 
     cards, error = DBC().get_instance().execute_query_fetch(
-        """SELECT kd.id_karty, kd.data_przyznania, p.pesel, p.nazwisko, p.imie from kartadostepu kd join pracownik p 
+        """SELECT kd.id_karty, kd.data_przyznania, p.pesel, p.nazwisko, p.imie from KartaDostepu kd join Pracownik p 
         on kd.pracownik_pesel = p.pesel
-        where kd.id_karty in (select pd.kartadostepu_id_karty from prawodostepu pd
+        where kd.id_karty in (select pd.kartadostepu_id_karty from PrawoDostepu pd
         where pd.biuro_numer = %s)""", [numer_biura]
     )
     if error is not None:
@@ -278,7 +278,7 @@ def pokaz_dzial_info(nazwa):
 
     branch, error = DBC().get_instance().execute_query_fetch(
         """SELECT o.adres, o.nazwa from Oddzial o
-        WHERE o.adres = (select d.oddzial_adres from dzial d where 
+        WHERE o.adres = (select d.oddzial_adres from Dzial d where 
         d.nazwa = %s)""", [nazwa]
     )
     if error is not None:
@@ -287,7 +287,7 @@ def pokaz_dzial_info(nazwa):
 
     workers, error = DBC().get_instance().execute_query_fetch(
         """SELECT pesel, imie, nazwisko, numer_telefonu, czy_nadal_pracuje, adres_email, dzial_nazwa, biuro_numer
-        FROM pracownik 
+        FROM Pracownik 
         WHERE dzial_nazwa = %s""", [nazwa]
         )
     if error is not None:
@@ -302,7 +302,7 @@ def pokaz_dzial_info(nazwa):
 @show_info.route('/pokaz_info/magazyn/<numer>')
 def pokaz_magazyn_info(numer):
     basic, error = DBC().get_instance().execute_query_fetch(
-        """SELECT numer, pojemnosc, oddzial_adres, WolnaPojemnoscMagazynu(numer) from magazyn
+        """SELECT numer, pojemnosc, oddzial_adres, WolnaPojemnoscMagazynu(numer) from Magazyn
         WHERE numer = %s""", [numer]
     )
     if error is not None:
@@ -310,7 +310,7 @@ def pokaz_magazyn_info(numer):
     basic_data = make_dictionary(['numer', 'pojemnosc', 'oddzial_adres', 'wolne_miejsce'], basic[0])
 
     hardware, error = DBC().get_instance().execute_query_fetch(
-        """SELECT s.nazwa, s.producent, s.typ, s.numer_ewidencyjny from sprzet s
+        """SELECT s.nazwa, s.producent, s.typ, s.numer_ewidencyjny from Sprzet s
         WHERE s.magazyn_numer =  %s""", [numer]
     )
     if error is not None:
@@ -324,7 +324,7 @@ def pokaz_magazyn_info(numer):
 @show_info.route('/pokaz_info/karta_dostepu/<id_karty>')
 def pokaz_karta_dostepu_info(id_karty):
     basic, error = DBC().get_instance().execute_query_fetch(
-        """SELECT id_karty, data_przyznania, pracownik_pesel from kartadostepu
+        """SELECT id_karty, data_przyznania, pracownik_pesel from KartaDostepu
         WHERE id_karty = %s""", [id_karty]
     )
     if error is not None:
@@ -332,8 +332,8 @@ def pokaz_karta_dostepu_info(id_karty):
     basic_data = make_dictionary(['id_karty', 'data_przyznania', 'pracownik_pesel'], basic[0])
 
     offices, error = DBC().get_instance().execute_query_fetch(
-        """SELECT b.numer, b.budynek_adres, b.pietro from biuro b
-        WHERE b.numer in (select pd.biuro_numer from prawodostepu pd
+        """SELECT b.numer, b.budynek_adres, b.pietro from Biuro b
+        WHERE b.numer in (select pd.biuro_numer from PrawoDostepu pd
         where pd.kartadostepu_id_karty = %s)""", [id_karty]
     )
     if error is not None:
