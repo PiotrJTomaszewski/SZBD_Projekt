@@ -23,7 +23,9 @@
                 <td>{{ sprzet['producent'] }}</td>
                 <td>{{ sprzet['data_zakupu'] }}</td>
                 <td class="edit_mode_element">
-                    <input type="submit" value="Edytuj">
+                    <form action="{{ url_for('edit.edytuj_sprzet', numer_ewidencyjny=sprzet['numer_ewidencyjny']) }}">
+                        <input type="submit" value="Edytuj">
+                    </form>
                 </td>
             </tr>
         </table>
@@ -38,8 +40,15 @@
     </div>
     <div>
         <h3>Zainstalowane oprogramowania</h3>
-        <form class="edit_mode_element" action="/">
-            <input type="submit" value="Przypisz nowe oprogramowanie"></form>
+        <form action="{{ url_for('assign.przypisz_oprogramowanie', numer_ewidencyjny=sprzet['numer_ewidencyjny']) }}">
+            <input type="submit" value="Przypisz nowe oprogramowanie">
+        </form>
+        <form action="{{ url_for('deassign.zwroc_oprogramowanie', numer_ewidencyjny=sprzet['numer_ewidencyjny']) }}">
+            <input type="submit" value="Zwróć oprogramowanie">
+        </form>
+        <form action="">
+            <input type="submit" value="Zwróc wygasłe oprogramowanie TODO">
+        </form>
         <table>
             <thead>
             <tr>
@@ -61,7 +70,6 @@
                     </td>
                     <td class="edit_mode_element">
                         <input type="submit" value="Edytuj">
-                        <input type="submit" value="Oznacz jako odinstalowany">
                     </td>
                 </tr>
             {% endfor %}
@@ -69,8 +77,6 @@
     </div>
     <div>
         <h3>Historia przypisań</h3>
-        <form class="edit_mode_element" action="/">
-            <input type="submit" value="Przypisz nowe oprogramowanie"></form>
         {% if sprzet['magazyn_numer'] %}
             <h4>
                 Aktualnie przechowywany w magazynie nr {{ sprzet['magazyn_numer'] }}

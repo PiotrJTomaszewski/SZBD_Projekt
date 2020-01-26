@@ -19,16 +19,18 @@
                 <td>{{ dzial['skrot'] }}</td>
                 <td><a href="{{ url_for('show_info.pokaz_oddzial_info', adres=dzial['oddzial_adres']) }}">{{ dzial['oddzial_adres'] }}</a></td>
                 <td class="edit_mode_element">
-                    <input type="submit" value="Edytuj">
+                    <form action="{{ url_for('edit.edytuj_dzial', nazwa=dzial['nazwa']) }}">
+                        <input type="submit" value="Edytuj">
+                    </form>
                 </td>
             </tr>
         </table>
     </div>
     <div>
         <h3>Pracownicy w dziale</h3>
-        {#        <form class="edit_mode_element" action="{{ url_for("", pesel=dane_osobowe['pesel']) }}">#}
-        {#            <input type="submit" value="Przypisz nowy sprzęt">#}
-        {#        </form>#}
+        <form class="edit_mode_element" action="{{ url_for('add.dodaj_pracownika') }}">
+            <input type="submit" value="Dodaj pracownika">
+        </form>
         <table>
             <thead>
             <tr>
@@ -50,7 +52,9 @@
                         </form>
                     </td>
                     <td class="edit_mode_element">
-                        <input type="submit" value="Edytuj">
+                        <form action="{{ url_for('edit.edytuj_pracownika', pesel=pracownik['pesel']) }}">
+                            <input type="submit" value="Edytuj">
+                        </form>
                     </td>
                 </tr>
             {% endfor %}

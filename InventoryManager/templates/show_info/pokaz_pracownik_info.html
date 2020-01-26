@@ -44,11 +44,10 @@
     </div>
     <div>
         <h3>Karty dostępu</h3>
-        <form class="edit_mode_element" action="/">
-            <input type="submit" value="Przyznaj nową kartę"></form>
-        <form class="edit_mode_element" action="/">
-            <input type="submit" value="Dodaj nowe prawo dostępu">
+        <form class="edit_mode_element" action="{{ url_for('add.dodaj_karta', pesel=pracownik['pesel']) }}">
+            <input type="submit" value="Przyznaj nową kartę">
         </form>
+
         <table>
             <thead>
                 <tr>
@@ -66,20 +65,16 @@
                     </form>
                 </td>
                 <td class="edit_mode_element">
-                        <input type="submit" value="Edytuj">
-                        <input type="submit" value="Zwróć sprzęt">
-                    </td>
+                <form class="edit_mode_element" action="{{ url_for('assign.przypisz_prawo_dostepu_karta', pesel=pracownik['pesel'], id_karty=karta['id_karty']) }}">
+                    <input type="submit" value="Dodaj nowe prawo">
+                </form>
+                </td>
             </tr>
             {% endfor %}
         </table>
     </div>
     <div>
         <h3>Biura do których ma dostęp</h3>
-        <form class="edit_mode_element" action="/">
-            <input type="submit" value="Przyznaj nową kartę"></form>
-        <form class="edit_mode_element" action="/">
-            <input type="submit" value="Dodaj nowe prawo dostępu">
-        </form>
         <table>
             <thead>
                 <tr>
@@ -103,7 +98,9 @@
                     </form>
                 </td>
                 <td class="edit_mode_element">
-                        <input type="submit" value="Edytuj">
+                <form action="{{ url_for('edit.edytuj_biuro', numer=biuro['numer']) }}">
+                    <input type="submit" value="Edytuj">
+                </form>
                 </td>
             </tr>
             {% endfor %}
@@ -111,11 +108,8 @@
     </div>
     <div>
         <h3>Przydzielony sprzęt</h3>
-        <form class="edit_mode_element" action="/">
-            <input type="submit" value="Przyznaj nową kartę"></form>
-        <form class="edit_mode_element" action="/">
-            <input type="submit" value="Dodaj nowe prawo dostępu">
-        </form>
+        <form class="edit_mode_element" action="{{ url_for('assign.przypisz_sprzet_pracownik', pesel=pracownik['pesel']) }}">
+            <input type="submit" value="Przydziel sprzęt"></form>
         <table>
             <thead>
                 <tr>
@@ -137,7 +131,9 @@
                     </form>
                 </td>
                 <td class="edit_mode_element">
-                        <input type="submit" value="Edytuj">
+                <form action="{{ url_for('edit.edytuj_sprzet', numer_ewidencyjny=sprzet['numer_ewidencyjny']) }}">
+                    <input type="submit" value="Edytuj">
+                </form>
                 </td>
             </tr>
             {% endfor %}
@@ -145,11 +141,6 @@
     </div>
     <div>
         <h3>Przydzielone oprogramowania</h3>
-        <form class="edit_mode_element" action="/">
-            <input type="submit" value="Przyznaj nową kartę"></form>
-        <form class="edit_mode_element" action="/">
-            <input type="submit" value="Dodaj nowe prawo dostępu">
-        </form>
         <table>
             <thead>
                 <tr>
@@ -168,7 +159,9 @@
                     </form>
                 </td>
                 <td class="edit_mode_element">
-                        <input type="submit" value="Edytuj">
+                 <form action="{{ url_for('edit.edytuj_oprogramowanie', numer_ewidencyjny=oprogramowanie['numer_ewidencyjny']) }}">
+                    <input type="submit" value="Edytuj">
+                </form>
                 </td>
             </tr>
             {% endfor %}

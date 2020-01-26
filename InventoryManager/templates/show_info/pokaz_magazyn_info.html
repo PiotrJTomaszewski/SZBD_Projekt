@@ -19,7 +19,9 @@
                 <td>{{ magazyn['pojemnosc'] }}</td>
                 <td>{{ magazyn['wolne_miejsce'] }}</td>
                 <td class="edit_mode_element">
+                <form action="{{ url_for('edit.edytuj_magazyn', numer=magazyn['numer']) }}">
                     <input type="submit" value="Edytuj">
+                </form>
                 </td>
             </tr>
         </table>
@@ -27,9 +29,9 @@
 
     <div>
         <h3>Sprzęt na magazynie</h3>
-{#        <form class="edit_mode_element" action="{{ url_for("przypisz_sprzet", pesel=pracownik['pesel']) }}">#}
-{#            <input type="submit" value="Przypisz nowy sprzęt">#}
-{#        </form>#}
+        <form class="edit_mode_element" action="{{ url_for('add.dodaj_sprzet') }}">
+            <input type="submit" value="Dodaj sprzęt">
+        </form>
         <table>
             <thead>
             <tr>
@@ -51,8 +53,9 @@
                         </form>
                     </td>
                     <td class="edit_mode_element">
-                        <input type="submit" value="Edytuj">
-                        <input type="submit" value="Przypisz sprzęt">
+                        <form action="{{ url_for('edit.edytuj_sprzet', numer_ewidencyjny=sprzet['numer_ewidencyjny']) }}">
+                            <input type="submit" value="Edytuj">
+                        </form>
                     </td>
                 </tr>
             {% endfor %}

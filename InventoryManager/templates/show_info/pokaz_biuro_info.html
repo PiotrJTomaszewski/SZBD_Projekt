@@ -25,16 +25,18 @@
                 <td>{{ biuro['pietro'] }}</td>
                 <td>{{ biuro['liczba_stanowisk'] }}</td>
                 <td class="edit_mode_element">
+                <form action="{{ url_for('edit.edytuj_biuro', numer=biuro['numer']) }}">
                     <input type="submit" value="Edytuj">
+                </form>
                 </td>
             </tr>
         </table>
     </div>
     <div>
         <h3>Pracownicy w biurze</h3>
-        {#        <form class="edit_mode_element" action="{{ url_for("", pesel=dane_osobowe['pesel']) }}">#}
-        {#            <input type="submit" value="Przypisz nowy sprzęt">#}
-        {#        </form>#}
+        <form class="edit_mode_element" action="{{ url_for('add.dodaj_pracownika') }}">
+            <input type="submit" value="Dodaj pracownika">
+        </form>
         <table>
             <thead>
             <tr>
@@ -56,7 +58,9 @@
                         </form>
                     </td>
                     <td class="edit_mode_element">
-                        <input type="submit" value="Edytuj">
+                        <form action="{{ url_for('edit.edytuj_pracownika', pesel=pracownik['pesel']) }}">
+                            <input type="submit" value="Edytuj">
+                        </form>
                     </td>
                 </tr>
             {% endfor %}
@@ -64,9 +68,9 @@
     </div>
     <div>
         <h3>Przyznany sprzęt</h3>
-{#        <form class="edit_mode_element" action="{{ url_for("assign.przypisz_sprzet", pesel=pracownik['pesel']) }}">#}
-{#            <input type="submit" value="Przypisz nowy sprzęt">#}
-{#        </form>#}
+        <form class="edit_mode_element" action="{{ url_for("assign.przypisz_sprzet_biuro", numer_biura=biuro['numer']) }}">
+            <input type="submit" value="Przypisz nowy sprzęt">
+        </form>
         <table>
             <thead>
             <tr>
@@ -81,13 +85,14 @@
                     <td>{{ sprzet['producent'] }}</td>
                     <td>{{ sprzet['typ'] }}</td>
                     <td>
-                        <form action="{{ url_for('show_info.pokaz_sprzet_info', numer_ewidencyjny=sprzet['numer']) }}"><input
+                        <form action="{{ url_for('show_info.pokaz_sprzet_info', numer_ewidencyjny=sprzet['numer_ewidencyjny']) }}"><input
                                 type="submit" value="Przejdź">
                         </form>
                     </td>
                     <td class="edit_mode_element">
-                        <input type="submit" value="Edytuj">
-                        <input type="submit" value="Zwróć sprzęt">
+                        <form action="{{ url_for('edit.edytuj_sprzet', numer_ewidencyjny=sprzet['numer_ewidencyjny']) }}">
+                            <input type="submit" value="Edytuj">
+                        </form>
                     </td>
                 </tr>
             {% endfor %}
@@ -95,12 +100,6 @@
     </div>
     <div>
         <h3>Dostęp do biura</h3>
-        {#        <form class="edit_mode_element" style="display: none;" action="/"><input type="submit"#}
-        {#                                                                         value="Przyznaj nową kartę"></form>#}
-        {#        {% for karta in karty_dostepu %}#}
-        {#            <form class="edit_mode_element" style="display: none;" action="/"><input type="submit"#}
-        {#                                                                             value="Dodaj nowe prawo dostępu">#}
-        {#            </form>#}
         <table>
             <thead>
             <tr>
@@ -118,7 +117,14 @@
                             {{ card['pracownik_nazwisko'] }} {{ card['pracownik_imie'] }}
                         </a>
                     </td>
-                    <td class="edit_mode_element"><input type="submit" value="Edytuj"></td>
+                    <td>
+                    <form action="{{ url_for('show_info.pokaz_karta_dostepu_info', id_karty=card['id_karty']) }}">
+                        <input type="submit" value="Przejdź">
+                    </form>
+                    <form action="{{ url_for('deassign.odbierz_prawo_dostepu', pesel=card['pracownik_pesel'], id_karty=card['id_karty']) }}">
+                        <input type="submit" value="Odbierz prawo">
+                    </form>
+                    </td>
                 </tr>
             {% endfor %}
         </table>

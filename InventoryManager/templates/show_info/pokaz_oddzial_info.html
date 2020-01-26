@@ -24,9 +24,9 @@
     </div>
     <div>
         <h3>Działy</h3>
-        {#        <form class="edit_mode_element" action="{{ url_for("", pesel=dane_osobowe['pesel']) }}">#}
-        {#            <input type="submit" value="Przypisz nowy sprzęt">#}
-        {#        </form>#}
+        <form class="edit_mode_element" action="{{ url_for('add.dodaj_dzial') }}">
+            <input type="submit" value="Dodaj dział">
+        </form>
         <table>
             <thead>
             <tr>
@@ -44,7 +44,9 @@
                         </form>
                     </td>
                     <td class="edit_mode_element">
+                        <form action="{{ url_for('edit.edytuj_dzial', nazwa=dzial['nazwa']) }}">
                         <input type="submit" value="Edytuj">
+                        </form>
                     </td>
                 </tr>
             {% endfor %}
@@ -52,12 +54,9 @@
     </div>
     <div>
         <h3>Magazyny</h3>
-        {#        <form class="edit_mode_element" style="display: none;" action="/"><input type="submit"#}
-        {#                                                                         value="Przyznaj nową kartę"></form>#}
-        {#        {% for karta in karty_dostepu %}#}
-        {#            <form class="edit_mode_element" style="display: none;" action="/"><input type="submit"#}
-        {#                                                                             value="Dodaj nowe prawo dostępu">#}
-        {#            </form>#}
+        <form class="edit_mode_element" action="{{ url_for('add.dodaj_magazyn') }}">
+            <input type="submit" value="Dodaj magazyn">
+        </form>
         <table>
             <thead>
             <tr>
@@ -77,7 +76,9 @@
                         </form>
                     </td>
                     <td class="edit_mode_element">
-                        <input type="submit" value="Edytuj">
+                        <form action="{{ url_for('edit.edytuj_magazyn', numer=magazyn['numer']) }}">
+                            <input type="submit" value="Edytuj">
+                        </form>
                     </td>
                 </tr>
             {% endfor %}
@@ -85,12 +86,9 @@
     </div>
     <div>
         <h3>Budynki</h3>
-        {#        <form class="edit_mode_element" style="display: none;" action="/"><input type="submit"#}
-        {#                                                                         value="Przyznaj nową kartę"></form>#}
-        {#        {% for karta in karty_dostepu %}#}
-        {#            <form class="edit_mode_element" style="display: none;" action="/"><input type="submit"#}
-        {#                                                                             value="Dodaj nowe prawo dostępu">#}
-        {#            </form>#}
+        <form class="edit_mode_element" action="{{ url_for('add.dodaj_budynek') }}">
+            <input type="submit" value="Dodaj budynek">
+        </form>
         <table>
             <thead>
             <tr>
@@ -110,7 +108,9 @@
                         </form>
                     </td>
                     <td class="edit_mode_element">
-                        <input type="submit" value="Edytuj">
+                        <form action="{{ url_for('edit.edytuj_budynek', adres=budynek['adres']) }}">
+                            <input type="submit" value="Edytuj">
+                        </form>
                     </td>
                 </tr>
             {% endfor %}

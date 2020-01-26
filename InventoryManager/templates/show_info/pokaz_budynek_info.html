@@ -30,9 +30,9 @@
     </div>
     <div>
         <h3>Biura w budynku</h3>
-        {#        <form class="edit_mode_element" action="{{ url_for("", pesel=dane_osobowe['pesel']) }}">#}
-        {#            <input type="submit" value="Przypisz nowy sprzęt">#}
-        {#        </form>#}
+        <form class="edit_mode_element" action="{{ url_for('add.dodaj_biuro') }}">
+            <input type="submit" value="Dodaj biuro">
+        </form>
         <table>
             <thead>
             <tr>
@@ -62,19 +62,22 @@
     </div>
     <div>
         <h3>Pracownicy pracujący w budynku</h3>
+        <form class="edit_mode_element" action="{{ url_for('add.dodaj_pracownika') }}">
+            <input type="submit" value="Dodaj pracownika">
+        </form>
         <table>
             <thead>
             <tr>
-                <td>Nazwisko</td>
                 <td>Imie</td>
+                <td>Nazwisko</td>
                 <td>Numer telefonu</td>
                 <td>Biuro</td>
             </tr>
             </thead>
             {% for pracownik in pracownicy %}
                 <tr>
-                    <td>{{ pracownik['nazwisko'] }}</td>
                     <td>{{ pracownik['imie'] }}</td>
+                    <td>{{ pracownik['nazwisko'] }}</td>
                     <td>{{ pracownik['numer_telefonu'] }}</td>
                     <td><a href="{{ url_for('show_info.pokaz_biuro_info', numer_biura=pracownik['biuro_numer']) }}"> {{ pracownik['biuro_numer'] }}</a></td>
                     <td>
