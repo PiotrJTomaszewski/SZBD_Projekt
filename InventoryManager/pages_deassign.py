@@ -135,7 +135,8 @@ def zwroc_oprogramowanie(numer_ewidencyjny):
         DATE_FORMAT(data_wygasniecia, '%d.%m.%Y'), ilosc_licencji
         FROM Oprogramowanie
         JOIN OprogramowanieNaSprzecie ONS on Oprogramowanie.numer_ewidencyjny = ONS.oprogramowanie_numer
-        WHERE ONS.sprzet_numer = %s""", [hardware_data['numer']])
+        WHERE ONS.sprzet_numer = %s
+        ORDER BY nazwa, numer_ewidencyjny""", [hardware_data['numer']])
     if error:
         flash('Wystąpił błąd podczas pobierania dostępnego oprogramowania')
         return redirect(url_for('show_info.pokaz_sprzet_info', numer_ewidencyjny=numer_ewidencyjny))

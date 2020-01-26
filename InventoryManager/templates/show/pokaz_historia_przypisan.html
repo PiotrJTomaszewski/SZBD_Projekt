@@ -10,9 +10,9 @@
         <table>
             <thead>
             <tr>
-                <td>Id przydziału</td>
                 <td>Data przydziału</td>
                 <td>Data zwrotu</td>
+                <td>Id przydziału</td>
                 <td>PESEL pracownika</td>
                 <td>Numer biura</td>
                 <td>Numer ewidencyjny sprzętu</td>
@@ -22,13 +22,13 @@
             </thead>
             {% for wpis in wpisy %}
                 <tr>
-                    <td>{{ wpis['id_przydzialu'] }}</td>
                     <td>{{ wpis['data_przydzialu']}}</td>
                     {% if wpis['data_zwrotu'] %}
                         <td>{{ wpis['data_zwrotu']}}</td>
                     {% else %}
                         <td>Jeszcze nie zwrócono</td>
                     {% endif %}
+                    <td>{{ wpis['id_przydzialu'] }}</td>
                     {% if wpis['pracownik_pesel'] %}
                         <td><a href="{{ url_for('show_info.pokaz_pracownik_info', pesel=wpis['pracownik_pesel']) }}">{{ wpis['pracownik_pesel'] }}</a></td>
                      {% else %}

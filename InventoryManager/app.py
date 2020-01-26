@@ -129,6 +129,7 @@ def wyszukaj():
                 query += """ %s""".format(operand=operand)
             if only_in_current_branch:
                 query += " AND oddzial_adres = '{}'".format(session['wybrany_oddzial_adres'])
+            query += " ORDER BY adres, nazwa"
             headers = ['Adres', 'Nazwa', 'Liczba pięter', 'Adres oddziału']
             goto_type = 'budynek'
 
@@ -155,6 +156,7 @@ def wyszukaj():
             if only_in_current_branch:
                 query += " AND (SELECT oddzial_adres FROM Budynek WHERE adres=budynek_adres) = '{}'".format(
                     session['wybrany_oddzial_adres'])
+            query += " ORDER BY numer"
             headers = ['Numer biura', 'Liczba stanowisk', 'Numer piętra', 'Adres budynku']
             goto_type = 'biuro'
 
@@ -178,6 +180,7 @@ def wyszukaj():
                 query += """ %s""".format(operand=operand)
             if only_in_current_branch:
                 query += " AND oddzial_adres = '{}'".format(session['wybrany_oddzial_adres'])
+            query += " ORDER BY nazwa"
             headers = ['Nazwa działu', 'Skrót nazwy', 'Adres oddziału']
             goto_type = 'dzial'
 
@@ -217,6 +220,7 @@ def wyszukaj():
             if only_in_current_branch:
                 query += " AND (SELECT oddzial_adres FROM Dzial WHERE nazwa=dzial_nazwa) = '{}'".format(
                     session['wybrany_oddzial_adres'])
+            query += " ORDER BY nazwisko, imie"
             headers = ['Numer PESEL', 'Imię', 'Nazwisko', 'Numer telefonu', 'Czy nadal pracuje', 'Adres email',
                        'Nazwa działu', 'Numer biura']
             goto_type = 'pracownik'
@@ -230,18 +234,21 @@ def wyszukaj():
                 text_field = 'pojemność magazynu'
             elif selected_field == 'oddzial_adres':
                 text_field = 'adres oddziału'
+            elif selected_field == 'wolne_miejsce':
+                selected_field = 'WolnaPojemnoscMagazynu(numer)'
+                text_field = 'wolne miejsce'
             else:
                 text_field = ''
 
             query = """
-            SELECT numer, pojemnosc, oddzial_adres
+            SELECT numer, pojemnosc, WolnaPojemnoscMagazynu(numer), oddzial_adres
             FROM Magazyn
             WHERE {field} {operand} """.format(field=selected_field, operand=operand)
             if selected_operand not in ['value_is_null', 'value_is_not_null', 'value_is_any']:
                 query += """ %s""".format(operand=operand)
             if only_in_current_branch:
                 query += " AND oddzial_adres = '{}'".format(session['wybrany_oddzial_adres'])
-            headers = ['Numer magazynu', 'Pojemność', 'Adres oddziału']
+            headers = ['Numer magazynu', 'Pojemność', 'Wolne miejsce', 'Adres oddziału']
             goto_type = 'magazyn'
 
         elif selected_object == 'object_hardware':
@@ -275,6 +282,7 @@ def wyszukaj():
                  WHERE Biuro.numer = P.biuro_numer) = '{}')
                  """.format(session['wybrany_oddzial_adres'], session['wybrany_oddzial_adres'],
                             session['wybrany_oddzial_adres'])
+            query += " ORDER BY S.nazwa"
             headers = ['Numer ewidencyjny', 'Data zakupu', 'Numer magazynu', 'PESEL pracownika', 'Numer biura']
             goto_type = 'sprzet'
 
@@ -298,6 +306,7 @@ def wyszukaj():
                         WHERE {field} {operand}""".format(field=selected_field, operand=operand)
             if selected_operand not in ['value_is_null', 'value_is_not_null', 'value_is_any']:
                 query += """ %s""".format(operand=operand)
+            query += " ORDER BY nazwa"
             headers = ['Numer ewidencyjny', 'Nazwa', 'Producent', 'Data zakupu', 'Data wygaśnięcia', '']
             goto_type = 'magazyn'
 
@@ -326,10 +335,10 @@ def wyszukaj():
                 search_value = 'Nie'
 
         if only_in_current_branch:
-            result['text'] = '{object} w bieżącym oddziale gdzie pole "{field}" {operand} "{value}"'.format(
+            result['text'] = '{object} w bieżącym oddziale gdzie pole "{field}" {operand} {value}'.format(
                 object=text_object, field=text_field, operand=text_operand, value=search_value)
         else:
-            result['text'] = '{object} gdzie pole "{field}" {operand} "{value}"'.format(
+            result['text'] = '{object} gdzie pole "{field}" {operand} {value}'.format(
                 object=text_object, field=text_field, operand=text_operand, value=search_value)
 
         # If the lookup took place in the current branch show go to info buttons

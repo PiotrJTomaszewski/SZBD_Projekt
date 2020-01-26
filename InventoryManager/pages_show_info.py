@@ -14,7 +14,7 @@ def pokaz_oddzial_info(adres):
         WHERE adres = %s""", [adres]
     )
     if error is not None:
-        flash('Wystąpił błąd!<br/>{}'.format(error.msg))
+        flash('Wystąpił błąd!<br/>')
     branch_data = make_dictionary(['adres', 'nazwa'], branch[0])
     depts, error = DBC().get_instance().execute_query_fetch(
         """SELECT nazwa, skrot FROM Dzial
@@ -22,7 +22,7 @@ def pokaz_oddzial_info(adres):
         ORDER BY nazwa""", [adres]
     )
     if error is not None:
-        flash('Wystąpił błąd<br/>{}'.format(error.msg))
+        flash('Wystąpił błąd<br/>')
     depts_data = make_dictionaries_list(['nazwa', 'skrot'], depts)
 
     warehouses, error = DBC().get_instance().execute_query_fetch(
@@ -32,12 +32,13 @@ def pokaz_oddzial_info(adres):
         ORDER BY numer""", [adres]
     )
     if error is not None:
-        flash('Wystąpił błąd!<br/>{}'.format(error.msg))
+        flash('Wystąpił błąd!<br/>')
     warehouses_data = make_dictionaries_list(['numer', 'pojemnosc', 'wolna_przestrzen'], warehouses)
 
     buildings, error = DBC().get_instance().execute_query_fetch(
         """SELECT adres, nazwa, ilosc_pieter FROM Budynek
-        WHERE oddzial_adres = %s""", [adres]
+        WHERE oddzial_adres = %s
+        ORDER BY adres, nazwa""", [adres]
     )
     if error is not None:
         flash('Wystąpił błąd!<br/>{}')
@@ -54,7 +55,7 @@ def pokaz_budynek_info(adres):
         WHERE adres = %s""", [adres]
     )
     if error is not None:
-        flash('Wystąpił błąd!<br/>{}'.format(error.msg))
+        flash('Wystąpił błąd!<br/>')
     basic_data = make_dictionary(['adres', 'nazwa', 'ilosc_pieter', 'oddzial_adres'], basic[0])
 
     branch, error = DBC().get_instance().execute_query_fetch(
@@ -62,7 +63,7 @@ def pokaz_budynek_info(adres):
         WHERE o.adres = (select b.oddzial_adres from Budynek b where b.adres = %s)""", [adres]
     )
     if error is not None:
-        flash('Wystąpił błąd!<br/>{}'.format(error.msg))
+        flash('Wystąpił błąd!<br/>')
     branch_data = make_dictionary(['adres', 'nazwa'], branch[0])
 
     offices, error = DBC().get_instance().execute_query_fetch(
@@ -70,7 +71,7 @@ def pokaz_budynek_info(adres):
         WHERE budynek_adres = %s ORDER BY pietro, numer""", [adres]
     )
     if error is not None:
-        flash('Wystąpił błąd<br/>{}'.format(error.msg))
+        flash('Wystąpił błąd<br/>')
     offices_data = make_dictionaries_list(['numer', 'pietro', 'liczba_stanowisk'], offices)
 
     workers, error = DBC().get_instance().execute_query_fetch(
@@ -80,7 +81,7 @@ def pokaz_budynek_info(adres):
         ORDER BY p.nazwisko, p.imie""", [adres]
     )
     if error is not None:
-        flash('Wystąpił błąd!<br/>{}'.format(error.msg))
+        flash('Wystąpił błąd!<br/>')
     workers_data = make_dictionaries_list(['pesel', 'nazwisko', 'imie', 'numer_telefonu', 'biuro_numer'], workers)
 
     return render_template('show_info/pokaz_budynek_info.html', budynek=basic_data, oddzial=branch_data,
@@ -90,11 +91,11 @@ def pokaz_budynek_info(adres):
 @show_info.route('/pokaz_info/pracownik/<pesel>')
 def pokaz_pracownik_info(pesel):
     basic, error = DBC().get_instance().execute_query_fetch(
-        """SELECT pesel, imie, nazwisko, numer_telefonu, czy_nadal_pracuje, adres_email, dzial_nazwa, biuro_numer from Pracownik
+        """SELECT pesel, imie, nazwisko, numer_telefonu, CASE WHEN czy_nadal_pracuje = '1' THEN 'Tak' ELSE 'Nie' END, adres_email, dzial_nazwa, biuro_numer from Pracownik
         WHERE pesel = %s""", [pesel]
     )
     if error is not None:
-        flash('Wystąpił błąd!<br/>{}'.format(error.msg))
+        flash('Wystąpił błąd!<br/>')
     basic_data = make_dictionary(['pesel', 'imie', 'nazwisko', 'numer_telefonu', 'czy_nadal_pracuje', 'adres_email',
                                   'dzial_nazwa', 'biuro_numer'], basic[0])
 
@@ -104,7 +105,7 @@ def pokaz_pracownik_info(pesel):
         d.nazwa = (select p.dzial_nazwa from  Pracownik p where pesel = %s))""", [pesel]
     )
     if error is not None:
-        flash('Wystąpił błąd!<br/>{}'.format(error.msg))
+        flash('Wystąpił błąd!<br/>')
     branch_data = make_dictionary(['adres', 'nazwa'], branch[0])
 
     hardware, error = DBC().get_instance().execute_query_fetch(
@@ -112,10 +113,10 @@ def pokaz_pracownik_info(pesel):
         where s.numer_ewidencyjny in (select swp.sprzet_numer_ewidencyjny from SprzetWPrzypisaniu swp
         where swp.przypisanie_id_przydzialu in (select p.id_przydzialu from Przypisanie p 
         where p.pracownik_pesel = %s and p.data_zwrotu is null))
-        order by s.nazwa""", [pesel]
+        order by s.nazwa, s.numer_ewidencyjny""", [pesel]
     )
     if error is not None:
-        flash('Wystąpił błąd<br/>{}'.format(error.msg))
+        flash('Wystąpił błąd<br/>')
     hardware_data = make_dictionaries_list(['numer_ewidencyjny', 'nazwa', 'producent', 'typ'], hardware)
 
     permissions, error = DBC().get_instance().execute_query_fetch(
@@ -127,15 +128,16 @@ def pokaz_pracownik_info(pesel):
         order by b.budynek_adres, b.pietro""", [pesel]
     )
     if error is not None:
-        flash('Wystąpił błąd!<br/>{}'.format(error.msg))
+        flash('Wystąpił błąd!<br/>')
     permissions_data = make_dictionaries_list(['budynek_adres', 'pietro', 'numer'], permissions)
 
     cards, error = DBC().get_instance().execute_query_fetch(
-        """SELECT id_karty, data_przyznania from KartaDostepu 
-        where pracownik_pesel = %s""", [pesel]
+        """SELECT id_karty, DATE_FORMAT(data_przyznania, '%d.%m.%Y') from KartaDostepu 
+        where pracownik_pesel = %s
+        order by id_karty""", [pesel]
     )
     if error is not None:
-        flash('Wystąpił błąd!<br/>{}'.format(error.msg))
+        flash('Wystąpił błąd!<br/>')
     cards_data = make_dictionaries_list(['id_karty', 'data_przyznania'], cards)
 
     software, error = DBC().get_instance().execute_query_fetch(
@@ -144,10 +146,11 @@ def pokaz_pracownik_info(pesel):
          where onp.sprzet_numer in (SELECT s.numer_ewidencyjny FROM Sprzet s 
         where s.numer_ewidencyjny in (select swp.sprzet_numer_ewidencyjny from SprzetWPrzypisaniu swp
         where swp.przypisanie_id_przydzialu in (select p.id_przydzialu from Przypisanie p 
-        where p.pracownik_pesel = %s and p.data_zwrotu is null))))""", [pesel]
+        where p.pracownik_pesel = %s and p.data_zwrotu is null))))
+        order by o.nazwa, o.numer_ewidencyjny""", [pesel]
     )
     if error is not None:
-        flash('Wystąpił błąd!<br/>{}'.format(error.msg))
+        flash('Wystąpił błąd!<br/>')
     software_data = make_dictionaries_list(['numer_ewidencyjny', 'nazwa', 'producent'], software)
 
     return render_template('show_info/pokaz_pracownik_info.html', pracownik=basic_data, oddzial=branch_data,
@@ -162,7 +165,7 @@ def pokaz_sprzet_info(numer_ewidencyjny):
         WHERE numer_ewidencyjny = %s""", [numer_ewidencyjny]
     )
     if error is not None:
-        flash('Wystąpił błąd!<br/>{}'.format(error.msg))
+        flash('Wystąpił błąd!<br/>')
     basic_data = make_dictionary(['numer_ewidencyjny', 'data_zakupu', 'nazwa', 'typ', 'producent', 'uwagi', 'magazyn_numer'], basic[0])
 
     history, error = DBC().get_instance().execute_query_fetch(
@@ -178,17 +181,18 @@ def pokaz_sprzet_info(numer_ewidencyjny):
         where swp.sprzet_numer_ewidencyjny = %s) order by data_przydzialu desc""", [numer_ewidencyjny, numer_ewidencyjny]
     )
     if error is not None:
-        flash('Wystąpił błąd!<br/>{}'.format(error.msg))
+        flash('Wystąpił błąd!<br/>')
     history_data = make_dictionaries_list(['id_przydzialu', 'data_przydzialu', 'data_zwrotu', 'pracownik_pesel',
                                     'pracownik_nazwisko', 'pracownik_imie', 'biuro_numer'], history)
 
     software, error = DBC().get_instance().execute_query_fetch(
         """SELECT o.numer_ewidencyjny, o.nazwa, o.producent from Oprogramowanie o
          where o.numer_ewidencyjny in (select onp.oprogramowanie_numer from OprogramowanieNaSprzecie onp 
-         where onp.sprzet_numer = %s)""", [numer_ewidencyjny]
+         where onp.sprzet_numer = %s)
+         ORDER BY o.nazwa, o.numer_ewidencyjny""", [numer_ewidencyjny]
     )
     if error is not None:
-        flash('Wystąpił błąd!<br/>{}'.format(error.msg))
+        flash('Wystąpił błąd!<br/>')
     software_data = make_dictionaries_list(['numer_ewidencyjny', 'nazwa', 'producent'], software)
 
     return render_template('show_info/pokaz_sprzet_info.html', sprzet=basic_data, przypisania=history_data,
@@ -199,22 +203,23 @@ def pokaz_sprzet_info(numer_ewidencyjny):
 def pokaz_oprogramowanie_info(numer_ewidencyjny):
     basic, error = DBC().get_instance().execute_query_fetch(
         """SELECT numer_ewidencyjny, nazwa, producent, DATE_FORMAT(data_zakupu, '%d.%m.%Y'),
-          CASE WHEN data_wygasniecia IS NULL THEN 'Nie wygasa' ELSE DATE_FORMAT(data_wygasniecia, '%d.%m.%Y') END,
+          COALESCE(DATE_FORMAT(data_wygasniecia, '%d.%m.%Y'), 'Nie wygasa'),
         COALESCE(ilosc_licencji, 'Nieograniczona'), uwagi from Oprogramowanie
         WHERE numer_ewidencyjny = %s""", [numer_ewidencyjny]
     )
     if error is not None:
-        flash('Wystąpił błąd!<br/>{}'.format(error.msg))
+        flash('Wystąpił błąd!<br/>')
     basic_data = make_dictionary(['numer_ewidencyjny', 'nazwa', 'producent', 'data_zakupu', 'data_wygasniecia',
                                   'ilosc_licencji', 'uwagi'], basic[0])
 
     hardware, error = DBC().get_instance().execute_query_fetch(
         """SELECT s.nazwa, s.producent, s.typ, s.numer_ewidencyjny from Sprzet s
         WHERE s.numer_ewidencyjny in (select ons.sprzet_numer from OprogramowanieNaSprzecie ons
-        where ons.oprogramowanie_numer = %s)""", [numer_ewidencyjny]
+        where ons.oprogramowanie_numer = %s)
+        order by s.nazwa, s.numer_ewidencyjny""", [numer_ewidencyjny]
     )
     if error is not None:
-        flash('Wystąpił błąd!<br/>{}'.format(error.msg))
+        flash('Wystąpił błąd!<br/>')
 
     hardware_data = make_dictionaries_list(['nazwa', 'producent', 'typ', 'numer_ewidencyjny'], hardware)
 
@@ -228,7 +233,7 @@ def pokaz_biuro_info(numer_biura):
         WHERE numer = %s""", [numer_biura]
     )
     if error is not None:
-        flash('Wystąpił błąd!<br/>{}'.format(error.msg))
+        flash('Wystąpił błąd!<br/>')
     basic_data = make_dictionary(['numer', 'liczba_stanowisk', 'pietro', 'budynek_adres'], basic[0])
 
     building, error = DBC().get_instance().execute_query_fetch(
@@ -236,7 +241,7 @@ def pokaz_biuro_info(numer_biura):
         WHERE b.adres = (select budynek_adres from Biuro where numer = %s)""", [numer_biura]
     )
     if error is not None:
-        flash('Wystąpił błąd!<br/>{}'.format(error.msg))
+        flash('Wystąpił błąd!<br/>')
     building_data = make_dictionary(['adres'], building[0])
 
     workers, error = DBC().get_instance().execute_query_fetch(
@@ -246,7 +251,7 @@ def pokaz_biuro_info(numer_biura):
         ORDER BY nazwisko, imie""", [numer_biura]
     )
     if error is not None:
-        flash('Wystąpił błąd!<br/>{}'.format(error.msg))
+        flash('Wystąpił błąd!<br/>')
     workers_data = make_dictionaries_list(['pesel', 'imie', 'nazwisko', 'numer_telefonu', 'czy_nadal_pracuje',
                                            'adres_email', 'dzial_nazwa', 'biuro_numer'], workers)
 
@@ -255,10 +260,10 @@ def pokaz_biuro_info(numer_biura):
         where s.numer_ewidencyjny in (select swp.sprzet_numer_ewidencyjny from SprzetWPrzypisaniu swp
         where swp.przypisanie_id_przydzialu in (select p.id_przydzialu from Przypisanie p 
         where p.biuro_numer = %s and p.data_zwrotu is null))
-        order by s.nazwa""", [numer_biura]
+        order by s.nazwa, s.numer_ewidencyjny""", [numer_biura]
     )
     if error is not None:
-        flash('Wystąpił błąd<br/>{}'.format(error.msg))
+        flash('Wystąpił błąd<br/>')
     hardware_data = make_dictionaries_list(['numer_ewidencyjny', 'nazwa', 'producent', 'typ'], hardware)
 
     cards, error = DBC().get_instance().execute_query_fetch(
@@ -269,7 +274,7 @@ def pokaz_biuro_info(numer_biura):
         order by kd.id_karty""", [numer_biura]
     )
     if error is not None:
-        flash('Wystąpił błąd!<br/>{}'.format(error.msg))
+        flash('Wystąpił błąd!<br/>')
     cards_data = make_dictionaries_list(['id_karty', 'data_przyznania', 'pracownik_pesel', 'pracownik_nazwisko', 'pracownik_imie'], cards)
 
     return render_template('show_info/pokaz_biuro_info.html', biuro=basic_data, budynek=building_data,
@@ -283,7 +288,7 @@ def pokaz_dzial_info(nazwa):
         WHERE nazwa = %s""", [nazwa]
     )
     if error is not None:
-        flash('Wystąpił błąd!<br/>{}'.format(error.msg))
+        flash('Wystąpił błąd!<br/>')
     basic_data = make_dictionary(['nazwa', 'skrot', 'oddzial_adres'], basic[0])
 
     branch, error = DBC().get_instance().execute_query_fetch(
@@ -292,7 +297,7 @@ def pokaz_dzial_info(nazwa):
         d.nazwa = %s)""", [nazwa]
     )
     if error is not None:
-        flash('Wystąpił błąd!<br/>{}'.format(error.msg))
+        flash('Wystąpił błąd!<br/>')
     branch_data = make_dictionary(['adres', 'nazwa'], branch[0])
 
     workers, error = DBC().get_instance().execute_query_fetch(
@@ -302,7 +307,7 @@ def pokaz_dzial_info(nazwa):
         ORDER BY nazwisko, imie""", [nazwa]
         )
     if error is not None:
-        flash('Wystąpił błąd!<br/>{}'.format(error.msg))
+        flash('Wystąpił błąd!<br/>')
     workers_data = make_dictionaries_list(['pesel', 'imie', 'nazwisko', 'numer_telefonu', 'czy_nadal_pracuje',
                                           'adres_email', 'dzial_nazwa', 'biuro_numer'], workers)
 
@@ -317,16 +322,16 @@ def pokaz_magazyn_info(numer):
         WHERE numer = %s""", [numer]
     )
     if error is not None:
-        flash('Wystąpił błąd!<br/>{}'.format(error.msg))
+        flash('Wystąpił błąd!<br/>')
     basic_data = make_dictionary(['numer', 'pojemnosc', 'oddzial_adres', 'wolne_miejsce'], basic[0])
 
     hardware, error = DBC().get_instance().execute_query_fetch(
         """SELECT s.nazwa, s.producent, s.typ, s.numer_ewidencyjny from Sprzet s
         WHERE s.magazyn_numer =  %s
-        ORDER BY s.nazwa""", [numer]
+        ORDER BY s.nazwa, s.numer_ewidencyjny""", [numer]
     )
     if error is not None:
-        flash('Wystąpił błąd!<br/>{}'.format(error.msg))
+        flash('Wystąpił błąd!<br/>')
 
     hardware_data = make_dictionaries_list(['nazwa', 'producent', 'typ', 'numer_ewidencyjny'], hardware)
 
@@ -340,7 +345,7 @@ def pokaz_karta_dostepu_info(id_karty):
         WHERE id_karty = %s""", [id_karty]
     )
     if error is not None:
-        flash('Wystąpił błąd!<br/>{}'.format(error.msg))
+        flash('Wystąpił błąd!<br/>')
     basic_data = make_dictionary(['id_karty', 'data_przyznania', 'pracownik_pesel'], basic[0])
 
     offices, error = DBC().get_instance().execute_query_fetch(
@@ -350,7 +355,7 @@ def pokaz_karta_dostepu_info(id_karty):
         order by b.budynek_adres, b.pietro, b.numer""", [id_karty]
     )
     if error is not None:
-        flash('Wystąpił błąd!<br/>{}'.format(error.msg))
+        flash('Wystąpił błąd!<br/>')
 
     offices_data = make_dictionaries_list(['numer', 'budynek_adres', 'pietro'], offices)
 

@@ -10,12 +10,12 @@
         <table>
             <thead>
             <tr>
-                <td>PESEL</td>
-                <td>Nazwisko</td>
                 <td>Imię</td>
+                <td>Nazwisko</td>
                 <td>Numer telefonu</td>
                 <td>Czy nadal pracuje</td>
                 <td>Adres email</td>
+                <td>PESEL</td>
                 {#<td>Oddział</td>#}
                 <td>Dział</td>
                 <td>Biuro</td>
@@ -23,12 +23,12 @@
             </thead>
             {% for pracownik in pracownicy %}
                 <tr>
-                    <td>{{ pracownik['pesel'] }}</td>
-                    <td>{{ pracownik['nazwisko'] }}</td>
                     <td>{{ pracownik['imie'] }}</td>
+                    <td>{{ pracownik['nazwisko'] }}</td>
                     <td>{{ pracownik['numer_telefonu'] }}</td>
                     <td>{{ pracownik['czy_nadal_pracuje'] }}</td>
                     <td>{{ pracownik['adres_email'] }}</td>
+                    <td>{{ pracownik['pesel'] }}</td>
                     {#<td>
                         <a href="{{ url_for('show_info.pokaz_oddzial_info', adres=pracownik['oddzial_adres']) }}">
                         {{ pracownik['oddzial_adres'] }}</a>

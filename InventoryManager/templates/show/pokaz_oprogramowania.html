@@ -11,9 +11,9 @@
         <table>
             <thead>
             <tr>
-                <td>Numer ewidencyjny</td>
                 <td>Nazwa</td>
                 <td>Producent</td>
+                <td>Numer ewidencyjny</td>
                 <td>Data zakupu</td>
                 <td>Data wygaśnięcia</td>
                 <td>Ilość licencji</td>
@@ -21,9 +21,9 @@
             </thead>
             {% for oprogramowanie in oprogramowania %}
                 <tr>
-                    <td>{{ oprogramowanie['numer_ewidencyjny'] }}</td>
                     <td>{{ oprogramowanie['nazwa'] }}</td>
                     <td>{{ oprogramowanie['producent'] }}</td>
+                    <td>{{ oprogramowanie['numer_ewidencyjny'] }}</td>
                     <td>{{ oprogramowanie['data_zakupu'] }}</td>
                     <td>{{ oprogramowanie['data_wygasniecia'] }}</td>
                     <td>{{ oprogramowanie['ilosc_licencji'] }}</td>
