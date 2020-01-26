@@ -28,45 +28,39 @@
             </tr>
         </table>
     </div>
-    <div>
         <h3>Biura do których umożliwia wejście</h3>
-        <form action="{{ url_for('assign.przypisz_prawo_dostepu_karta', pesel=karta['pracownik_pesel'], id_karty=karta['id_karty']) }}">
-            <input type="submit" value="Przyznaj nowe prawo">
-        </form>
-        <form action="{{ url_for('deassign.odbierz_prawo_dostepu', pesel=karta['pracownik_pesel'], id_karty=karta['id_karty']) }}">
-            <input type="submit" value="Odbierz prawo">
-        </form>
-        <form action="">
-            <input type="submit" value="Odbierz wygasłe prawa TODO">
-        </form>
         <table>
             <thead>
-            <tr>
-                <td>Budynek</td>
-                <td>Piętro</td>
-                <td>Numer</td>
-            </tr>
-            </thead>
-            {% for biuro in biura %}
                 <tr>
-                    <td>
+                    <td>Adres budynku</td>
+                    <td>Piętro</td>
+                    <td>Numer biura</td>
+                    <td>Data przyznania</td>
+                    <td>Data wygaśnięcia</td>
+                </tr>
+            </thead>
+            {% for biuro in dostepne_biura %}
+            <tr>
+                <td>
                     <a href="{{ url_for('show_info.pokaz_budynek_info', adres=biuro['budynek_adres']) }}">
                         {{ biuro['budynek_adres'] }}
                     </a>
                 </td>
-                    <td>{{ biuro['pietro'] }}</td>
-                    <td>{{ biuro['numer'] }}</td>
-                    <td>
-                        <form action="{{ url_for('show_info.pokaz_biuro_info', numer_biura=biuro['numer']) }}"><input
-                                type="submit" value="Przejdź">
-                        </form>
-                    </td>
-                    <td class="edit_mode_element">
-                        <form action="{{ url_for('edit.edytuj_biuro', numer=biuro['numer']) }}">
-                            <input type="submit" value="Edytuj">
-                        </form>
-                    </td>
-                </tr>
+                <td>{{biuro['pietro']}}</td>
+                <td>{{biuro['numer']}}</td>
+                <td>{{biuro['data_przyznania']}}</td>
+                <td>{{biuro['data_wygasniecia']}}</td>
+                <td>
+                    <form action="{{ url_for('show_info.pokaz_biuro_info', numer_biura=biuro['numer']) }}"><input
+                            type="submit" value="Przejdź">
+                    </form>
+                </td>
+                <td class="edit_mode_element">
+                <form action="{{ url_for('edit.edytuj_biuro', numer=biuro['numer']) }}">
+                    <input type="submit" value="Edytuj">
+                </form>
+                </td>
+            </tr>
             {% endfor %}
         </table>
     </div>

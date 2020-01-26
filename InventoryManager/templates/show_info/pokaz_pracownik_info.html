@@ -81,6 +81,8 @@
                     <td>Adres budynku</td>
                     <td>Piętro</td>
                     <td>Numer biura</td>
+                    <td>Data przyznania</td>
+                    <td>Data wygaśnięcia</td>
                 </tr>
             </thead>
             {% for biuro in dostepne_biura %}
@@ -92,6 +94,8 @@
                 </td>
                 <td>{{biuro['pietro']}}</td>
                 <td>{{biuro['numer']}}</td>
+                <td>{{biuro['data_przyznania']}}</td>
+                <td>{{biuro['data_wygasniecia']}}</td>
                 <td>
                     <form action="{{ url_for('show_info.pokaz_biuro_info', numer_biura=biuro['numer']) }}"><input
                             type="submit" value="Przejdź">

@@ -127,16 +127,16 @@ def pokaz_pracownik_info(pesel):
         assignment['hardware'] = hardware_data
 
     permissions, error = DBC().get_instance().execute_query_fetch(
-        """SELECT b.budynek_adres, b.pietro, b.numer
-        FROM Biuro b
-        WHERE b.numer in (select pd.biuro_numer from PrawoDostepu pd
+        """SELECT b.budynek_adres, b.pietro, b.numer, pd.data_przyznania, pd.data_wygasniecia
+        FROM Biuro b join prawodostepu pd on b.numer = pd.biuro_numer
         where pd.kartadostepu_id_karty in (select kd.id_karty from KartaDostepu kd
-        where kd.pracownik_pesel = %s))
+        where kd.pracownik_pesel = %s)
         order by b.budynek_adres, b.pietro""", [pesel]
     )
     if error is not None:
         flash('Wystąpił błąd!<br/>{}'.format(error.msg))
-    permissions_data = make_dictionaries_list(['budynek_adres', 'pietro', 'numer'], permissions)
+    permissions_data = make_dictionaries_list(['budynek_adres', 'pietro', 'numer', 'data_przyznania',
+                                               'data_wygasniecia'], permissions)
 
     cards, error = DBC().get_instance().execute_query_fetch(
         """SELECT id_karty, data_przyznania from KartaDostepu 
@@ -278,15 +278,17 @@ def pokaz_biuro_info(numer_biura):
         assignment['hardware'] = hardware_data
 
     cards, error = DBC().get_instance().execute_query_fetch(
-        """SELECT kd.id_karty, kd.data_przyznania, p.pesel, p.nazwisko, p.imie from KartaDostepu kd join Pracownik p 
-        on kd.pracownik_pesel = p.pesel
+        """SELECT kd.id_karty, p.pesel, p.nazwisko, p.imie, p2.data_wygasniecia, p2.data_przyznania 
+        from KartaDostepu kd join Pracownik p 
+        on kd.pracownik_pesel = p.pesel join prawodostepu p2 on kd.id_karty = p2.kartadostepu_id_karty
         where kd.id_karty in (select pd.kartadostepu_id_karty from PrawoDostepu pd
         where pd.biuro_numer = %s)
         order by kd.id_karty""", [numer_biura]
     )
     if error is not None:
         flash('Wystąpił błąd!<br/>{}'.format(error.msg))
-    cards_data = make_dictionaries_list(['id_karty', 'data_przyznania', 'pracownik_pesel', 'pracownik_nazwisko', 'pracownik_imie'], cards)
+    cards_data = make_dictionaries_list(['id_karty', 'pracownik_pesel', 'pracownik_nazwisko',
+                                         'pracownik_imie', 'data_wygasniecia', 'data_przyznania'], cards)
 
     return render_template('show_info/pokaz_biuro_info.html', biuro=basic_data, budynek=building_data,
                            pracownicy=workers_data, przypisania=assignments_data, karty=cards_data)
@@ -359,18 +361,18 @@ def pokaz_karta_dostepu_info(id_karty):
         flash('Wystąpił błąd!<br/>{}'.format(error.msg))
     basic_data = make_dictionary(['id_karty', 'data_przyznania', 'pracownik_pesel'], basic[0])
 
-    offices, error = DBC().get_instance().execute_query_fetch(
-        """SELECT b.numer, b.budynek_adres, b.pietro from Biuro b
-        WHERE b.numer in (select pd.biuro_numer from PrawoDostepu pd
-        where pd.kartadostepu_id_karty = %s)
-        order by b.budynek_adres, b.pietro, b.numer""", [id_karty]
+    permissions, error = DBC().get_instance().execute_query_fetch(
+        """SELECT b.budynek_adres, b.pietro, b.numer, pd.data_przyznania, pd.data_wygasniecia
+        FROM Biuro b join prawodostepu pd on b.numer = pd.biuro_numer
+        where pd.kartadostepu_id_karty = %s
+        order by b.budynek_adres, b.pietro""", [id_karty]
     )
     if error is not None:
         flash('Wystąpił błąd!<br/>{}'.format(error.msg))
+    permissions_data = make_dictionaries_list(['budynek_adres', 'pietro', 'numer', 'data_przyznania',
+                                               'data_wygasniecia'], permissions)
 
-    offices_data = make_dictionaries_list(['numer', 'budynek_adres', 'pietro'], offices)
-
-    return render_template('show_info/pokaz_karta_dostepu_info.html', karta=basic_data, biura=offices_data)
+    return render_template('show_info/pokaz_karta_dostepu_info.html', karta=basic_data, dostepne_biura=permissions_data)
 
 
 # Redirects you to any other show info page (needed on the search page)

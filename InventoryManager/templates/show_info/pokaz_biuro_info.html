@@ -113,26 +113,28 @@
             <thead>
             <tr>
                 <td>Id karty</td>
-                <td>Data przyznania karty</td>
                 <td>Właściciel</td>
+                <td>Data przyznania prawa</td>
+                <td>Data wygaśnięcia prawa</td>
             </tr>
             </thead>
             {% for card in karty %}
                 <tr>
                     <td>{{ card['id_karty'] }}</td>
-                    <td>{{ card['data_przyznania'] }}</td>
                     <td>
                         <a href="{{ url_for('show_info.pokaz_pracownik_info', pesel=card['pracownik_pesel']) }}">
                             {{ card['pracownik_nazwisko'] }} {{ card['pracownik_imie'] }}
                         </a>
                     </td>
+                    <td>{{ card['data_przyznania'] }}</td>
+                    <td>{{ card['data_wygasniecia'] }}</td>
                     <td>
-                    <form action="{{ url_for('show_info.pokaz_karta_dostepu_info', id_karty=card['id_karty']) }}">
-                        <input type="submit" value="Przejdź">
-                    </form>
-                    <form action="{{ url_for('deassign.odbierz_prawo_dostepu', pesel=card['pracownik_pesel'], id_karty=card['id_karty']) }}">
-                        <input type="submit" value="Odbierz prawo">
-                    </form>
+                        <form action="{{ url_for('show_info.pokaz_karta_dostepu_info', id_karty=card['id_karty']) }}">
+                            <input type="submit" value="Przejdź">
+                        </form>
+                        <form action="{{ url_for('deassign.odbierz_prawo_dostepu', pesel=card['pracownik_pesel'], id_karty=card['id_karty']) }}">
+                            <input type="submit" value="Odbierz prawo">
+                        </form>
                     </td>
                 </tr>
             {% endfor %}
