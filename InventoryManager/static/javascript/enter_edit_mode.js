@@ -15,3 +15,6 @@ function enter_exit_edit_mode() {
 document.getElementById("edit_mode_box").onclick = function () {
     enter_exit_edit_mode();
 };
+document.addEventListener("DOMContentLoaded", function(){
+    enter_exit_edit_mode();
+});
