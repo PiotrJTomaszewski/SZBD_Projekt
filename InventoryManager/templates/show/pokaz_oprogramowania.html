@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+{% block title %}Lista dostępnych oprogramowań{% endblock %}
+{% block content %}
+    {% block header %}{% endblock %}
+    <h1>Lista dostępnych oprogramowań</h1>
+    <label for="edit_mode_box">Włącz tryb edycji</label><input type="checkbox" id="edit_mode_box" value="false"/>
+    <form class="edit_mode_element" action="{{ url_for('add.dodaj_oprogramowanie') }}">
+        <input type="submit" value="Dodaj oprogramowanie"/>
+    </form>
+    <div class="table-container">
+        <table>
+            <thead>
+            <tr>
+                <td>Numer ewidencyjny</td>
+                <td>Nazwa</td>
+                <td>Producent</td>
+                <td>Data zakupu</td>
+                <td>Data wygaśnięcia</td>
+                <td>Ilość licencji</td>
+            </tr>
+            </thead>
+            {% for oprogramowanie in oprogramowania %}
+                <tr>
+                    <td>{{ oprogramowanie['numer_ewidencyjny'] }}</td>
+                    <td>{{ oprogramowanie['nazwa'] }}</td>
+                    <td>{{ oprogramowanie['producent'] }}</td>
+                    <td>{{ oprogramowanie['data_zakupu'] }}</td>
+                    <td>{{ oprogramowanie['data_wygasniecia'] }}</td>
+                    <td>{{ oprogramowanie['ilosc_licencji'] }}</td>
+                    <td>
+                        <form action="{{ url_for('show_info.pokaz_oprogramowanie_info',
+                        numer_ewidencyjny=oprogramowanie['numer_ewidencyjny']) }}">
+                            <input type="submit" value="Przejdź">
+                        </form>
+                    </td>
+                    <td class="edit_mode_element">
+                        <form>
+                            <input type="submit" value="Edytuj" formaction="TODO_KAMIL">
+                        </form>
+                    </td>
+                </tr>
+            {% endfor %}
+        </table>
+    </div>
+    <script src="{{ url_for('static', filename='javascript/enter_edit_mode.js') }}"></script>
+{% endblock %}

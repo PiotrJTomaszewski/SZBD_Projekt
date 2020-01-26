@@ -43,8 +43,7 @@ button {
 }
 
 #navigation_container {
-    /*width: 800px;*/
-    /*margin-bottom: 30px;*/
+    margin-bottom: 50px;
     padding-bottom: 30px;
 }
 
@@ -83,4 +82,13 @@ button {
     margin-bottom: 20px;
     border-width: 10px;
     border-style: solid;
+}
+
+.single_flashed_message.succes {
+    color: forestgreen;
+    background-color: lightgreen;
+}
+
+h4 {
+    color: saddlebrown;
 }

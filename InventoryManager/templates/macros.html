@@ -16,11 +16,15 @@
     <div id="flashed_messages">
         {% with messages = get_flashed_messages() %}
             {% if messages %}
-                <div class="single_flashed_message">
                     {% for message in messages %}
-                        {{ message|safe }}
+                        {% if ('pomyślnie' in message) or ('Pomyślnie' in message)  %}
+                        <div class="single_flashed_message succes">
+                        {% else %}
+                        <div class="single_flashed_message">
+                        {% endif %}
+                            {{ message|safe }}
+                        </div>
                     {% endfor %}
-                </div>
             {% endif %}
         {% endwith %}
     </div>

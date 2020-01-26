@@ -104,8 +104,17 @@ def sprzet_w_magazynach():
 
 
 @show.route('/pokaz/oprogramowanie')
-def oprogramowanie():
-    return render_template('show/pokaz_oprogramowanie.html', oprogramowanie=[])
+def oprogramowania():
+    software, error = DBC().get_instance().execute_query_fetch(
+        """SELECT numer_ewidencyjny, nazwa, producent, data_zakupu, data_wygasniecia, 
+        coalesce(ilosc_licencji, 'Nielimitowane') FROM oprogramowanie""")
+    if error is not None:
+        print(error)
+        flash('Wystąpił błąd!<br/>Nie można pobrać dostępnego sprzętu')
+    software_data = make_dictionaries_list(
+        ['numer_ewidencyjny', 'nazwa', 'producent', 'data_zakupu', 'data_wygasniecia', 'ilosc_licencji'], software)
+
+    return render_template('show/pokaz_oprogramowania.html', oprogramowania=software_data)
 
 
 @show.route('/pokaz/historia_przypisan')

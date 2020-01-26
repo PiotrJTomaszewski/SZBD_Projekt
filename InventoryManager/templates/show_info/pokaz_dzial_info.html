@@ -3,7 +3,7 @@
 {% block content %}
     <h1>Informacje na temat działu</h1>
     <label for="edit_mode_box">Włącz tryb edycji</label><input type="checkbox" id="edit_mode_box" value="false"/>
-    <h1>Dział {{ dzial['nazwa'] }} w oddziale {{ dzial['oddzial']['adres'] }}</h1>
+    <h1>Dział {{ dzial['nazwa'] }} w oddziale {{ oddzial['adres'] }}</h1>
     <div>
         <h3>Informacje</h3>
         <table>
@@ -17,7 +17,7 @@
             <tr>
                 <td>{{ dzial['nazwa'] }}</td>
                 <td>{{ dzial['skrot'] }}</td>
-                <td><a href="{{ url_for('show_info.pokaz_oddzial_info', adres=dzial['oddzial']['adres']) }}">{{ dzial['oddzial']['adres'] }}</a></td>
+                <td><a href="{{ url_for('show_info.pokaz_oddzial_info', adres=dzial['oddzial_adres']) }}">{{ dzial['oddzial_adres'] }}</a></td>
                 <td class="edit_mode_element">
                     <input type="submit" value="Edytuj">
                 </td>
@@ -32,7 +32,6 @@
         <table>
             <thead>
             <tr>
-                <td>PESEL</td>
                 <td>Imię</td>
                 <td>Nazwisko</td>
                 <td>Numer telefonu</td>
@@ -41,7 +40,6 @@
             </thead>
             {% for pracownik in pracownicy %}
                 <tr>
-                    <td>{{ pracownik['pesel'] }}</td>
                     <td>{{ pracownik['imie'] }}</td>
                     <td>{{ pracownik['nazwisko'] }}</td>
                     <td>{{ pracownik['numer_telefonu'] }}</td>

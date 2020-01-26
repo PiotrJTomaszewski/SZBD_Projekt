@@ -35,9 +35,6 @@
                     <a href="{{ url_for('show.sprzet_w_magazynach') }}" class="navigation_panel_link">Sprzęt w magazynach</a>
                 </li>
                 <li class="navigation_panel_element">
-                    <a href="{{ url_for('show.oprogramowanie') }}" class="navigation_panel_link">Oprogramowanie</a>
-                </li>
-                <li class="navigation_panel_element">
                     <a href="{{ url_for('show.historia_przypisan') }}" class="navigation_panel_link">Historia przypisań</a>
                 </li>
                 <li class="navigation_panel_element">
@@ -47,8 +44,16 @@
         </div>
         {% if session['wybrany_oddzial_adres'] %}
             <div>
-                <h1>Przeglądasz oddział {{ session['wybrany_oddzial_nazwa'] }} ({{ session['wybrany_oddzial_adres'] }}).
-                <a href="{{ url_for('strona_glowna') }}">Wybierz inny oddział</a></h1>
+                <h1>
+                    Przeglądasz oddział
+                    <a href="{{ url_for('show_info.pokaz_oddzial_info', adres=session['wybrany_oddzial_adres']) }}">
+                        {{ session['wybrany_oddzial_nazwa'] }} ({{ session['wybrany_oddzial_adres'] }}).
+                    </a>
+                    <form action="{{ url_for('strona_glowna') }}">
+                        <input type="submit" value="Wybierz inny oddział">
+                    </form>
+                </h1>
+                <hr>
             </div>
         {% endif %}
         <br/>

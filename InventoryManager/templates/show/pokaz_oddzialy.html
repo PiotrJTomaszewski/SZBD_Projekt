@@ -33,5 +33,12 @@
             {% endfor %}
         </table>
     </div>
+    <div>
+        <h2>
+            <a href="{{ url_for('show.oprogramowania') }}">
+               Spis dostępnych oprogramowań
+            </a>
+        </h2>
+    </div>
     <script src="{{ url_for('static', filename='javascript/enter_edit_mode.js') }}"></script>
 {% endblock %}
