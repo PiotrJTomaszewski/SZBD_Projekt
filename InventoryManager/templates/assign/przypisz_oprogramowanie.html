@@ -39,6 +39,7 @@
         <td>Data zakupu</td>
         <td>Data wygaśnięcia</td>
         <td>Liczba licencji</td>
+        <td>Liczba wolnych licencji</td>
         <td>Wybierz</td>
     </tr>
     </thead>
@@ -51,6 +52,7 @@
         <td>{{ oprogramowanie['data_zakupu'] }}</td>
         <td>{{ oprogramowanie['data_wygasniecia'] }}</td>
         <td>{{ oprogramowanie['liczba_licencji'] }}</td>
+        <td>{{ oprogramowanie['liczba_wolnych_licencji'] }}</td>
         <td><input type="checkbox" name="chosen_software" value="{{ oprogramowanie['numer'] }}"></td>
     </tr>
     {% endfor %}

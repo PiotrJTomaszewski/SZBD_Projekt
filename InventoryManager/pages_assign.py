@@ -270,7 +270,7 @@ def przypisz_oprogramowanie(numer_ewidencyjny):
 
     available_software, error = DBC().get_instance().execute_query_fetch("""
     SELECT numer_ewidencyjny, nazwa, producent, DATE_FORMAT(data_zakupu, '%d.%m.%Y'), 
-    COALESCE(DATE_FORMAT(data_wygasniecia, '%d.%m.%Y'), 'Nie wygasa'), COALESCE(ilosc_licencji, 'Nieograniczona')
+    COALESCE(DATE_FORMAT(data_wygasniecia, '%d.%m.%Y'), 'Nie wygasa'), COALESCE(ilosc_licencji, 'Nieograniczona'), COALESCE(IleWolnychLicencji(numer_ewidencyjny), 'Nieograniczona')
     FROM Oprogramowanie
     WHERE (ilosc_licencji IS NULL
     OR IleWolnychLicencji(numer_ewidencyjny) > 0)
@@ -284,7 +284,7 @@ def przypisz_oprogramowanie(numer_ewidencyjny):
         flash('Nie znaleziono żadnej dostępnej kopii oprogramowania')
         return redirect(url_for('show_info.pokaz_sprzet_info', numer_ewidencyjny=numer_ewidencyjny))
     available_software_data = make_dictionaries_list(
-        ['numer', 'nazwa', 'producent', 'data_zakupu', 'data_wygasniecia', 'liczba_licencji'], available_software)
+        ['numer', 'nazwa', 'producent', 'data_zakupu', 'data_wygasniecia', 'liczba_licencji', 'liczba_wolnych_licencji'], available_software)
     # Exclude already installed software
     current_software, error = DBC().get_instance().execute_query_fetch("""
     SELECT oprogramowanie_numer
@@ -411,7 +411,7 @@ def wykonaj_przypisz_prawo_dostepu_karta(pesel, id_karty):
     if request.method == 'POST':
         print(request.form)
         if not request.form.get('selected_offices'):
-            flash('Prosze wybrać biura')
+            flash('Proszę wybrać biura')
             return redirect(url_for('assign.przypisz_prawo_dostepu_karta', pesel=pesel, id_karty=id_karty))
         expiration_date = request.form.get('access_expiration_date')
         if expiration_date and expiration_date != '':
