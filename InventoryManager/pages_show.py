@@ -58,7 +58,7 @@ def pracownicy():
         p.biuro_numer, d.skrot, d.oddzial_adres 
         FROM Pracownik p JOIN Dzial d on p.dzial_nazwa = d.nazwa
         WHERE d.oddzial_adres = %s
-        ORDER BY pesel""", [session['wybrany_oddzial_adres']]
+        ORDER BY p.nazwisko, p.imie""", [session['wybrany_oddzial_adres']]
     )
     if error is not None:
         flash('Wystąpił błąd!<br/>{}'.format(error.msg))
@@ -78,7 +78,8 @@ def magazyny():
     warehouses, error = DBC().get_instance().execute_query_fetch(
         """SELECT numer, pojemnosc, oddzial_adres
         FROM Magazyn
-        WHERE oddzial_adres = %s""", [session['wybrany_oddzial_adres']]
+        WHERE oddzial_adres = %s
+        ORDER BY numer""", [session['wybrany_oddzial_adres']]
     )
     if error is not None:
         flash('Wystąpił błąd!<br/>{}'.format(error.msg))
@@ -89,9 +90,10 @@ def magazyny():
 @show.route('/pokaz/sprzet_w_magazynach')
 def sprzet_w_magazynach():
     hardware_in_warehouses, error = DBC().get_instance().execute_query_fetch(
-        """SELECT S.numer_ewidencyjny, S.data_zakupu, S.nazwa, S.typ, S.producent, S.magazyn_numer
+        """SELECT S.numer_ewidencyjny, DATE_FORMAT(S.data_zakupu, '%d.%m.%Y'), S.nazwa, S.typ, S.producent, S.magazyn_numer
         FROM Sprzet S
-        WHERE (SELECT oddzial_adres FROM Magazyn M WHERE M.numer = S.magazyn_numer) = %s""",
+        WHERE (SELECT oddzial_adres FROM Magazyn M WHERE M.numer = S.magazyn_numer) = %s
+        ORDER BY S.nazwa""",
         [session['wybrany_oddzial_adres']]
     )
     if error is not None:
@@ -106,8 +108,9 @@ def sprzet_w_magazynach():
 @show.route('/pokaz/oprogramowanie')
 def oprogramowania():
     software, error = DBC().get_instance().execute_query_fetch(
-        """SELECT numer_ewidencyjny, nazwa, producent, data_zakupu, data_wygasniecia, 
-        coalesce(ilosc_licencji, 'Nielimitowane') FROM Oprogramowanie""")
+        """SELECT numer_ewidencyjny, nazwa, producent, DATE_FORMAT(data_zakupu, '%d.%m.%Y'), COALESCE(DATE_FORMAT(data_wygasniecia, '%d.%m.%Y'), 'Nie wygasa'), 
+        coalesce(ilosc_licencji, 'Nielimitowane') FROM Oprogramowanie
+        ORDER BY nazwa""")
     if error is not None:
         print(error)
         flash('Wystąpił błąd!<br/>Nie można pobrać dostępnego oprogramowania')

@@ -46,22 +46,19 @@
         <form action="{{ url_for('deassign.zwroc_oprogramowanie', numer_ewidencyjny=sprzet['numer_ewidencyjny']) }}">
             <input type="submit" value="Zwróć oprogramowanie">
         </form>
-        <form action="">
-            <input type="submit" value="Zwróc wygasłe oprogramowanie TODO">
-        </form>
         <table>
             <thead>
             <tr>
-                <td>Numer ewidencyjny</td>
                 <td>Nazwa</td>
                 <td>Produdent</td>
+                <td>Numer ewidencyjny</td>
             </tr>
             </thead>
             {% for oprogramowanie in oprogramowania %}
                 <tr>
-                    <td>{{ oprogramowanie['numer_ewidencyjny'] }}</td>
                     <td>{{ oprogramowanie['nazwa'] }}</td>
                     <td>{{ oprogramowanie['producent'] }}</td>
+                    <td>{{ oprogramowanie['numer_ewidencyjny'] }}</td>
                     <td>
                         <form action="{{ url_for('show_info.pokaz_oprogramowanie_info',
                         numer_ewidencyjny=oprogramowanie['numer_ewidencyjny'])}}">
@@ -69,7 +66,10 @@
                         </form>
                     </td>
                     <td class="edit_mode_element">
-                        <input type="submit" value="Edytuj">
+                        <form action="{{ url_for('edit.edytuj_oprogramowanie',
+                        numer_ewidencyjny=oprogramowanie['numer_ewidencyjny'])}}">
+                            <input type="submit" value="Edytuj">
+                        </form>
                     </td>
                 </tr>
             {% endfor %}

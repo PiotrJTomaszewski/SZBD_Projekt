@@ -163,7 +163,7 @@ def usun_sprzet(numer_ewidencyjny):
     else:
         flash('Sprzęt został pomyślnie usunięty')
     # return redirect(url_for('show.budynki'))
-    return '1'  # TODO: Decide where to redirect
+    return redirect(url_for('show.sprzet_w_magazynach'))
 
 
 # @delete.route('/usun/sprzet_w_przypisaniu/<numer_ewidencyjny>/<id_przydzialu>')

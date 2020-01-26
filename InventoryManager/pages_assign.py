@@ -26,11 +26,11 @@ def przypisz_sprzet_pracownik(pesel):
     post_address = url_for('assign._przypisz_sprzet_pracownik_post', pesel=pesel)
 
     available_hardware_data, error = DBC().get_instance().execute_query_fetch("""
-    SELECT numer_ewidencyjny, typ, nazwa, producent, data_zakupu, magazyn_numer
+    SELECT numer_ewidencyjny, typ, nazwa, producent, DATE_FORMAT(data_zakupu, '%d.%m.%Y'), magazyn_numer
     FROM Sprzet
     JOIN Magazyn M on Sprzet.magazyn_numer = M.numer
     WHERE oddzial_adres = %s
-    ORDER BY numer_ewidencyjny""", [worker['oddzial_adres']])
+    ORDER BY nazwa, numer_ewidencyjny""", [worker['oddzial_adres']])
     if error:
         print(error)
         flash('Nie udało się pobrać dostępnego sprzętu')
@@ -46,7 +46,8 @@ def przypisz_sprzet_pracownik(pesel):
     SELECT id_przydzialu, DATE_FORMAT(data_przydzialu, '%d.%m.%Y')
     FROM Przypisanie
     WHERE pracownik_pesel = %s
-    AND data_zwrotu IS NULL;""", [worker['pesel']])
+    AND data_zwrotu IS NULL
+    ORDER BY id_przydzialu""", [worker['pesel']])
     if error:
         print(error)
         flash('Nie udało się pobrać obecnie istniejących przypisań')
@@ -149,7 +150,7 @@ def przypisz_sprzet_biuro(numer_biura):
     FROM Sprzet
     JOIN Magazyn M on Sprzet.magazyn_numer = M.numer
     WHERE oddzial_adres = %s
-    ORDER BY numer_ewidencyjny""", [office['oddzial_adres']])
+    ORDER BY nazwa, numer_ewidencyjny""", [office['oddzial_adres']])
     if error:
         print(error)
         flash('Nie udało się pobrać dostępnego sprzętu')
@@ -165,7 +166,8 @@ def przypisz_sprzet_biuro(numer_biura):
     SELECT id_przydzialu, DATE_FORMAT(data_przydzialu, '%d.%m.%Y')
     FROM Przypisanie
     WHERE biuro_numer = %s
-    AND data_zwrotu IS NULL;""", [office['numer']])
+    AND data_zwrotu IS NULL
+    ORDER BY id_przydzialu""", [office['numer']])
     if error:
         print(error)
         flash('Nie udało się pobrać obecnie istniejących przypisań')
@@ -268,12 +270,13 @@ def przypisz_oprogramowanie(numer_ewidencyjny):
 
     available_software, error = DBC().get_instance().execute_query_fetch("""
     SELECT numer_ewidencyjny, nazwa, producent, DATE_FORMAT(data_zakupu, '%d.%m.%Y'), 
-    DATE_FORMAT(data_wygasniecia, '%d.%m.%Y'), ilosc_licencji
+    COALESCE(DATE_FORMAT(data_wygasniecia, '%d.%m.%Y'), 'Nie wygasa'), COALESCE(ilosc_licencji, 'Nieograniczona')
     FROM Oprogramowanie
     WHERE (ilosc_licencji IS NULL
     OR IleWolnychLicencji(numer_ewidencyjny) > 0)
     AND (data_wygasniecia IS NULL
-    OR data_wygasniecia > CURRENT_DATE)""")
+    OR data_wygasniecia > CURRENT_DATE)
+    ORDER BY nazwa, numer_ewidencyjny""")
     if error:
         flash('Wystąpił błąd podczas pobierania dostępnego oprogramowania')
         return redirect(url_for('show_info.pokaz_sprzet_info', numer_ewidencyjny=numer_ewidencyjny))
@@ -282,7 +285,17 @@ def przypisz_oprogramowanie(numer_ewidencyjny):
         return redirect(url_for('show_info.pokaz_sprzet_info', numer_ewidencyjny=numer_ewidencyjny))
     available_software_data = make_dictionaries_list(
         ['numer', 'nazwa', 'producent', 'data_zakupu', 'data_wygasniecia', 'liczba_licencji'], available_software)
-
+    # Exclude already installed software
+    current_software, error = DBC().get_instance().execute_query_fetch("""
+    SELECT oprogramowanie_numer
+    FROM OprogramowanieNaSprzecie
+    WHERE sprzet_numer = %s""", [numer_ewidencyjny])
+    if current_software:
+        current_software_id = [x[0] for x in current_software]
+        available_software_data = [x for x in available_software_data if x['numer'] not in current_software_id]
+    if not available_software_data:
+        flash('Nie znaleziono żadnej dostępnej kopii oprogramowania')
+        return redirect(url_for('show_info.pokaz_sprzet_info', numer_ewidencyjny=numer_ewidencyjny))
     for i in range(len(available_software_data)):
         if not available_software_data[i].get('data_wygasniecia'):
             available_software_data[i]['data_wygasniecia'] = 'Nie wygasa'

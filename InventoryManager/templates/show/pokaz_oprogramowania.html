@@ -7,13 +7,18 @@
     <form class="edit_mode_element" action="{{ url_for('add.dodaj_oprogramowanie') }}">
         <input type="submit" value="Dodaj oprogramowanie"/>
     </form>
+    <span title="Oznacza dezinstalację ze sprzętu każdego wygasłego oprogramowania">
+    <form class="edit_mode_element" action="{{ url_for('deassign.odinstaluj_wygasle_oprogramowanie') }}">
+        <input type="submit" value="Oznacz dezinstalację wygasłego oprogramowania"/>
+    </form>
+    </span>
     <div class="table-container">
         <table>
             <thead>
             <tr>
-                <td>Numer ewidencyjny</td>
                 <td>Nazwa</td>
                 <td>Producent</td>
+                <td>Numer ewidencyjny</td>
                 <td>Data zakupu</td>
                 <td>Data wygaśnięcia</td>
                 <td>Ilość licencji</td>
@@ -21,9 +26,9 @@
             </thead>
             {% for oprogramowanie in oprogramowania %}
                 <tr>
-                    <td>{{ oprogramowanie['numer_ewidencyjny'] }}</td>
                     <td>{{ oprogramowanie['nazwa'] }}</td>
                     <td>{{ oprogramowanie['producent'] }}</td>
+                    <td>{{ oprogramowanie['numer_ewidencyjny'] }}</td>
                     <td>{{ oprogramowanie['data_zakupu'] }}</td>
                     <td>{{ oprogramowanie['data_wygasniecia'] }}</td>
                     <td>{{ oprogramowanie['ilosc_licencji'] }}</td>
@@ -35,7 +40,8 @@
                     </td>
                     <td class="edit_mode_element">
                         <form>
-                            <input type="submit" value="Edytuj" formaction="TODO_KAMIL">
+                            <input type="submit" value="Edytuj" formaction="{{ url_for('edit.edytuj_oprogramowanie',
+                            numer_ewidencyjny=oprogramowanie['numer_ewidencyjny']) }}">
                         </form>
                     </td>
                 </tr>

@@ -135,7 +135,8 @@ def zwroc_oprogramowanie(numer_ewidencyjny):
         DATE_FORMAT(data_wygasniecia, '%d.%m.%Y'), ilosc_licencji
         FROM Oprogramowanie
         JOIN OprogramowanieNaSprzecie ONS on Oprogramowanie.numer_ewidencyjny = ONS.oprogramowanie_numer
-        WHERE ONS.sprzet_numer = %s""", [hardware_data['numer']])
+        WHERE ONS.sprzet_numer = %s
+        ORDER BY nazwa, numer_ewidencyjny""", [hardware_data['numer']])
     if error:
         flash('Wystąpił błąd podczas pobierania dostępnego oprogramowania')
         return redirect(url_for('show_info.pokaz_sprzet_info', numer_ewidencyjny=numer_ewidencyjny))
@@ -228,3 +229,14 @@ def wykonaj_odbierz_prawo_dostepu(pesel, id_karty):
                 return redirect(url_for('deassign.odbierz_prawo_dostepu', pesel=pesel, id_karty=id_karty))
         flash('Uprawnienia zostały pomyślnie odebrane')
     return redirect(url_for('show_info.pokaz_pracownik_info', pesel=pesel))
+
+
+@deassign.route('/odinstaluj/wygasle_oprogramowanie')
+def odinstaluj_wygasle_oprogramowanie():
+    error = DBC().get_instance().execute_query_add_edit_delete("""CALL OdinstalujWygasleOprogramowanie()""")
+    if error:
+        print(error)
+        flash('Wystąpił błąd')
+    else:
+        flash('Pomyślnie oznaczono wygasłe oprogramowanie jako odinstalowane')
+    return redirect(url_for('show.oprogramowania'))
