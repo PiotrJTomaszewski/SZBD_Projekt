@@ -8,10 +8,10 @@ class DatabaseConnector:
 
     def __init__(self):
         if not DatabaseConnector.instance:
-            print('Creating new connection instance')
+            # print('Creating new connection instance')
             DatabaseConnector.instance = DatabaseConnector.__DatabaseConnectorSingleton()
-        else:
-            print('Using existing connection instance')
+        # else:
+            # print('Using existing connection instance')
 
     def get_instance(self):
         return DatabaseConnector.instance
